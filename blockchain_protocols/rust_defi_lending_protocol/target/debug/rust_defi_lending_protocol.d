@@ -1,0 +1,1 @@
+D:\my_dev_projects\blockchain_protocols\rust_defi_lending_protocol\target\debug\rust_defi_lending_protocol.exe: D:\my_dev_projects\blockchain_protocols\rust_defi_lending_protocol\src\main.rs

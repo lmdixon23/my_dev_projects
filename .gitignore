@@ -1,0 +1,33 @@
+# Ignore private projects and data
+websites/
+.vscode/
+
+# Ignore model files
+*.keras
+*.h5
+
+# Ignore dataset directories
+ml_expert_portfolio/image_captioning_cnn_rnn_tpu/datasets/val2017/
+
+# Ignore Python cache files
+ml_expert_portfolio/image_captioning_cnn_rnn_tpu/__pycache__/
+*.py[cod]
+*$py.class
+
+# Ignore virtual environment directories
+ml_expert_portfolio/image_captioning_cnn_rnn_tpu/venv/
+.env/
+.venv/
+
+# Ignore Jupyter Notebook checkpoints
+ml_expert_portfolio/image_captioning_cnn_rnn_tpu/.ipynb_checkpoints/
+
+# Ignore any log files and temporary files
+*.log
+*.tmp
+*.bak
+*.swp
+
+# Ignore system-specific files
+.DS_Store
+Thumbs.db

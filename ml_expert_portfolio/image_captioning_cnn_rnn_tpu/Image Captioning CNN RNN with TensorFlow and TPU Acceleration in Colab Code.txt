@@ -1,0 +1,59 @@
+import tensorflow as tf
+import numpy as np
+from google.colab import drive
+from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.optimizers import Adam
+import nltk
+
+# Import your custom model function
+from model import create_model  # Adjust the import based on your project structure
+
+# Optional: Download NLTK resources if you need them
+nltk.download('punkt')
+
+# Mount Google Drive to /content/gdrive
+drive.mount('/content/gdrive')
+
+# Project directory
+project_dir = '/content/gdrive/MyDrive/ml_expert_portfolio/image_captioning_cnn_rnn'
+
+# Verify if TPU is available
+try:
+    tpu = tf.distribute.cluster_resolver.TPUClusterResolver()  # TPU detection
+    if tpu:  # Check if TPU is detected
+        print('Running on TPU ', tpu.cluster_spec().as_dict())  # Print the entire dictionary
+    else:
+        print('ERROR: Not connected to a TPU runtime')
+except ValueError:
+    print('ERROR: Not connected to a TPU runtime')
+
+# Connect to TPU and initialize the system (only if TPU is detected)
+if tpu:
+    tf.config.experimental_connect_to_cluster(tpu)
+    tf.tpu.experimental.initialize_tpu_system(tpu)
+    strategy = tf.distribute.TPUStrategy(tpu)
+
+    # Example: Load data and train model
+    vocab_size = 10000
+    max_length = 50
+    train_images = np.random.rand(1000, 224, 224, 3)
+    train_captions = np.random.randint(1, vocab_size, (1000, max_length))
+    train_labels = to_categorical(train_captions, num_classes=vocab_size)
+
+    def load_data(images, captions, labels):
+        dataset = tf.data.Dataset.from_tensor_slices(((images, captions), labels))
+        dataset = dataset.shuffle(buffer_size=1024).batch(128).prefetch(tf.data.experimental.AUTOTUNE)
+        return dataset
+
+    train_dataset = load_data(train_images, train_captions, train_labels)
+
+    with strategy.scope():
+        model = create_model(vocab_size, max_length)
+        model.compile(optimizer=Adam(), loss='categorical_crossentropy')
+
+    model.fit(train_dataset, epochs=20, validation_data=train_dataset)
+
+    # Save the model to Google Drive
+    model.save(f'{project_dir}/saved_model_tpu.keras')
+else:
+    print('TPU not available, training will not proceed.')

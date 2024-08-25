@@ -1,0 +1,1 @@
+D:\my_dev_projects\blockchain_protocols\rust_cross_chain_atomic_bridge\target\debug\rust_cross_chain_atomic_bridge.exe: D:\my_dev_projects\blockchain_protocols\rust_cross_chain_atomic_bridge\src\main.rs

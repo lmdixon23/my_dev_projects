@@ -1,0 +1,29 @@
+# Ignore model files
+*.keras
+*.h5
+
+# Ignore dataset directories
+datasets/val2017/
+
+# Ignore Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Ignore virtual environment directories
+venv/
+.env/
+.venv/
+
+# Ignore Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Ignore any log files and temporary files
+*.log
+*.tmp
+*.bak
+*.swp
+
+# Ignore system-specific files
+.DS_Store
+Thumbs.db
