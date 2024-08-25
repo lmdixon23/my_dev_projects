@@ -45,7 +45,7 @@ For further inquiries or partnership opportunities, please contact lmdixon23@gma
 ## Getting Started
 
 ### Downloads
-**Datasets**: [COCO Dataset, Val2017 images](http://images.cocodataset.org/zips/val2017.zip)
+- **Datasets**: [COCO Dataset, Val2017 images](http://images.cocodataset.org/zips/val2017.zip)
 - **Pre-trained Model**: [saved_model_tpu.keras](https://drive.google.com/file/d/1-4cxaETjo6f1h9AHolJzcbzxssDeg_yW/view?usp=drive_link)
 
 
