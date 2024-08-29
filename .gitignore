@@ -7,27 +7,68 @@ websites/
 *.h5
 
 # Ignore dataset directories
-ml_expert_portfolio/image_captioning_cnn_rnn_tpu/datasets/val2017/
+**/datasets/**
 
 # Ignore Python cache files
-ml_expert_portfolio/image_captioning_cnn_rnn_tpu/__pycache__/
+**/__pycache__/
 *.py[cod]
 *$py.class
 
 # Ignore virtual environment directories
-ml_expert_portfolio/image_captioning_cnn_rnn_tpu/venv/
 .env/
 .venv/
+**/.env
+**/venv/
+
+# Ignore IDE files
+.idea/
+*.iml
+*.iws
+*.ipr
+.project
+.classpath
+.csettings/
+.settings/
+nbproject/
+
+# Ignore build and distribution directories
+dist/
+build/
+target/
+
+# Ignore dependency directories and files
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+Pipfile.lock
+poetry.lock
+package-lock.json
+yarn.lock
 
 # Ignore Jupyter Notebook checkpoints
-ml_expert_portfolio/image_captioning_cnn_rnn_tpu/.ipynb_checkpoints/
+**/.ipynb_checkpoints/
 
-# Ignore any log files and temporary files
+# Ignore log files and temporary files
 *.log
 *.tmp
 *.bak
 *.swp
+*~
+*.orig
+*.old
+*.swo
 
 # Ignore system-specific files
 .DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Trash-*
 Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Additional ignore rules
+api_projects/nlp_text_summarization_api/.env
