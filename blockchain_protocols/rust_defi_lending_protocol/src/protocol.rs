@@ -149,6 +149,9 @@ impl Protocol {
         principal: u128,
     ) -> Result<u64, LendingError> {
         let required = principal * INITIAL_COLLATERAL_RATIO_BPS / BPS_DENOM;
+        // Compute the rate BEFORE taking a mutable borrow of `self.users`,
+        // since current_rate_bps() needs an immutable borrow of `self`.
+        let rate = self.current_rate_bps();
         let u = self
             .users
             .get_mut(user_id)
@@ -160,7 +163,6 @@ impl Protocol {
                 need: required,
             });
         }
-        let rate = self.current_rate_bps();
         let loan_id = self.next_loan_id;
         self.next_loan_id += 1;
 

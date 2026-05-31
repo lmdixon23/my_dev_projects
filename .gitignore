@@ -187,3 +187,6 @@ ai_engineering/rag_assistant/index/
 
 # Saved model artifacts (re-downloadable / re-trainable)
 **/saved_models/
+
+# Archived BI — kept locally, not published
+archive/

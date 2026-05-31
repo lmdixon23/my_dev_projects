@@ -194,13 +194,16 @@ class KLToAnchor(OmegaBase):
         return pi / np.sum(pi)
 
     def value(self, q: np.ndarray) -> float:
-        mu = self._resolve_anchor(q)
-        scaled = q / self.beta
-        m = np.max(scaled + np.log(np.clip(mu, EPS, 1.0)))
-        # Omega_star(q) = beta * log sum mu_a * exp(q_a / beta)
-        return float(self.beta * (m + np.log(
-            np.sum(np.clip(mu, EPS, 1.0) * np.exp(scaled + np.log(np.clip(mu, EPS, 1.0)) - m))
-        )))
+        # Omega_star(q) = beta * log sum_a mu_a * exp(q_a / beta).
+        # Implement as a stable log-sum-exp over t_a = q_a/beta + log mu_a,
+        # so Omega_star = beta * logsumexp(t). (A previous version multiplied
+        # by mu a second time outside the exp, double-counting the anchor and
+        # only canceling for the uniform mu — caught by the conjugate-identity
+        # test at beta=0.1 with a non-uniform anchor.)
+        mu = np.clip(self._resolve_anchor(q), EPS, 1.0)
+        t = q / self.beta + np.log(mu)
+        m = np.max(t)
+        return float(self.beta * (m + np.log(np.sum(np.exp(t - m)))))
 
     def omega(self, pi: np.ndarray) -> float:
         if pi.size == 0:

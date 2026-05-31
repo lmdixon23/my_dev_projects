@@ -18,7 +18,7 @@ A working portfolio of production-shaped projects across AI engineering, machine
 
 - **For AI / ML engineering roles**, open [`ai_engineering/rag_assistant/README.md`](./ai_engineering/rag_assistant/) and [`ai_engineering/rlvr/grpo_minimal/README.md`](./ai_engineering/rlvr/grpo_minimal/) — the RAG system and the GRPO Figure-5 reproduction are the two highest-density pieces.
 - **For systems / Rust / crypto roles**, open [`blockchain_protocols/rust_cross_chain_atomic_bridge/README.md`](./blockchain_protocols/rust_cross_chain_atomic_bridge/) — HTLC commit/reveal with constant-time comparison, full test suite.
-- **For data engineering / BI roles**, open [`data_engineering/sales_data_etl_ssis/README.md`](./data_engineering/sales_data_etl_ssis/) for the SSIS + Python-reference ETL, or the archived Power BI work under [`archive/business_intelligence/`](./archive/business_intelligence/).
+- **For data engineering roles**, open [`data_engineering/sales_data_etl_ssis/README.md`](./data_engineering/sales_data_etl_ssis/) for the SSIS package + cross-platform Python-reference ETL.
 - **For everything else**, the [Featured Projects](#featured-projects) section below has every project grouped by domain.
 
 ## Why this repository matters
@@ -34,7 +34,6 @@ This is not a collection of tutorial-fork notebooks. Each project demonstrates a
 | [`blockchain_protocols/`](./blockchain_protocols/) | Rust protocol implementations | 6 |
 | [`data_engineering/`](./data_engineering/) | ETL, warehousing, analytics | 1 |
 | [`network_security/`](./network_security/) | Cloud security infrastructure | 1 |
-| [`archive/business_intelligence/`](./archive/business_intelligence/) | Power BI reports and data models (archived — earlier work) | 7 |
 | [`ai_playgrounds/`](./ai_playgrounds/) | Twelve single-file HTML+JS interactive applets for teaching core AI ideas | 12 |
 | [`prototypes/`](./prototypes/) | Sketches and experiments, intentionally below portfolio bar | varies |
 
