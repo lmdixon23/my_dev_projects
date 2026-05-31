@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Visualizing Convolutions</title>
+<meta name="description" content="Interactive visualization of how CNNs see. Draw on a 32x32 canvas, pick a 3x3 filter, watch the convolution detect edges, blur, sharpen, or emboss pixel by pixel.">
+<style>
+  :root {
+    --bg: #fefdf8; --fg: #1f2937; --muted: #6b7280; --accent: #0891b2;
+    --card: #fff; --border: #e5e7eb; --soft: #f9fafb;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'Georgia', serif; background: var(--bg); color: var(--fg); line-height: 1.6; }
+  .page-header { background: var(--card); border-bottom: 1px solid var(--border);
+                  padding: 16px 24px; display: flex; align-items: center; justify-content: space-between;
+                  flex-wrap: wrap; gap: 12px; }
+  .page-header h1 { margin: 0; font-size: 1.5rem; }
+  .page-header .back { color: var(--accent); text-decoration: none; font-size: 0.9rem;
+                       font-family: -apple-system, system-ui, sans-serif; }
+  .header-tools { display: flex; gap: 8px; align-items: center;
+                   font-family: -apple-system, system-ui, sans-serif; font-size: 0.85rem; }
+  .lang-switch { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  .lang-switch button { padding: 4px 10px; background: white; color: var(--muted);
+                          border: none; cursor: pointer; font: inherit; font-size: 0.78rem; }
+  .lang-switch button.active { background: var(--accent); color: white; font-weight: 600; }
+  .header-reset { padding: 6px 12px; background: white; color: var(--fg);
+                    border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
+                    font: inherit; font-size: 0.82rem; }
+  .header-reset:hover { background: var(--soft); }
+  .tldr { position: fixed; top: 80px; right: 24px; max-width: 250px;
+           background: var(--accent); color: white;
+           border-radius: 8px; padding: 14px 16px; font-size: 0.88rem; font-weight: 500;
+           font-family: -apple-system, system-ui, sans-serif; line-height: 1.45;
+           z-index: 50; box-shadow: 0 6px 20px rgba(0,0,0,0.18); }
+  .tldr strong { color: rgba(255,255,255,0.85); font-size: 0.72rem; letter-spacing: 0.08em;
+                  text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 6px; }
+  @media (max-width: 1100px) { .tldr { display: none; } }
+  .interactive { background: var(--card); padding: 24px; border-bottom: 1px solid var(--border); }
+  .interactive-inner { max-width: 880px; margin: 0 auto;
+                         font-family: -apple-system, system-ui, sans-serif; }
+  .control-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+                  margin-bottom: 14px; font-size: 0.88rem; }
+  .control-row label { color: var(--muted); }
+  .control-row select { padding: 6px 10px; border: 1px solid var(--border);
+                          border-radius: 6px; font: inherit; background: white; }
+  .control-row .step-btn { padding: 7px 14px; background: white; color: var(--fg);
+                            border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
+                            font: inherit; font-size: 0.85rem; }
+  .canvas-pair { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px;
+                   align-items: start; margin-bottom: 14px; }
+  .canvas-card { background: white; border: 1px solid var(--border);
+                   border-radius: 8px; padding: 10px; text-align: center; }
+  .canvas-card h3 { margin: 0 0 6px; font-size: 0.85rem; color: var(--accent);
+                      text-transform: uppercase; letter-spacing: 0.05em; }
+  canvas { display: block; margin: 0 auto; background: white;
+            border: 1px solid var(--border); border-radius: 4px; image-rendering: pixelated; }
+  .kernel-card { background: var(--soft); border: 1px solid var(--border);
+                   border-radius: 8px; padding: 12px; align-self: center;
+                   display: flex; flex-direction: column; gap: 8px; min-width: 160px; }
+  .kernel-card .lbl { font-size: 0.78rem; color: var(--muted);
+                        text-transform: uppercase; letter-spacing: 0.05em; text-align: center; }
+  .kernel { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+  .kernel input { padding: 6px; text-align: center; font-family: monospace;
+                    font-size: 0.85rem; border: 1px solid var(--border);
+                    border-radius: 4px; background: white; color: var(--fg); width: 100%; }
+  .opt-row { display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.85rem;
+              margin-bottom: 14px; font-family: -apple-system, system-ui, sans-serif; }
+  .jump-link { display: inline-block; margin-top: 14px;
+                padding: 6px 14px; border: 1px solid var(--border); border-radius: 999px;
+                background: white; color: var(--accent); text-decoration: none;
+                font-family: -apple-system, system-ui, sans-serif; font-size: 0.82rem;
+                font-weight: 600; }
+  .jump-link:hover { background: var(--soft); }
+  .jump-anchor { text-align: center; }
+  .essay { max-width: 720px; margin: 0 auto; padding: 40px 24px 80px; font-size: 1.05rem; }
+  .essay h2 { font-size: 1.5rem; margin-top: 36px; margin-bottom: 12px; color: var(--accent); }
+  .essay h3 { font-size: 1.15rem; margin-top: 24px; margin-bottom: 8px; }
+  .essay .lede { font-size: 1.15rem; color: #374151; }
+  .essay .aha { background: #cffafe; border-left: 4px solid #0891b2;
+                 padding: 12px 18px; margin: 18px 0; border-radius: 0 6px 6px 0;
+                 font-style: italic; color: #155e75; }
+  .essay code { background: var(--soft); padding: 1px 6px; border-radius: 4px;
+                 font-family: 'SF Mono', Consolas, monospace; font-size: 0.92em; }
+  .essay ul li { margin-bottom: 6px; }
+  .essay .for-teachers { background: var(--soft); border: 1px solid var(--border);
+                          border-radius: 8px; padding: 20px 24px; margin-top: 36px;
+                          font-family: -apple-system, system-ui, sans-serif; font-size: 0.95rem; }
+  .essay .for-teachers h3 { font-family: -apple-system, system-ui, sans-serif;
+                              color: var(--accent); font-size: 0.9rem;
+                              text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; }
+  }
+  /* === dark mode === */
+  body.dark-mode {
+    --bg: #0f172a; --fg: #e2e8f0; --muted: #94a3b8;
+    --card: #1e293b; --border: #334155; --soft: #1e293b;
+  }
+  body.dark-mode .essay .lede { color: #cbd5e1; }
+  body.dark-mode .essay .for-teachers { background: #0f172a; }
+  body.dark-mode canvas { filter: brightness(0.92); }
+  body.dark-mode .header-reset,
+  body.dark-mode .lang-switch button:not(.active),
+  body.dark-mode .header-theme,
+  body.dark-mode .control-row select,
+  body.dark-mode .control-row .step-btn,
+  body.dark-mode .canvas-card,
+  body.dark-mode .kernel-card,
+  body.dark-mode .kernel input { background: var(--card); color: var(--fg); }
+  .header-theme { padding: 6px 10px; background: white; color: var(--fg);
+                    border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
+                    font-size: 1rem; line-height: 1; font-family: inherit; }
+  .header-theme:hover { background: var(--soft); }
+  .header-png { padding: 6px 10px; background: white; color: var(--fg);
+                  border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
+                  font-size: 0.85rem; font-family: inherit; }
+  .header-png:hover { background: var(--soft); }
+  body.dark-mode .header-png { background: var(--card); color: var(--fg); }
+  /* embed mode. Strip chrome so the applet fits cleanly in an LMS iframe. */
+  body.embed-mode .page-header,
+  body.embed-mode aside.tldr,
+  body.embed-mode article.essay,
+  body.embed-mode .jump-anchor { display: none !important; }
+  body.embed-mode .interactive { padding: 12px; border-bottom: none; }
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <h1 data-i18n="title">Visualizing Convolutions</h1>
+  <div class="header-tools">
+    <button class="header-png" id="shareLink"
+            title="Copy a URL that re-opens this layer mode / image / kernel choice in another browser.">🔗 Share</button>
+    <button class="header-png" id="embedLink"
+            title="Copy an <iframe> snippet for embedding in an LMS. Strips header/essay so only the interactive area shows.">📎 Embed</button>
+    <button class="header-png" id="exportPng"
+            title="Download the convolution output as a PNG.">📷 PNG</button>
+    <button class="header-theme" id="themeToggle" aria-label="Toggle dark or light theme"
+            title="Toggle dark / light theme (saved across all playgrounds).">🌙</button>
+    <button class="header-reset" id="hardReset" data-i18n="reset-all"
+            title="Reset to default: cross input, Sobel-X edge kernel, abs ON, ReLU OFF.">↺ Reset all</button>
+    <div class="lang-switch" title="Switch interface language">
+      <button data-lang="en" class="active">EN</button>
+      <button data-lang="zh">中文</button>
+    </div>
+    <a class="back" href="../../" data-i18n="back-link">← All playgrounds</a>
+  </div>
+</header>
+
+<aside class="tldr">
+  <strong data-i18n="tldr-strong">The big idea</strong>
+  <span data-i18n="tldr-body">A 3×3 grid of numbers, slid across an image and multiplied + summed at every position. That's a "convolution." It's how CNNs turn raw pixels into edges.</span>
+</aside>
+
+<section class="interactive">
+<div class="interactive-inner">
+
+  <div class="control-row">
+    <label data-i18n="layer-label">Layer mode:</label>
+    <select id="layerSel" data-i18n-title="layer-sel-title" title="Single conv = current (one 3×3 kernel). Conv + max-pool = adds p×p pooling. Conv → conv = stacks two 3×3 kernels (receptive field becomes 5×5).">
+      <option value="conv" selected data-i18n="layer-conv">Single conv (one kernel)</option>
+      <option value="conv-pool" data-i18n="layer-pool">Conv + max-pool (downsamples)</option>
+      <option value="conv-conv" data-i18n="layer-stack">Conv → conv (stacks two kernels)</option>
+    </select>
+    <!-- pool size slider. Active when layer mode = conv-pool. p=stride. -->
+    <span id="poolControls" style="display:none; margin-left:10px;">
+      <label data-i18n="pool-label" data-i18n-title="pool-title"
+             title="Window size p of the max-pool operation (stride = p, non-overlapping). Larger p downsamples more aggressively: p=2 → 16×16, p=4 → 8×8, p=8 → 4×4.">Pool size p:</label>
+      <select id="poolSize" style="padding:2px 4px; font:inherit;">
+        <option value="2" selected>2×2 → 16×16</option>
+        <option value="4">4×4 → 8×8</option>
+        <option value="8">8×8 → 4×4</option>
+      </select>
+    </span>
+    <!-- stride + padding (single-conv mode only). -->
+    <span id="strideControls" style="margin-left:10px;">
+      <label data-i18n="stride-label" data-i18n-title="stride-title"
+             title="Convolution stride: how far the 3×3 window moves between samples. Stride 2 halves the output dimension.">Stride:</label>
+      <select id="convStride" style="padding:2px 4px; font:inherit;">
+        <option value="1" selected>1</option>
+        <option value="2">2</option>
+        <option value="4">4</option>
+      </select>
+      <label data-i18n="pad-label" data-i18n-title="pad-title" style="margin-left:6px;"
+             title="Padding: 'same' edge-clamps so output stays the same size (with stride 1). 'valid' applies the kernel only where the full 3×3 window fits, shrinking the output by 2 cells.">Padding:</label>
+      <select id="convPad" style="padding:2px 4px; font:inherit;">
+        <option value="same" selected data-i18n="pad-same">same (edge-clamp)</option>
+        <option value="valid" data-i18n="pad-valid">valid (no padding)</option>
+      </select>
+    </span>
+  </div>
+  <div class="control-row">
+    <label data-i18n="input-label">Input:</label>
+    <select id="presetSel" data-i18n-title="preset-sel-title" title="Pick a preset image or 'Draw' to make your own.">
+      <option value="draw" data-i18n="pre-draw">Draw your own</option>
+      <option value="cross" selected data-i18n="pre-cross">Cross</option>
+      <option value="circle" data-i18n="pre-circle">Circle outline</option>
+      <option value="diag" data-i18n="pre-diag">Diagonal stripes</option>
+      <option value="checker" data-i18n="pre-checker">Checkerboard</option>
+      <option value="text" data-i18n="pre-text">AI text</option>
+    </select>
+    <button class="step-btn" id="clearBtn" data-i18n="clear-btn" data-i18n-title="clear-btn-title" title="Clear the input canvas so you can draw your own.">Clear canvas</button>
+    <label data-i18n="kernel-label">Kernel preset:</label>
+    <select id="kernelSel" data-i18n-title="kernel-sel-title" title="Choose a standard 3×3 filter. Edit cells below to make a custom one.">
+      <option value="identity" data-i18n="k-identity">Identity</option>
+      <option value="edgeX" selected data-i18n="k-edgeX">Sobel-X (vertical edges)</option>
+      <option value="edgeY" data-i18n="k-edgeY">Sobel-Y (horizontal edges)</option>
+      <option value="lapl" data-i18n="k-lapl">Laplacian (all edges)</option>
+      <option value="blur" data-i18n="k-blur">Blur (3×3 box)</option>
+      <option value="gauss" data-i18n="k-gauss">Gaussian blur</option>
+      <option value="sharp" data-i18n="k-sharp">Sharpen</option>
+      <option value="emboss" data-i18n="k-emboss">Emboss</option>
+      <option value="custom" data-i18n="k-custom">Custom</option>
+    </select>
+  </div>
+
+  <div class="opt-row">
+    <label title="Show the absolute value of the convolution output. Useful for edge filters that produce both positive and negative numbers.">
+      <input type="checkbox" id="absChk" checked> <span data-i18n="opt-abs">Take absolute value</span></label>
+    <label title="Clip negative values to zero — the ReLU non-linearity used in CNNs.">
+      <input type="checkbox" id="reluChk"> <span data-i18n="opt-relu">Apply ReLU (clip ≥ 0)</span></label>
+  </div>
+
+  <div class="canvas-pair">
+    <div class="canvas-card">
+      <h3 data-i18n="input-h3">Input</h3>
+      <canvas id="input" width="320" height="320" role="img"
+              aria-label="32 by 32 input image. Click and drag to draw."></canvas>
+      <p style="color:var(--muted); font-size:0.78rem; margin-top:4px; font-style:italic;" data-i18n="input-hint">
+        Click and drag to draw.
+      </p>
+    </div>
+    <div class="kernel-card">
+      <span class="lbl" id="kernel1Label" data-i18n="k1-label">3×3 kernel</span>
+      <div class="kernel" id="kernelGrid">
+        <input type="number" step="0.1" value="0">
+        <input type="number" step="0.1" value="0">
+        <input type="number" step="0.1" value="0">
+        <input type="number" step="0.1" value="0">
+        <input type="number" step="0.1" value="0">
+        <input type="number" step="0.1" value="0">
+        <input type="number" step="0.1" value="0">
+        <input type="number" step="0.1" value="0">
+        <input type="number" step="0.1" value="0">
+      </div>
+      <span class="lbl" data-i18n="k-edit-hint">Edit any cell → kernel becomes "custom"</span>
+      <!-- Second kernel for conv → conv mode. Hidden otherwise. -->
+      <div id="kernel2Section" style="display:none; margin-top:8px; padding-top:8px; border-top:1px solid var(--border);">
+        <span class="lbl" data-i18n="k2-label">2nd 3×3 kernel (after first conv)</span>
+        <div class="kernel" id="kernelGrid2">
+          <input type="number" step="0.1" value="-1">
+          <input type="number" step="0.1" value="-2">
+          <input type="number" step="0.1" value="-1">
+          <input type="number" step="0.1" value="0">
+          <input type="number" step="0.1" value="0">
+          <input type="number" step="0.1" value="0">
+          <input type="number" step="0.1" value="1">
+          <input type="number" step="0.1" value="2">
+          <input type="number" step="0.1" value="1">
+        </div>
+        <span class="lbl" data-i18n="k2-hint">Default = Sobel-Y. Stacks with kernel 1 above to give a 5×5 effective receptive field.</span>
+      </div>
+    </div>
+    <div class="canvas-card">
+      <h3 data-i18n="output-h3">Output (after convolution)</h3>
+      <canvas id="output" width="320" height="320" role="img"
+              aria-label="Output of the convolution pipeline applied to the input image."></canvas>
+      <p style="color:var(--muted); font-size:0.78rem; margin-top:4px; font-style:italic;" data-i18n="output-hint">
+        What the CNN "sees."
+      </p>
+    </div>
+  </div>
+
+  <!-- sliding-window inspector. Click any output cell to see the 3×3 input
+       window + dot-product math that produced it. -->
+  <div id="windowInspector" style="margin-top:12px; padding:12px 16px; background:var(--soft); border:1px solid var(--border); border-radius:8px;">
+    <h3 style="margin:0 0 8px; font-size:0.95rem; color:var(--accent);" data-i18n="window-h3">🔍 Sliding-window inspector</h3>
+    <p style="margin:0 0 8px; color:var(--muted); font-size:0.82rem;" data-i18n="window-hint">
+      Click any cell on the output canvas to see the 3×3 input window centered on it, the kernel, and the dot-product math that produced that pixel.
+    </p>
+    <div id="windowMath" style="font-family:ui-monospace,monospace; font-size:0.85rem; line-height:1.6; color:var(--fg);">
+      <span style="color:var(--muted); font-style:italic;" data-i18n="window-empty">(click on the output canvas to inspect a cell)</span>
+    </div>
+  </div>
+
+  <!-- multi-channel (RGB) demo.
+       Shows that real CNNs apply the kernel to each channel and sum the results. -->
+  <details style="margin-top:12px;">
+    <summary style="cursor:pointer; padding:8px 12px; background:var(--soft); border:1px solid var(--border); border-radius:6px; font-family:-apple-system,system-ui,sans-serif; font-size:0.88rem; color:var(--accent); font-weight:600;">
+      <span data-i18n="rgb-summary">🎨 Multi-channel demo (RGB → 1 output)</span>
+    </summary>
+    <div style="margin-top:10px; padding:12px; background:var(--card); border:1px solid var(--border); border-radius:6px;">
+      <div style="margin-bottom:8px;">
+        <label data-i18n="rgb-preset" style="font-family:-apple-system,system-ui,sans-serif; font-size:0.85rem;">RGB image:</label>
+        <select id="rgbPresetSel" data-i18n-title="rgb-preset-title" title="Pick a synthetic RGB image. Real CNNs convolve a separate kernel over each channel then sum the results — here we use your current kernel for all three channels.">
+          <option value="rgb-bars" selected data-i18n="rgb-bars">Color bars (R | G | B)</option>
+          <option value="rgb-diag" data-i18n="rgb-diag">Diagonal gradient</option>
+          <option value="rgb-disc" data-i18n="rgb-disc">Red disc on blue field</option>
+        </select>
+      </div>
+      <div style="color:var(--muted); font-size:0.78rem; margin-bottom:10px;" data-i18n="rgb-hint">
+        Each channel is convolved with your current kernel independently. The final output is the sum of the three channel outputs (just like a single 3×3×3 kernel in PyTorch).
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:10px;">
+        <div><div style="font-family:ui-monospace,monospace; font-size:0.78rem; color:var(--muted); margin-bottom:2px;">RGB input</div><canvas id="rgbInputCv" width="120" height="120" style="border:1px solid var(--border); image-rendering:pixelated;"></canvas></div>
+        <div><div style="font-family:ui-monospace,monospace; font-size:0.78rem; color:#dc2626; margin-bottom:2px;">R channel</div><canvas id="rgbRcv" width="120" height="120" style="border:1px solid var(--border); image-rendering:pixelated;"></canvas></div>
+        <div><div style="font-family:ui-monospace,monospace; font-size:0.78rem; color:#16a34a; margin-bottom:2px;">G channel</div><canvas id="rgbGcv" width="120" height="120" style="border:1px solid var(--border); image-rendering:pixelated;"></canvas></div>
+        <div><div style="font-family:ui-monospace,monospace; font-size:0.78rem; color:#2563eb; margin-bottom:2px;">B channel</div><canvas id="rgbBcv" width="120" height="120" style="border:1px solid var(--border); image-rendering:pixelated;"></canvas></div>
+        <div><div style="font-family:ui-monospace,monospace; font-size:0.78rem; color:var(--muted); margin-bottom:2px;">R out</div><canvas id="rgbRoutCv" width="120" height="120" style="border:1px solid var(--border); image-rendering:pixelated;"></canvas></div>
+        <div><div style="font-family:ui-monospace,monospace; font-size:0.78rem; color:var(--muted); margin-bottom:2px;">G out</div><canvas id="rgbGoutCv" width="120" height="120" style="border:1px solid var(--border); image-rendering:pixelated;"></canvas></div>
+        <div><div style="font-family:ui-monospace,monospace; font-size:0.78rem; color:var(--muted); margin-bottom:2px;">B out</div><canvas id="rgbBoutCv" width="120" height="120" style="border:1px solid var(--border); image-rendering:pixelated;"></canvas></div>
+        <div><div style="font-family:ui-monospace,monospace; font-size:0.78rem; color:var(--accent); margin-bottom:2px; font-weight:700;">Σ = output</div><canvas id="rgbSumCv" width="120" height="120" style="border:2px solid var(--accent); image-rendering:pixelated;"></canvas></div>
+      </div>
+    </div>
+  </details>
+
+  <!-- Worksheet/lab mode. 3 questions per applet with instant check. -->
+  <details class="worksheet" style="margin-top:8px;">
+    <summary style="cursor:pointer; padding:8px 12px; background:var(--soft); border:1px solid var(--border); border-radius:6px; font-family:-apple-system,system-ui,sans-serif; font-size:0.88rem; color:var(--accent); font-weight:600;">
+      <span data-i18n="ws-summary">📝 Worksheet (3 questions)</span>
+    </summary>
+    <div style="margin-top:8px; padding:12px 14px; background:var(--card); border:1px solid var(--border); border-radius:6px; font-size:0.88rem; line-height:1.5;">
+      <div class="ws-q" id="ws1">
+        <p style="margin:0 0 4px;"><strong>Q1.</strong> Cross image, Identity kernel. The output image is:</p>
+        <input id="ws1ans" type="text" placeholder="same as input / inverted / blank" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+        <button class="step-btn" id="ws1btn">Check</button>
+        <span id="ws1fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
+      </div>
+      <div class="ws-q" id="ws2" style="margin-top:10px;">
+        <p style="margin:0 0 4px;"><strong>Q2.</strong> Cross image, Sobel-X kernel. Which part of the cross lights up brightest?</p>
+        <input id="ws2ans" type="text" placeholder="vertical bar / horizontal bar / center" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+        <button class="step-btn" id="ws2btn">Check</button>
+        <span id="ws2fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
+      </div>
+      <div class="ws-q" id="ws3" style="margin-top:10px;">
+        <p style="margin:0 0 4px;"><strong>Q3.</strong> Switch to "Conv → conv" mode (two stacked 3×3 kernels). The effective receptive field becomes:</p>
+        <input id="ws3ans" type="text" placeholder="3×3 / 5×5 / 9×9" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+        <button class="step-btn" id="ws3btn">Check</button>
+        <span id="ws3fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
+      </div>
+    </div>
+  </details>
+
+  <!-- Lesson tour. Ordered scenarios that step students through the key ideas. -->
+  <details class="lesson-tour" style="margin-top:12px;">
+    <summary style="cursor:pointer; padding:8px 12px; background:var(--soft); border:1px solid var(--border); border-radius:6px; font-family:-apple-system,system-ui,sans-serif; font-size:0.88rem; color:var(--accent); font-weight:600;">
+      <span data-i18n="tour-summary">📚 Lesson tour (5 steps)</span>
+    </summary>
+    <div style="margin-top:8px; padding:12px 14px; background:var(--card); border:1px solid var(--border); border-radius:6px;">
+      <div style="display:flex; align-items:baseline; gap:10px; margin-bottom:6px;">
+        <strong style="color:var(--accent);">Step <span id="tourPos">1/5</span>:</strong>
+        <strong id="tourName" style="font-family:-apple-system,system-ui,sans-serif;">—</strong>
+      </div>
+      <p id="tourDesc" style="margin:0 0 8px; color:var(--fg); font-size:0.88rem; line-height:1.5;">—</p>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <button class="step-btn secondary" id="tourPrev" data-i18n="tour-prev">← Prev</button>
+        <button class="step-btn" id="tourApply" data-i18n="tour-apply">▶ Apply this scenario</button>
+        <button class="step-btn secondary" id="tourNext" data-i18n="tour-next">Next →</button>
+      </div>
+    </div>
+  </details>
+
+  <div class="jump-anchor"><a href="#essay" class="jump-link" data-i18n="jump-link">↓ Read the explanation</a></div>
+</div>
+</section>
+
+<article class="essay" id="essay">
+
+  <p class="lede">
+    A convolutional neural network (CNN) sees images by repeatedly applying a small grid of numbers
+    — a <em>kernel</em> — to local neighborhoods of pixels. This applet lets you draw on a 32×32
+    canvas, pick a 3×3 kernel, and watch what falls out the other side. The mechanism is far
+    simpler than the name suggests.
+  </p>
+
+  <h2>What "convolution" actually means here</h2>
+
+  <p>
+    For every pixel in the output, look at the 3×3 neighborhood centered on that pixel in the
+    input. Multiply each input pixel by the corresponding cell of the kernel. Sum the nine
+    products. That sum becomes the output pixel. Slide the 3×3 window one pixel over and repeat,
+    until every output pixel is computed. That's the entire operation.
+  </p>
+
+  <p>
+    The Sobel-X kernel <code>[[−1,0,1],[−2,0,2],[−1,0,1]]</code> measures the horizontal gradient.
+    Wherever the input transitions from dark to light in the horizontal direction, the convolution
+    output spikes positive. Where it transitions light to dark, it spikes negative. The
+    "edges" you see in the output are literally these spikes, brightened.
+  </p>
+
+  <div class="aha">
+    The detection of vertical edges is not pattern recognition. It is nine multiplications and an
+    addition, repeated for every output pixel. The kernel just happens to be designed so that the
+    arithmetic gives you a large result exactly when an edge exists.
+  </div>
+
+  <h2>Why the absolute value matters</h2>
+
+  <p>
+    Sobel-X gives positive numbers for one direction of edge and negative for the other. If you
+    display the raw output, the "going light-to-dark" edges look black and the "going dark-to-light"
+    edges look bright. Most visualizations take the absolute value to show edge <em>strength</em>
+    rather than edge direction. Toggle "Take absolute value" to see the difference.
+  </p>
+
+  <h2>What ReLU does</h2>
+
+  <p>
+    In a real CNN, every convolutional layer is followed by a non-linear activation — usually
+    ReLU, which clips negative values to zero. Toggle "Apply ReLU" with the Sobel-X kernel: half
+    the edge information disappears. That's the cost CNNs pay for the flexibility ReLU provides;
+    they compensate by learning <em>both</em> a kernel and its mirror, so no information is lost
+    across the layer.
+  </p>
+
+  <h2>Stacking layers: pooling and conv-on-conv</h2>
+
+  <p>
+    A single 3×3 convolution sees only 9 pixels at a time. To recognize larger structures
+    (a whole letter, a face, an object), CNNs <em>stack</em> convolutions and interleave them
+    with downsampling operations. The layer-mode dropdown above demonstrates the two basic
+    stacking moves:
+  </p>
+
+  <ul>
+    <li><strong>Conv + max-pool 2×2.</strong> After the convolution, take 2×2 blocks of pixels
+      and keep only the brightest from each block. The output is half the resolution (16×16
+      instead of 32×32). This (a) reduces computation for the next layer, and (b) gives the
+      network a small dose of translation-invariance — shifting the input by one pixel doesn't
+      change the output much.</li>
+    <li><strong>Conv → conv (stacked).</strong> Two 3×3 convolutions in a row. The first sees
+      3×3 = 9 input pixels per output pixel; the second sees 3×3 = 9 first-layer outputs per
+      its own output pixel. Each of those 9 first-layer outputs was itself computed from 3×3
+      input pixels. So each pixel of the final output is a function of a <strong>5×5 region</strong>
+      of the original input. Stacking <em>n</em> 3×3 convs gives a receptive field of
+      <code>2n+1</code> in each direction — without ever using a kernel larger than 3×3.</li>
+  </ul>
+
+  <div class="aha">
+    Modern CNNs almost never use kernels larger than 3×3. They get arbitrary receptive fields by
+    stacking. Two stacked 3×3 convs have the same receptive field as one 5×5 conv but use fewer
+    parameters (18 vs 25) and produce a more expressive function (because of the non-linearity
+    between them). This is the central insight of VGGNet (2014) and every CNN since.
+  </div>
+
+  <h2>How CNNs go from one kernel to thousands</h2>
+
+  <p>
+    A real CNN doesn't use one kernel — it uses dozens at the first layer, hundreds in the middle,
+    thousands at the end. And the kernels aren't hand-designed (like our edge detectors) — they're
+    <em>learned</em> from data by gradient descent. The training process discovers kernels that
+    are useful for the task: early-layer kernels typically end up looking like edge and color
+    detectors; middle-layer kernels detect textures and shapes; late-layer kernels detect entire
+    objects (eyes, wheels, faces).
+  </p>
+
+  <h2>What this simplifies</h2>
+
+  <p>
+    Real CNNs use 3D kernels (height × width × channels), apply many kernels per layer (forming a
+    "feature map" stack), interleave convolutions with pooling and batch normalization, and use
+    backprop through the convolution operation to learn the weights. But the basic operation —
+    multiply, sum, slide, repeat — is exactly what runs above.
+  </p>
+
+  <div class="for-teachers">
+    <h3>For teachers</h3>
+    <p><strong>Curriculum:</strong> Unit 8 — Vision with CNNs. Convolution as multiply-and-sum;
+       hand-designed vs learned filters; the role of activation functions after convolution.</p>
+    <p><strong>Pre-exploration prompts:</strong></p>
+    <ul>
+      <li>How might a computer tell that a picture contains "an edge"?</li>
+      <li>If I gave you a 3×3 number grid, what could you do with it to highlight an edge in a picture?</li>
+      <li>Why do CNNs use LOTS of small filters instead of one big one?</li>
+    </ul>
+    <p><strong>Post-exploration prompts:</strong></p>
+    <ul>
+      <li>Draw a vertical line. Apply Sobel-X. Apply Sobel-Y. Which one lights up? Why?</li>
+      <li>Apply the Identity kernel. Why does the output look like the input?</li>
+      <li>Apply Sobel-X with "absolute value" OFF. The right side of the edge is black. What's mathematically happening?</li>
+      <li>Build a custom kernel that highlights just diagonal edges. (Hint: rotate the Sobel-X pattern.)</li>
+      <li>Apply Blur, then Edge. Then try Edge, then Blur. Same result? Why does order matter?</li>
+    </ul>
+    <p><strong>Common misconceptions defeated:</strong>
+       "CNNs invented edge detection" (no — classical CV used hand-designed filters long before; CNNs LEARN them);
+       "ReLU is the model" (no — it's just a clip; the convolution does the work);
+       "more filters = always better" (more filters add capacity but also computation and overfitting risk).</p>
+  </div>
+
+</article>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+
+  // ===== i18n strings =====
+  const STRINGS = {
+    en: {
+      'title': 'Visualizing Convolutions', 'back-link': '← All playgrounds',
+      'reset-all': '↺ Reset all', 'input-label': 'Input:',
+      'kernel-label': 'Kernel preset:', 'layer-label': 'Layer mode:',
+      'tldr-strong': 'The big idea',
+      'tldr-body': 'A 3×3 grid of numbers, slid across an image and multiplied + summed at every position. That\'s a "convolution." It\'s how CNNs turn raw pixels into edges.',
+      'layer-conv': 'Single conv (one kernel)',
+      'layer-pool': 'Conv + max-pool (downsamples)',
+      'pool-label': 'Pool size p:',
+      'pool-title': 'Window size p of the max-pool operation (stride = p, non-overlapping). Larger p downsamples more aggressively: p=2 → 16×16, p=4 → 8×8, p=8 → 4×4.',
+      'stride-label': 'Stride:', 'pad-label': 'Padding:',
+      'pad-same': 'same (edge-clamp)', 'pad-valid': 'valid (no padding)',
+      'stride-title': 'Convolution stride: how far the 3×3 window moves between samples. Stride 2 halves the output dimension.',
+      'pad-title': "Padding: 'same' edge-clamps so output stays the same size (with stride 1). 'valid' applies the kernel only where the full 3×3 window fits, shrinking the output by 2 cells.",
+      // tooltip translations for main selectors + clear button.
+      'layer-sel-title': 'Single conv = current (one 3×3 kernel). Conv + max-pool = adds p×p pooling. Conv → conv = stacks two 3×3 kernels (receptive field becomes 5×5).',
+      'preset-sel-title': "Pick a preset image or 'Draw' to make your own.",
+      'kernel-sel-title': 'Choose a standard 3×3 filter. Edit cells below to make a custom one.',
+      'clear-btn-title': 'Clear the input canvas so you can draw your own.',
+      'layer-stack': 'Conv → conv (stacks two kernels)',
+      'pre-draw': 'Draw your own', 'pre-cross': 'Cross', 'pre-circle': 'Circle outline',
+      'pre-diag': 'Diagonal stripes', 'pre-checker': 'Checkerboard', 'pre-text': 'AI text',
+      'clear-btn': 'Clear canvas',
+      'k-identity': 'Identity', 'k-edgeX': 'Sobel-X (vertical edges)',
+      'k-edgeY': 'Sobel-Y (horizontal edges)', 'k-lapl': 'Laplacian (all edges)',
+      'k-blur': 'Blur (3×3 box)', 'k-gauss': 'Gaussian blur',
+      'k-sharp': 'Sharpen', 'k-emboss': 'Emboss', 'k-custom': 'Custom',
+      'opt-abs': 'Take absolute value', 'opt-relu': 'Apply ReLU (clip ≥ 0)',
+      'input-h3': 'Input', 'input-hint': 'Click and drag to draw.',
+      'output-h3': 'Output (after convolution)', 'output-hint': 'What the CNN "sees."',
+      'window-h3': '🔍 Sliding-window inspector',
+      'window-hint': 'Click any cell on the output canvas to see the 3×3 input window centered on it, the kernel, and the dot-product math that produced that pixel.',
+      'window-empty': '(click on the output canvas to inspect a cell)',
+      'rgb-summary': '🎨 Multi-channel demo (RGB → 1 output)',
+      'rgb-preset': 'RGB image:',
+      'rgb-preset-title': 'Pick a synthetic RGB image. Real CNNs convolve a separate kernel over each channel then sum the results — here we use your current kernel for all three channels.',
+      'rgb-bars': 'Color bars (R | G | B)',
+      'rgb-diag': 'Diagonal gradient',
+      'rgb-disc': 'Red disc on blue field',
+      'rgb-hint': 'Each channel is convolved with your current kernel independently. The final output is the sum of the three channel outputs (just like a single 3×3×3 kernel in PyTorch).',
+      'k1-label': '3×3 kernel',
+      'k-edit-hint': 'Edit any cell → kernel becomes "custom"',
+      'k2-label': '2nd 3×3 kernel (after first conv)',
+      'k2-hint': 'Default = Sobel-Y. Stacks with kernel 1 above to give a 5×5 effective receptive field.',
+      'jump-link': '↓ Read the explanation',
+      'tour-summary': '📚 Lesson tour (5 steps)',
+      'tour-prev': '← Prev', 'tour-next': 'Next →', 'tour-apply': '▶ Apply this scenario',
+      'ws-summary': '📝 Worksheet (3 questions)',
+    },
+    zh: {
+      'title': '卷积可视化', 'back-link': '← 所有演示',
+      'reset-all': '↺ 全部重置', 'input-label': '输入:',
+      'kernel-label': '卷积核预设:', 'layer-label': '层模式:',
+      'tldr-strong': '核心思想',
+      'tldr-body': '一个 3×3 的数字网格,在图像上滑动,每个位置做点乘并求和。这就是"卷积"。卷积神经网络就是这样把像素变成边缘的。',
+      'layer-conv': '单层卷积(一个核)',
+      'layer-pool': '卷积 + 最大池化(降采样)',
+      'pool-label': '池化大小 p:',
+      'pool-title': '最大池化的窗口大小 p(步长 = p,不重叠)。p 越大降采样越激进:p=2 → 16×16,p=4 → 8×8,p=8 → 4×4。',
+      'stride-label': '步长:', 'pad-label': '填充:',
+      'pad-same': '相同(边界钳制)', 'pad-valid': '有效(无填充)',
+      'stride-title': '卷积步长:3×3 窗口每次移动的距离。步长 2 把输出维度减半。',
+      'pad-title': "填充:'相同'通过边界钳制让输出与输入同尺寸(步长 1 时)。'有效'只在 3×3 窗口完全落入输入内的位置计算,输出缩小 2 格。",
+      // 主要选择器与清除按钮的提示翻译。
+      'layer-sel-title': '单层卷积 = 默认(一个 3×3 卷积核)。卷积 + 最大池化 = 加 p×p 池化。卷积 → 卷积 = 堆叠两个 3×3 卷积核(感受野变成 5×5)。',
+      'preset-sel-title': '选择预设图像或"自己绘制"来创建你自己的图像。',
+      'kernel-sel-title': '选择一个标准 3×3 过滤器。编辑下方的格子来制作自定义过滤器。',
+      'clear-btn-title': '清空输入画布,以便你自己绘制。',
+      'layer-stack': '卷积 → 卷积(堆叠两个核)',
+      'pre-draw': '自己绘制', 'pre-cross': '十字', 'pre-circle': '圆环',
+      'pre-diag': '对角条纹', 'pre-checker': '棋盘格', 'pre-text': 'AI 文字',
+      'clear-btn': '清空画布',
+      'k-identity': '恒等', 'k-edgeX': 'Sobel-X(竖直边缘)',
+      'k-edgeY': 'Sobel-Y(水平边缘)', 'k-lapl': '拉普拉斯(所有边缘)',
+      'k-blur': '盒式模糊 (3×3)', 'k-gauss': '高斯模糊',
+      'k-sharp': '锐化', 'k-emboss': '浮雕', 'k-custom': '自定义',
+      'opt-abs': '取绝对值', 'opt-relu': '应用 ReLU(裁剪 ≥ 0)',
+      'input-h3': '输入', 'input-hint': '点击并拖动可绘制。',
+      'output-h3': '输出(卷积之后)', 'output-hint': '这就是卷积网络"看见"的内容。',
+      'window-h3': '🔍 滑动窗口检查器',
+      'window-hint': '点击输出画布上的任意格子,查看以它为中心的 3×3 输入窗口、卷积核,以及生成该像素的点积运算。',
+      'window-empty': '(点击输出画布查看某个格子)',
+      'rgb-summary': '🎨 多通道演示(RGB → 单输出)',
+      'rgb-preset': 'RGB 图像:',
+      'rgb-preset-title': '选择合成的 RGB 图像。真实 CNN 对每个通道用独立卷积核然后求和——这里我们对三个通道都使用当前的卷积核。',
+      'rgb-bars': '彩条 (R | G | B)',
+      'rgb-diag': '对角渐变',
+      'rgb-disc': '蓝底红圆盘',
+      'rgb-hint': '每个通道独立用当前卷积核卷积。最终输出是三个通道输出的总和(就像 PyTorch 里的一个 3×3×3 卷积核)。',
+      'k1-label': '3×3 卷积核',
+      'k-edit-hint': '修改任意单元 → 卷积核变为"自定义"',
+      'k2-label': '第二个 3×3 卷积核(在第一层之后)',
+      'k2-hint': '默认为 Sobel-Y。与上方第一个核堆叠,给出 5×5 的有效感受野。',
+      'jump-link': '↓ 阅读说明',
+      'tour-summary': '📚 课程导览(5 步)',
+      'tour-prev': '← 上一步', 'tour-next': '下一步 →', 'tour-apply': '▶ 应用此场景',
+      'ws-summary': '📝 练习题(3 题)',
+    },
+  };
+  function setLang(lang) {
+    if (!STRINGS[lang]) lang = 'en';
+    document.documentElement.lang = lang;
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const k = el.dataset.i18n;
+      if (STRINGS[lang][k]) el.textContent = STRINGS[lang][k];
+    });
+    document.querySelectorAll('[data-i18n-title]').forEach(el => {
+      const k = el.dataset.i18nTitle;
+      if (STRINGS[lang][k]) el.title = STRINGS[lang][k];
+    });
+    document.querySelectorAll('.lang-switch button').forEach(b =>
+      b.classList.toggle('active', b.dataset.lang === lang));
+    try { localStorage.setItem('conv-lang', lang); } catch (_) {}
+  }
+  document.querySelectorAll('.lang-switch button').forEach(b =>
+    b.addEventListener('click', () => setLang(b.dataset.lang)));
+  let initialLang = 'en';
+  try { initialLang = localStorage.getItem('conv-lang') || 'en'; } catch (_) {}
+  setLang(initialLang);
+
+  function setTheme(t) {
+    document.body.classList.toggle('dark-mode', t === 'dark');
+    const btn = document.getElementById('themeToggle');
+    if (btn) btn.textContent = t === 'dark' ? '☀' : '🌙';
+    try { localStorage.setItem('theme', t); } catch (_) {}
+  }
+  let initialTheme = 'light';
+  try {
+    initialTheme = localStorage.getItem('theme') ||
+      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  } catch (_) {}
+  setTheme(initialTheme);
+  document.getElementById('themeToggle').addEventListener('click', () => {
+    setTheme(document.body.classList.contains('dark-mode') ? 'light' : 'dark');
+  });
+
+  // For-teachers is hidden by default (cognitive-load floor). User toggles persist.
+  // `?teacher=1` opens on load. `?teacher=0` hides completely (no toggle, for projection).
+  try {
+    const tp = new URLSearchParams(location.search).get('teacher');
+    if (tp === '0') {
+      document.querySelectorAll('.for-teachers').forEach(el => el.style.display = 'none');
+    } else {
+      const style = document.createElement('style');
+      style.textContent = '.for-teachers-expander{margin-top:36px}.for-teachers-expander>summary{cursor:pointer;padding:12px 16px;background:var(--soft);border:1px solid var(--border);border-radius:8px;font-family:-apple-system,system-ui,sans-serif;font-size:0.9rem;color:var(--accent);font-weight:600;list-style:none;user-select:none}.for-teachers-expander>summary::-webkit-details-marker{display:none}.for-teachers-expander[open]>summary{border-bottom-left-radius:0;border-bottom-right-radius:0}.for-teachers-expander>.for-teachers{margin-top:0;border-top:0;border-top-left-radius:0;border-top-right-radius:0}';
+      document.head.appendChild(style);
+      document.querySelectorAll('.for-teachers').forEach(div => {
+        const details = document.createElement('details');
+        details.className = 'for-teachers-expander';
+        const summary = document.createElement('summary');
+        summary.textContent = '▸ Show teacher notes (discussion prompts + curriculum)';
+        div.parentNode.insertBefore(details, div);
+        details.appendChild(summary);
+        details.appendChild(div);
+      });
+      const saved = (() => { try { return localStorage.getItem('teacher-notes-open'); } catch (_) { return null; } })();
+      const shouldOpen = tp === '1' || saved === '1';
+      document.querySelectorAll('details.for-teachers-expander').forEach(d => {
+        d.open = shouldOpen;
+        d.addEventListener('toggle', () => {
+          try { localStorage.setItem('teacher-notes-open', d.open ? '1' : '0'); } catch (_) {}
+        });
+      });
+    }
+  } catch (_) {}
+  document.getElementById('exportPng').addEventListener('click', () => {
+    const link = document.createElement('a');
+    link.download = 'convolution.png';
+    link.href = document.getElementById('output').toDataURL('image/png');
+    link.click();
+  });
+
+  const inputCv = $('input'); const inCtx = inputCv.getContext('2d');
+  const outCv = $('output'); const outCtx = outCv.getContext('2d');
+  const N = 32;
+  const SCALE = 10;
+  inputCv.width = N * SCALE; inputCv.height = N * SCALE;
+  outCv.width = N * SCALE; outCv.height = N * SCALE;
+  inCtx.imageSmoothingEnabled = false;
+  outCtx.imageSmoothingEnabled = false;
+
+  let pixels = new Float32Array(N * N);
+  const KERNELS = {
+    identity: [0,0,0, 0,1,0, 0,0,0],
+    edgeX:    [-1,0,1, -2,0,2, -1,0,1],
+    edgeY:    [-1,-2,-1, 0,0,0, 1,2,1],
+    lapl:     [0,-1,0, -1,4,-1, 0,-1,0],
+    blur:     [1/9,1/9,1/9, 1/9,1/9,1/9, 1/9,1/9,1/9],
+    gauss:    [1/16,2/16,1/16, 2/16,4/16,2/16, 1/16,2/16,1/16],
+    sharp:    [0,-1,0, -1,5,-1, 0,-1,0],
+    emboss:   [-2,-1,0, -1,1,1, 0,1,2],
+  };
+
+  function loadKernelToInputs(name) {
+    const k = KERNELS[name];
+    const inputs = $('kernelGrid').querySelectorAll('input');
+    if (!k) return;
+    for (let i = 0; i < 9; i++) inputs[i].value = k[i].toString();
+  }
+  function readKernel() {
+    const inputs = $('kernelGrid').querySelectorAll('input');
+    const k = [];
+    for (let i = 0; i < 9; i++) k.push(parseFloat(inputs[i].value) || 0);
+    return k;
+  }
+
+  function clearPx() { pixels.fill(0); }
+  function preset(name) {
+    clearPx();
+    if (name === 'draw') { renderAll(); return; }
+    if (name === 'cross') {
+      for (let i = 8; i < 24; i++) {
+        pixels[16 * N + i] = 1; pixels[i * N + 16] = 1;
+      }
+    } else if (name === 'circle') {
+      for (let y = 0; y < N; y++)
+        for (let x = 0; x < N; x++) {
+          const d = Math.hypot(x - 15.5, y - 15.5);
+          if (Math.abs(d - 10) < 1) pixels[y * N + x] = 1;
+        }
+    } else if (name === 'diag') {
+      for (let y = 0; y < N; y++)
+        for (let x = 0; x < N; x++) {
+          if ((x + y) % 6 < 2) pixels[y * N + x] = 1;
+        }
+    } else if (name === 'checker') {
+      for (let y = 0; y < N; y++)
+        for (let x = 0; x < N; x++) {
+          if ((Math.floor(x / 4) + Math.floor(y / 4)) % 2 === 0) pixels[y * N + x] = 1;
+        }
+    } else if (name === 'text') {
+      const A = [
+        [12,5],[13,5],[14,5],[15,5],[16,5],
+        [11,6],[17,6], [10,7],[18,7], [10,8],[18,8],
+        [10,9],[18,9], [10,10],[18,10], [10,11],[18,11],
+        [10,12],[11,12],[12,12],[13,12],[14,12],[15,12],[16,12],[17,12],[18,12],
+        [10,13],[18,13], [10,14],[18,14], [10,15],[18,15],
+      ];
+      for (const [x, y] of A) pixels[y * N + x] = 1;
+      for (let x = 22; x <= 26; x++) { pixels[5 * N + x] = 1; pixels[15 * N + x] = 1; }
+      for (let y = 5; y <= 15; y++) pixels[y * N + 24] = 1;
+    }
+    renderAll();
+  }
+
+  let drawing = false;
+  function setPxFromEvent(e) {
+    const rect = inputCv.getBoundingClientRect();
+    const x = Math.floor((e.clientX - rect.left) * (N / rect.width));
+    const y = Math.floor((e.clientY - rect.top) * (N / rect.height));
+    if (x < 0 || x >= N || y < 0 || y >= N) return;
+    for (let dy = -1; dy <= 1; dy++)
+      for (let dx = -1; dx <= 1; dx++) {
+        const nx = x + dx, ny = y + dy;
+        if (nx >= 0 && nx < N && ny >= 0 && ny < N) {
+          const w = (dx === 0 && dy === 0) ? 1 : 0.5;
+          pixels[ny * N + nx] = Math.max(pixels[ny * N + nx], w);
+        }
+      }
+    renderAll();
+  }
+  inputCv.addEventListener('mousedown', e => { drawing = true; setPxFromEvent(e); });
+  inputCv.addEventListener('mousemove', e => { if (drawing) setPxFromEvent(e); });
+  window.addEventListener('mouseup', () => drawing = false);
+
+  // stride + padding configurable. stride=1 (default), s=2 halves
+  // the output. padding: 'same' (edge-clamp, default; output = ⌈n/s⌉),
+  // 'valid' (no padding; only positions where the full 3×3 window fits;
+  // output = ⌊(n−2)/s⌋ + 1).
+  function convolveBuf(input, K, n, stride, padding) {
+    stride = stride || 1;
+    padding = padding || 'same';
+    if (padding === 'same') {
+      const outDim = Math.ceil(n / stride);
+      const out = new Float32Array(outDim * outDim);
+      for (let oy = 0; oy < outDim; oy++) {
+        for (let ox = 0; ox < outDim; ox++) {
+          const y = oy * stride, x = ox * stride;
+          let s = 0;
+          for (let dy = -1; dy <= 1; dy++) {
+            for (let dx = -1; dx <= 1; dx++) {
+              const ny = Math.min(n - 1, Math.max(0, y + dy));
+              const nx = Math.min(n - 1, Math.max(0, x + dx));
+              s += input[ny * n + nx] * K[(dy + 1) * 3 + (dx + 1)];
+            }
+          }
+          out[oy * outDim + ox] = s;
+        }
+      }
+      return out;
+    } else {
+      // 'valid' — only positions where the centre is in [1, n-2] so the full 3×3 fits.
+      const startC = 1;
+      const outDim = Math.floor((n - 2 - 0) / stride) + 1; // start at idx 1, end ≤ n-2
+      const out = new Float32Array(outDim * outDim);
+      for (let oy = 0; oy < outDim; oy++) {
+        for (let ox = 0; ox < outDim; ox++) {
+          const y = startC + oy * stride, x = startC + ox * stride;
+          let s = 0;
+          for (let dy = -1; dy <= 1; dy++) {
+            for (let dx = -1; dx <= 1; dx++) {
+              s += input[(y + dy) * n + (x + dx)] * K[(dy + 1) * 3 + (dx + 1)];
+            }
+          }
+          out[oy * outDim + ox] = s;
+        }
+      }
+      return out;
+    }
+  }
+  function convolve(K) {
+    // Stride + padding from new controls (default 1 / 'same' = original behavior).
+    const s = ($('convStride') ? +$('convStride').value : 1);
+    const pad = ($('convPad') ? $('convPad').value : 'same');
+    return convolveBuf(pixels, K, N, s, pad);
+  }
+
+  // 2×2 max-pooling (stride 2). Halves the spatial dimension.
+  // generalized to p×p with stride = p (non-overlapping). Backwards-compat
+  // shim retained for callers that still pass no `p` argument.
+  function maxPool2x2(input, n, p) {
+    p = p || 2;
+    const m = Math.floor(n / p);
+    const out = new Float32Array(m * m);
+    for (let y = 0; y < m; y++) {
+      for (let x = 0; x < m; x++) {
+        let v = -Infinity;
+        for (let dy = 0; dy < p; dy++) {
+          for (let dx = 0; dx < p; dx++) {
+            const px = input[(y * p + dy) * n + (x * p + dx)];
+            if (px > v) v = px;
+          }
+        }
+        out[y * m + x] = v;
+      }
+    }
+    return out;
+  }
+
+  function readSecondKernel() {
+    const inputs = $('kernelGrid2').querySelectorAll('input');
+    const k = [];
+    for (let i = 0; i < 9; i++) k.push(parseFloat(inputs[i].value) || 0);
+    return k;
+  }
+
+  function renderPanel(ctx, buf, takeAbs, relu, dim) {
+    const n = dim || N;
+    let lo = Infinity, hi = -Infinity;
+    for (let i = 0; i < buf.length; i++) {
+      let v = buf[i];
+      if (takeAbs) v = Math.abs(v);
+      if (relu) v = Math.max(0, v);
+      if (v < lo) lo = v; if (v > hi) hi = v;
+    }
+    if (hi - lo < 1e-9) hi = lo + 1;
+    const img = ctx.createImageData(n, n);
+    for (let i = 0; i < buf.length; i++) {
+      let v = buf[i];
+      if (takeAbs) v = Math.abs(v);
+      if (relu) v = Math.max(0, v);
+      const g = Math.round(255 * (v - lo) / (hi - lo));
+      img.data[i*4] = g; img.data[i*4+1] = g; img.data[i*4+2] = g; img.data[i*4+3] = 255;
+    }
+    const tmp = document.createElement('canvas');
+    tmp.width = n; tmp.height = n;
+    tmp.getContext('2d').putImageData(img, 0, 0);
+    ctx.imageSmoothingEnabled = false;
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.drawImage(tmp, 0, 0, ctx.canvas.width, ctx.canvas.height);
+  }
+
+  function renderAll() {
+    const inImg = new Float32Array(pixels.length);
+    for (let i = 0; i < pixels.length; i++) inImg[i] = 1 - pixels[i];
+    renderPanel(inCtx, inImg, false, false);
+    // also redraw the RGB demo (if its details panel is open the
+    // canvases exist — the function bails cleanly if elements are missing).
+    try { renderRgb(); } catch (_) {}
+
+    const K = readKernel();
+    const mode = $('layerSel').value;
+    let out, outDim;
+    if (mode === 'conv-pool') {
+      // Conv → ReLU(implicit if reluChk) → max-pool p×p.
+      // Stride/padding ignored here (we keep stride=1/same to preserve the
+      // simple N → N/p pooling math).
+      let mid = convolveBuf(pixels, K, N, 1, 'same');
+      const takeAbs = $('absChk').checked;
+      const relu = $('reluChk').checked;
+      if (takeAbs || relu) {
+        for (let i = 0; i < mid.length; i++) {
+          let v = mid[i];
+          if (takeAbs) v = Math.abs(v);
+          if (relu) v = Math.max(0, v);
+          mid[i] = v;
+        }
+      }
+      const poolSize = $('poolSize') ? +$('poolSize').value : 2;
+      out = maxPool2x2(mid, N, poolSize);
+      outDim = Math.floor(N / poolSize);
+      renderPanel(outCtx, out, false, false, outDim);
+    } else if (mode === 'conv-conv') {
+      // Stacked. Stride/padding ignored; the 5×5 receptive-field lesson assumes
+      // same-padded same-stride layers.
+      const mid = convolveBuf(pixels, K, N, 1, 'same');
+      const K2 = readSecondKernel();
+      out = convolveBuf(mid, K2, N, 1, 'same');
+      outDim = N;
+      renderPanel(outCtx, out, $('absChk').checked, $('reluChk').checked, outDim);
+    } else {
+      // Single conv: stride + padding apply. outDim derived from buffer length.
+      out = convolve(K);
+      outDim = Math.round(Math.sqrt(out.length));
+      renderPanel(outCtx, out, $('absChk').checked, $('reluChk').checked, outDim);
+    }
+  }
+
+  $('kernelSel').addEventListener('change', e => {
+    if (e.target.value !== 'custom') loadKernelToInputs(e.target.value);
+    renderAll();
+  });
+  $('kernelGrid').querySelectorAll('input').forEach(inp => {
+    inp.addEventListener('input', () => {
+      $('kernelSel').value = 'custom';
+      renderAll();
+    });
+  });
+  // Second-kernel grid (only visible in conv-conv mode).
+  $('kernelGrid2').querySelectorAll('input').forEach(inp => {
+    inp.addEventListener('input', renderAll);
+  });
+  // Layer-mode dropdown: show/hide second-kernel UI + pool-size slider + stride/padding (single-conv only).
+  function updateLayerUI() {
+    const mode = $('layerSel').value;
+    $('kernel2Section').style.display = (mode === 'conv-conv') ? '' : 'none';
+    $('kernel1Label').textContent =
+      (mode === 'conv-conv') ? '1st 3×3 kernel' : '3×3 kernel';
+    if ($('poolControls')) $('poolControls').style.display = (mode === 'conv-pool') ? '' : 'none';
+    // stride/padding controls only apply to single conv. In pool/stack
+    // modes they're ignored anyway, so hide to avoid implying they work there.
+    if ($('strideControls')) $('strideControls').style.display = (mode === 'conv') ? '' : 'none';
+  }
+  $('layerSel').addEventListener('change', () => { updateLayerUI(); renderAll(); });
+  if ($('poolSize')) $('poolSize').addEventListener('change', renderAll);
+  if ($('convStride')) $('convStride').addEventListener('change', renderAll);
+  if ($('convPad')) $('convPad').addEventListener('change', renderAll);
+  // ?layer= URL param picks default layer mode.
+  try {
+    const lp = new URLSearchParams(location.search).get('layer');
+    if (lp && ['conv', 'conv-pool', 'conv-conv'].includes(lp)) $('layerSel').value = lp;
+  } catch (_) {}
+  updateLayerUI();
+  $('presetSel').addEventListener('change', e => preset(e.target.value));
+  $('clearBtn').addEventListener('click', () => { clearPx(); renderAll(); });
+  $('absChk').addEventListener('change', renderAll);
+  $('reluChk').addEventListener('change', renderAll);
+  $('hardReset').addEventListener('click', () => {
+    $('presetSel').value = 'cross';
+    $('kernelSel').value = 'edgeX';
+    $('absChk').checked = true;
+    $('reluChk').checked = false;
+    $('layerSel').value = 'conv';
+    loadKernelToInputs('edgeX');
+    updateLayerUI();
+    preset('cross');
+  });
+
+  // touch support — synthesize mouse events for tablet drawing.
+  (() => {
+    const target = inputCv;
+    let lastTouch = null;
+    target.addEventListener('touchstart', e => {
+      if (e.touches.length > 0) {
+        e.preventDefault();
+        lastTouch = {clientX: e.touches[0].clientX, clientY: e.touches[0].clientY};
+        target.dispatchEvent(new MouseEvent('mousedown', lastTouch));
+      }
+    }, {passive: false});
+    target.addEventListener('touchmove', e => {
+      if (e.touches.length > 0) {
+        e.preventDefault();
+        lastTouch = {clientX: e.touches[0].clientX, clientY: e.touches[0].clientY};
+        target.dispatchEvent(new MouseEvent('mousemove', lastTouch));
+      }
+    }, {passive: false});
+    target.addEventListener('touchend', e => {
+      e.preventDefault();
+      window.dispatchEvent(new MouseEvent('mouseup'));
+      lastTouch = null;
+    }, {passive: false});
+  })();
+
+  // URL-shareable config — layer mode, image preset, kernel choice.
+  try {
+    const sp = new URLSearchParams(location.search);
+    const setSel = (key, id) => {
+      const v = sp.get(key); if (!v) return;
+      const opt = Array.from($(id).options).find(o => o.value === v);
+      if (opt) $(id).value = v;
+    };
+    setSel('layer', 'layerSel');
+    setSel('preset', 'presetSel');
+    setSel('kernel', 'kernelSel');
+  } catch (_) {}
+  document.getElementById('shareLink').addEventListener('click', async () => {
+    const params = new URLSearchParams();
+    params.set('layer', $('layerSel').value);
+    params.set('preset', $('presetSel').value);
+    params.set('kernel', $('kernelSel').value);
+    const url = `${location.origin}${location.pathname}?${params.toString()}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      const btn = document.getElementById('shareLink');
+      const orig = btn.textContent; btn.textContent = '✓ Copied';
+      setTimeout(() => btn.textContent = orig, 1500);
+    } catch (_) { prompt('Copy this URL:', url); }
+  });
+
+  // ===== multi-channel (RGB) demo =====
+  // Three independent N×N channels; each is convolved with the user's current kernel;
+  // outputs are summed to form the single output channel (just like a 3×3×3 PyTorch kernel).
+  function makeRgbPreset(name) {
+    const N32 = N;
+    const R = new Float32Array(N32 * N32);
+    const G = new Float32Array(N32 * N32);
+    const B = new Float32Array(N32 * N32);
+    if (name === 'rgb-bars') {
+      // Three vertical bars: R | G | B
+      for (let y = 0; y < N32; y++) for (let x = 0; x < N32; x++) {
+        const k = y * N32 + x;
+        if (x < N32 / 3) R[k] = 1.0;
+        else if (x < 2 * N32 / 3) G[k] = 1.0;
+        else B[k] = 1.0;
+      }
+    } else if (name === 'rgb-diag') {
+      // Diagonal gradient: R grows in x, B grows in y, G is the average.
+      for (let y = 0; y < N32; y++) for (let x = 0; x < N32; x++) {
+        const k = y * N32 + x;
+        R[k] = x / (N32 - 1);
+        B[k] = y / (N32 - 1);
+        G[k] = (R[k] + B[k]) / 2;
+      }
+    } else { // rgb-disc
+      const cx = N32 / 2, cy = N32 / 2, r = N32 / 4;
+      for (let y = 0; y < N32; y++) for (let x = 0; x < N32; x++) {
+        const k = y * N32 + x;
+        const d = Math.hypot(x - cx + 0.5, y - cy + 0.5);
+        if (d < r) { R[k] = 1.0; }
+        else { B[k] = 0.7; }
+      }
+    }
+    return {R, G, B};
+  }
+  function paintChannel(ctx, ch, channelTint) {
+    // ch = Float32Array of N*N. Paint as a color-tinted grayscale.
+    // channelTint = 'R' | 'G' | 'B' | 'gray' | 'rgb' (combined image: 3 channels)
+    const dim = N;
+    const img = ctx.createImageData(dim, dim);
+    if (channelTint === 'rgb') {
+      const {R, G, B} = ch; // ch is {R, G, B} object
+      for (let i = 0; i < dim * dim; i++) {
+        img.data[i * 4]     = Math.max(0, Math.min(255, R[i] * 255));
+        img.data[i * 4 + 1] = Math.max(0, Math.min(255, G[i] * 255));
+        img.data[i * 4 + 2] = Math.max(0, Math.min(255, B[i] * 255));
+        img.data[i * 4 + 3] = 255;
+      }
+    } else {
+      for (let i = 0; i < dim * dim; i++) {
+        const v = Math.max(0, Math.min(255, ch[i] * 255));
+        img.data[i * 4]     = channelTint === 'R' || channelTint === 'gray' ? v : 0;
+        img.data[i * 4 + 1] = channelTint === 'G' || channelTint === 'gray' ? v : 0;
+        img.data[i * 4 + 2] = channelTint === 'B' || channelTint === 'gray' ? v : 0;
+        img.data[i * 4 + 3] = 255;
+      }
+    }
+    // Scale up to canvas size via createImageBitmap is heavy — use putImageData then drawImage with scaling.
+    const off = document.createElement('canvas');
+    off.width = dim; off.height = dim;
+    off.getContext('2d').putImageData(img, 0, 0);
+    ctx.imageSmoothingEnabled = false;
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.drawImage(off, 0, 0, ctx.canvas.width, ctx.canvas.height);
+  }
+  function paintSignedChannel(ctx, ch, takeAbs) {
+    // For output channels which can be negative. Apply abs + scale.
+    const dim = N;
+    const img = ctx.createImageData(dim, dim);
+    const vals = takeAbs ? ch.map(v => Math.abs(v)) : ch.slice();
+    let maxV = 0;
+    for (const v of vals) if (v > maxV) maxV = Math.abs(v);
+    const scale = maxV > 0 ? 1 / maxV : 1;
+    for (let i = 0; i < dim * dim; i++) {
+      const v = takeAbs ? vals[i] * scale * 255
+                        : ((vals[i] * scale + 1) / 2) * 255;
+      const c = Math.max(0, Math.min(255, v));
+      img.data[i * 4]     = c;
+      img.data[i * 4 + 1] = c;
+      img.data[i * 4 + 2] = c;
+      img.data[i * 4 + 3] = 255;
+    }
+    const off = document.createElement('canvas');
+    off.width = dim; off.height = dim;
+    off.getContext('2d').putImageData(img, 0, 0);
+    ctx.imageSmoothingEnabled = false;
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.drawImage(off, 0, 0, ctx.canvas.width, ctx.canvas.height);
+  }
+  function renderRgb() {
+    const presetEl = document.getElementById('rgbPresetSel');
+    if (!presetEl) return;
+    const presetName = presetEl.value;
+    const {R, G, B} = makeRgbPreset(presetName);
+    const K = readKernel();
+    // Render inputs.
+    paintChannel(document.getElementById('rgbInputCv').getContext('2d'), {R, G, B}, 'rgb');
+    paintChannel(document.getElementById('rgbRcv').getContext('2d'), R, 'R');
+    paintChannel(document.getElementById('rgbGcv').getContext('2d'), G, 'G');
+    paintChannel(document.getElementById('rgbBcv').getContext('2d'), B, 'B');
+    // Convolve each channel separately.
+    const Rout = convolveBuf(R, K, N);
+    const Gout = convolveBuf(G, K, N);
+    const Bout = convolveBuf(B, K, N);
+    // Sum.
+    const Sum = new Float32Array(N * N);
+    for (let i = 0; i < N * N; i++) Sum[i] = Rout[i] + Gout[i] + Bout[i];
+    paintSignedChannel(document.getElementById('rgbRoutCv').getContext('2d'), Rout, true);
+    paintSignedChannel(document.getElementById('rgbGoutCv').getContext('2d'), Gout, true);
+    paintSignedChannel(document.getElementById('rgbBoutCv').getContext('2d'), Bout, true);
+    paintSignedChannel(document.getElementById('rgbSumCv').getContext('2d'), Sum, true);
+  }
+  // sliding-window click-to-inspect on output canvas.
+  // Map click → output cell → corresponding 3×3 input window + dot-product math.
+  outCv.style.cursor = 'crosshair';
+  outCv.addEventListener('click', e => {
+    const rect = outCv.getBoundingClientRect();
+    // Convert click coords to output-cell coords. In conv mode, output is N×N. In pool/stack
+    // mode the output dim differs — for simplicity we always inspect against the input
+    // sliding window (the lesson works either way for the FIRST conv layer).
+    const cx = (e.clientX - rect.left) * (outCv.width / rect.width);
+    const cy = (e.clientY - rect.top)  * (outCv.height / rect.height);
+    const outRow = Math.floor(cy / SCALE);
+    const outCol = Math.floor(cx / SCALE);
+    // Map output cell back to input center (single-conv with same-size output via edge-clamp).
+    // For conv-pool mode output is N/p; rescale. p now configurable.
+    const layer = $('layerSel').value;
+    const poolP = ($('poolSize') ? +$('poolSize').value : 2);
+    const dim = (layer === 'conv-pool') ? Math.floor(N / poolP) : N;
+    const scaleBack = N / dim;
+    const ir = Math.min(N - 1, Math.max(0, Math.floor(outRow * scaleBack + scaleBack / 2)));
+    const ic = Math.min(N - 1, Math.max(0, Math.floor(outCol * scaleBack + scaleBack / 2)));
+    const K = readKernel();
+    let html = `<div>Output cell at <b>(${outRow}, ${outCol})</b> ← input window centered at <b>(${ir}, ${ic})</b>:</div>`;
+    // Build 3×3 input window with edge-clamp.
+    const win = [];
+    for (let dr = -1; dr <= 1; dr++) {
+      const row = [];
+      for (let dc = -1; dc <= 1; dc++) {
+        const r = Math.max(0, Math.min(N - 1, ir + dr));
+        const c = Math.max(0, Math.min(N - 1, ic + dc));
+        row.push(pixels[r * N + c]);
+      }
+      win.push(row);
+    }
+    // Render: input window grid | × | kernel grid | = | terms summed
+    const fmt = v => v.toFixed(2);
+    const cellStyle = 'display:inline-block; width:36px; padding:4px 2px; text-align:center; border:1px solid var(--border); background:white; color:var(--fg);';
+    const gridStyle = 'display:inline-grid; grid-template-columns:repeat(3, 1fr); gap:2px; vertical-align:middle; margin:0 6px;';
+    html += '<div style="margin-top:8px;">';
+    html += '<span style="color:var(--muted); font-size:0.78rem;">input window</span>';
+    html += `<span style="${gridStyle}">`;
+    for (const row of win) for (const v of row) html += `<span style="${cellStyle}">${fmt(v)}</span>`;
+    html += '</span> × <span style="color:var(--muted); font-size:0.78rem;">kernel</span>';
+    html += `<span style="${gridStyle}">`;
+    for (const v of K) html += `<span style="${cellStyle}">${fmt(v)}</span>`;
+    html += '</span></div>';
+    // Sum.
+    let sum = 0;
+    const terms = [];
+    for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) {
+      const v = win[i][j];
+      const k = K[i * 3 + j];
+      const t = v * k;
+      sum += t;
+      if (Math.abs(t) > 1e-9) terms.push(`${fmt(v)}×${fmt(k)}`);
+    }
+    html += `<div style="margin-top:6px;">Σ = ${terms.length ? terms.join(' + ') : '0'} = <b style="color:var(--accent);">${fmt(sum)}</b></div>`;
+    $('windowMath').innerHTML = html;
+  });
+
+  // RGB preset selector triggers a re-render of the multi-channel demo.
+  const rgbSelEl = document.getElementById('rgbPresetSel');
+  if (rgbSelEl) rgbSelEl.addEventListener('change', renderRgb);
+
+  loadKernelToInputs('edgeX');
+  preset('cross');
+  // After defaults applied, re-apply URL settings via the select handlers.
+  try {
+    const sp = new URLSearchParams(location.search);
+    if (sp.get('kernel')) $('kernelSel').dispatchEvent(new Event('change'));
+    if (sp.get('preset')) $('presetSel').dispatchEvent(new Event('change'));
+    if (sp.get('layer')) $('layerSel').dispatchEvent(new Event('change'));
+  } catch (_) {}
+
+  // Lesson tour. Five canonical scenarios for an in-class walkthrough.
+  function applyPreset(layer, preset, kernel) {
+    $('layerSel').value = layer; $('layerSel').dispatchEvent(new Event('change'));
+    $('presetSel').value = preset; $('presetSel').dispatchEvent(new Event('change'));
+    $('kernelSel').value = kernel; $('kernelSel').dispatchEvent(new Event('change'));
+  }
+  const LESSON_TOUR = [
+    { name: 'Identity kernel = no change',
+      description: "Cross image, Identity kernel. Output looks identical to input. Sanity check: the [[0,0,0],[0,1,0],[0,0,0]] kernel passes the center pixel through unchanged.",
+      apply: () => applyPreset('conv', 'cross', 'identity') },
+    { name: 'Sobel-X finds vertical edges',
+      description: "Cross image, Sobel-X. Output lights up where pixels change horizontally — i.e., on the vertical bar of the cross. This is what 'edge detection' literally means.",
+      apply: () => applyPreset('conv', 'cross', 'edgeX') },
+    { name: 'Sobel-Y finds horizontal edges',
+      description: "Same image, Sobel-Y. Now the horizontal bar lights up instead. The kernel is rotated 90°. Two filters, two complementary features.",
+      apply: () => applyPreset('conv', 'cross', 'edgeY') },
+    { name: 'Conv → max-pool downsamples',
+      description: "Switch to 'Conv + max-pool'. Output is now 16×16 (downsampled). Pooling keeps the strongest activation in each 2×2 block — translation tolerance comes from here.",
+      apply: () => applyPreset('conv-pool', 'cross', 'edgeX') },
+    { name: 'Stacked convs grow receptive field',
+      description: "Switch to 'Conv → conv'. Two 3×3 kernels stacked = a 5×5 effective receptive field. Try the default (Sobel-X then Sobel-Y) — this approximates a corner detector. Real CNNs stack dozens of layers.",
+      apply: () => applyPreset('conv-conv', 'cross', 'edgeX') },
+  ];
+  let tourIdx = 0;
+  function renderTour() {
+    if (!$('tourName')) return;
+    const s = LESSON_TOUR[tourIdx];
+    $('tourName').textContent = s.name;
+    $('tourDesc').textContent = s.description;
+    $('tourPos').textContent = `${tourIdx + 1}/${LESSON_TOUR.length}`;
+    $('tourPrev').disabled = (tourIdx === 0);
+    $('tourNext').disabled = (tourIdx === LESSON_TOUR.length - 1);
+  }
+  $('tourApply').addEventListener('click', () => LESSON_TOUR[tourIdx].apply());
+  $('tourPrev').addEventListener('click', () => { if (tourIdx > 0) { tourIdx--; renderTour(); } });
+  $('tourNext').addEventListener('click', () => { if (tourIdx < LESSON_TOUR.length - 1) { tourIdx++; renderTour(); } });
+  renderTour();
+
+  // Worksheet/lab mode — 3 questions with instant ✓/✗ feedback.
+  const WORKSHEET = [
+    { check: ans => {
+        const ok = ans.includes('same') || ans.includes('input') || ans.includes('unchanged');
+        return { ok,
+          msg: ok
+            ? "Correct. The Identity kernel [[0,0,0],[0,1,0],[0,0,0]] multiplies the center pixel by 1 and everyone else by 0. The output is exactly the input — a useful sanity check."
+            : "Try 'same as input'. Identity kernel preserves the center pixel and zeros out the rest of the neighborhood — output = input." };
+      } },
+    { check: ans => {
+        const ok = ans.includes('vertical');
+        return { ok,
+          msg: ok
+            ? "Correct. Sobel-X detects horizontal *changes* in intensity — which happen at the edges of vertical lines. The vertical bar of the cross lights up because that's where pixel values change horizontally."
+            : "Try 'vertical bar'. Sobel-X kernel = [[-1,0,1],[-2,0,2],[-1,0,1]] computes ∂I/∂x — large where pixels change horizontally, which is at vertical edges." };
+      } },
+    { check: ans => {
+        const ok = ans.includes('5');
+        return { ok,
+          msg: ok
+            ? "Correct. Stacked 3×3 convs grow the receptive field by 2 cells per layer: 3 → 5 → 7. Two 3×3 layers see a 5×5 input patch with FEWER parameters than one 5×5 kernel (18 vs 25). This is why CNN architectures stack small kernels."
+            : "Try 5×5. Each 3×3 conv adds 2 to the receptive field width (1 on each side). Stacking two 3×3s sees 5×5." };
+      } },
+  ];
+  WORKSHEET.forEach((q, i) => {
+    const n = i + 1;
+    $(`ws${n}btn`).addEventListener('click', () => {
+      const ans = (($(`ws${n}ans`).value) || '').trim().toLowerCase();
+      const { ok, msg } = q.check(ans);
+      const fb = $(`ws${n}fb`);
+      fb.textContent = (ok ? '✓ ' : '✗ ') + msg;
+      fb.style.color = ok ? '#16a34a' : '#dc2626';
+    });
+  });
+})();
+</script>
+<!-- Embed mode handler (shared pattern across all 12 applets). -->
+<script>
+(() => {
+  try {
+    if (new URLSearchParams(location.search).get('embed') === '1') {
+      document.body.classList.add('embed-mode');
+    }
+  } catch (_) {}
+  const btn = document.getElementById('embedLink');
+  if (!btn) return;
+  btn.addEventListener('click', async () => {
+    const url = new URL(location.href);
+    url.searchParams.set('embed', '1');
+    const snippet = `<iframe src="${url.toString()}" width="100%" height="720" frameborder="0" style="border:1px solid #e5e7eb; border-radius:8px;" loading="lazy"></iframe>`;
+    try {
+      await navigator.clipboard.writeText(snippet);
+      const orig = btn.textContent; btn.textContent = '✓ Copied iframe';
+      setTimeout(() => btn.textContent = orig, 1800);
+    } catch (_) { prompt('Copy this iframe snippet:', snippet); }
+  });
+})();
+</script>
+</body>
+</html>

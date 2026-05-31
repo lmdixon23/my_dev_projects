@@ -1,0 +1,22 @@
+[package]
+name = "rust_poa_zkp_voting"
+version = "0.1.0"
+edition = "2021"
+description = "Toy PoA (round-robin authority) + commit-reveal voting chain in pure Rust. Single-process simulation; not a real blockchain client."
+license = "MIT"
+
+[dependencies]
+sha2 = "0.10"
+ed25519-dalek = { version = "2.1", features = ["rand_core"] }
+rand = "0.8"
+rand_core = "0.6"
+hex = "0.4"
+thiserror = "1.0"
+
+[lib]
+name = "rust_poa_zkp_voting"
+path = "src/lib.rs"
+
+[[bin]]
+name = "rust_poa_zkp_voting"
+path = "src/main.rs"

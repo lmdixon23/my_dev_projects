@@ -1,0 +1,26 @@
+The Eiffel Tower is a wrought-iron lattice tower on the Champ de Mars in Paris,
+France. It is named after the engineer Gustave Eiffel, whose company designed
+and built the tower for the 1889 World's Fair. Locally nicknamed "La dame de
+fer", it was constructed from 1887 to 1889 as the centerpiece of the fair and
+initially criticized by some of France's leading artists and intellectuals for
+its design, but it has become a global cultural icon of France and one of the
+most recognizable structures in the world.
+
+Photosynthesis is the process by which plants and other organisms convert
+light energy, normally from the sun, into chemical energy that can later be
+released to fuel the organism's activities. This chemical energy is stored in
+carbohydrate molecules, such as sugars, which are synthesized from carbon
+dioxide and water. Most plants, most algae, and cyanobacteria perform
+photosynthesis; such organisms are called photoautotrophs. Photosynthesis is
+largely responsible for producing and maintaining the oxygen content of the
+Earth's atmosphere, and supplies most of the energy necessary for life on
+Earth.
+
+Quantum computing is an area of computing focused on developing computer
+technology based on the principles of quantum theory. Quantum computers
+perform calculations based on the behavior of particles at the sub-atomic
+level. Unlike classical computers, which use bits to represent information as
+either 0 or 1, quantum computers use quantum bits or qubits, which can
+represent and process much more information thanks to two key properties:
+superposition and entanglement. Companies including IBM, Google, and several
+startups are racing to build practical, fault-tolerant quantum computers.

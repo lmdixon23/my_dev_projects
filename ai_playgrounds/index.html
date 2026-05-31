@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Playgrounds — Interactive Intro-to-AI</title>
+<meta name="description" content="Twelve single-file interactive visualizations of core AI concepts: pathfinding, Bayes rule, KNN, overfitting, neural nets, k-means, convolutions, Q-learning, Wumpus World, hill climbing, CNF/SAT, Bayesian networks. Free for any classroom.">
+<style>
+  /* Light theme (default) — warm cream backdrop matching the applets' default. */
+  :root {
+    --bg: #fefdf8;
+    --fg: #1f2937;
+    --muted: #6b7280;
+    --accent: #0284c7;
+    --accent-2: #6366f1;
+    --card: #ffffff;
+    --border: #e5e7eb;
+    --header-glow: rgba(2, 132, 199, 0.10);
+  }
+  /* Dark theme — same palette the applets use after toggle. */
+  body.dark-mode {
+    --bg: #0f172a;
+    --fg: #e2e8f0;
+    --muted: #94a3b8;
+    --accent: #38bdf8;
+    --accent-2: #818cf8;
+    --card: #1e293b;
+    --border: #334155;
+    --header-glow: rgba(56, 189, 248, 0.15);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    line-height: 1.55;
+    transition: background 0.2s, color 0.2s;
+  }
+  header {
+    padding: 64px 24px 32px;
+    text-align: center;
+    background: radial-gradient(ellipse at top, var(--header-glow), transparent 70%);
+    position: relative;
+  }
+  header h1 {
+    margin: 0 0 12px;
+    font-size: clamp(2rem, 5vw, 3rem);
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  header p {
+    max-width: 640px;
+    margin: 0 auto;
+    color: var(--muted);
+    font-size: 1.05rem;
+  }
+  /* Theme toggle floats in the top-right of the header. */
+  .theme-toggle {
+    position: absolute;
+    top: 20px;
+    right: 24px;
+    background: var(--card);
+    color: var(--fg);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-size: 1rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s, border-color 0.15s, transform 0.15s;
+  }
+  .theme-toggle:hover {
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+  .theme-toggle:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  main {
+    max-width: 1100px;
+    margin: 32px auto;
+    padding: 0 24px 64px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    text-decoration: none;
+    color: var(--fg);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
+  }
+  body.dark-mode .card:hover {
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+  }
+  .card .unit {
+    color: var(--accent);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .card h2 {
+    margin: 0 0 8px;
+    font-size: 1.25rem;
+  }
+  .card p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+    flex: 1;
+  }
+  .card .aha {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--accent);
+    font-style: italic;
+  }
+  .meta {
+    text-align: center;
+    margin-top: 48px;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+  .meta a { color: var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <button class="theme-toggle" id="themeToggle"
+          aria-label="Toggle dark or light theme"
+          title="Toggle dark / light theme (saved across all playgrounds).">🌙</button>
+  <h1>AI Playgrounds</h1>
+  <p>Twelve interactive visualizations of the core ideas in any
+     introductory AI course. Drag the sliders. Click the canvas. Watch the
+     algorithms come to life.</p>
+</header>
+<main>
+  <div class="grid">
+
+    <a class="card" href="playgrounds/search-pathfinding/">
+      <div class="unit">Unit 2 — Search</div>
+      <h2>Pathfinding Visualizer</h2>
+      <p>BFS, DFS, and A* race across a grid you draw. Watch the search frontier expand in real time.</p>
+      <div class="aha">→ Why A* explores fewer nodes than BFS</div>
+    </a>
+
+    <a class="card" href="playgrounds/wumpus-world/">
+      <div class="unit">Unit 2 — Logical agent</div>
+      <h2>Wumpus World</h2>
+      <p>The classic Russell &amp; Norvig environment. Watch a logical agent infer safe squares from percepts — world view next to the agent's knowledge map.</p>
+      <div class="aha">→ The difference between "I haven't seen it" and "I've proved it's not there"</div>
+    </a>
+
+    <a class="card" href="playgrounds/cnf-sat/">
+      <div class="unit">Unit 2 — Logic & KB</div>
+      <h2>CNF & SAT Builder</h2>
+      <p>Type propositional sentences. Watch them get rewritten into CNF, step by step. Brute-force SAT-checks the formula and shows every satisfying model.</p>
+      <div class="aha">→ Why every SAT solver in the world wants CNF as input</div>
+    </a>
+
+    <a class="card" href="playgrounds/bayes-classifier/">
+      <div class="unit">Unit 3 — Probability</div>
+      <h2>Bayes Rule Playground</h2>
+      <p>Slide the prior. Slide the accuracy. See how a "99% accurate" test changes its mind about a rare disease.</p>
+      <div class="aha">→ Why intuition about probability is usually wrong</div>
+    </a>
+
+    <a class="card" href="playgrounds/bayes-network/">
+      <div class="unit">Unit 3 — Bayesian networks</div>
+      <h2>Bayesian Network</h2>
+      <p>The R&amp;N burglar-earthquake network. Editable CPTs, exact inference, Gibbs sampling. See the "explaining away" effect live.</p>
+      <div class="aha">→ Why learning of an earthquake LOWERS your belief in a burglary</div>
+    </a>
+
+    <a class="card" href="playgrounds/knn-classifier/">
+      <div class="unit">Unit 4 — Supervised Learning</div>
+      <h2>K-Nearest Neighbors</h2>
+      <p>Click to add training points of either class. Watch the decision boundary redraw itself as you change k.</p>
+      <div class="aha">→ What "k" actually does to a model</div>
+    </a>
+
+    <a class="card" href="playgrounds/overfitting/">
+      <div class="unit">Unit 5 — Evaluation</div>
+      <h2>Overfitting Explorer</h2>
+      <p>Fit polynomials from degree 1 to degree 20. Watch train error drop while test error explodes.</p>
+      <div class="aha">→ Why a perfect training fit can fail in the real world</div>
+    </a>
+
+    <a class="card" href="playgrounds/hill-climbing/">
+      <div class="unit">Unit 5 — Local search</div>
+      <h2>Hill Climbing & SA</h2>
+      <p>Six algorithm variants × three problems (TSP, N-queens, function landscape). Watch greedy methods get stuck while simulated annealing escapes.</p>
+      <div class="aha">→ Why sometimes you have to take a worse step</div>
+    </a>
+
+    <a class="card" href="playgrounds/neural-network/">
+      <div class="unit">Unit 6 — Neural Networks</div>
+      <h2>Tiny Neural Net</h2>
+      <p>Train a 2-layer network to classify points. Add neurons, change the activation, watch the loss fall.</p>
+      <div class="aha">→ How layers + non-linearity carve up space</div>
+    </a>
+
+    <a class="card" href="playgrounds/kmeans/">
+      <div class="unit">Unit 7 — Unsupervised Learning</div>
+      <h2>K-Means Clustering</h2>
+      <p>Drop points, set k, then step through assignments and updates. The whole algorithm in one screen.</p>
+      <div class="aha">→ What "iterating to convergence" looks like</div>
+    </a>
+
+    <a class="card" href="playgrounds/convolution/">
+      <div class="unit">Unit 8 — Vision</div>
+      <h2>Convolution Playground</h2>
+      <p>Draw on a canvas. Pick a 3×3 filter. See how the filter detects edges, blurs, or sharpens — pixel by pixel.</p>
+      <div class="aha">→ Why a tiny matrix can "see" features</div>
+    </a>
+
+    <a class="card" href="playgrounds/q-learning-gridworld/">
+      <div class="unit">Unit 10 — Reinforcement Learning</div>
+      <h2>Q-Learning Gridworld</h2>
+      <p>An agent learns to find the goal by trial and error. Watch its Q-values fill in across the grid as it plays.</p>
+      <div class="aha">→ How a value function emerges from random walking</div>
+    </a>
+
+  </div>
+
+  <div class="meta">
+    Built for the 2025–2026 Intro to AI course at Haidian Kaiwen Academy.<br>
+    MIT licensed — fork, remix, and use in your classroom.
+    Source: <a href="https://github.com/lmdixon23/ai-playgrounds">github.com/lmdixon23/ai-playgrounds</a>
+  </div>
+</main>
+
+<script>
+  // Theme: default LIGHT. Read shared 'theme' key (same as applets) so user's choice
+  // persists across the landing page and any applet they open.
+  (function () {
+    const KEY = 'theme';
+    let saved = null;
+    try { saved = localStorage.getItem(KEY); } catch (_) {}
+    // Default light if nothing saved. Honor saved value if it exists.
+    if (saved === 'dark') document.body.classList.add('dark-mode');
+    function refreshIcon() {
+      const dark = document.body.classList.contains('dark-mode');
+      document.getElementById('themeToggle').textContent = dark ? '☀️' : '🌙';
+    }
+    refreshIcon();
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      document.body.classList.toggle('dark-mode');
+      const dark = document.body.classList.contains('dark-mode');
+      try { localStorage.setItem(KEY, dark ? 'dark' : 'light'); } catch (_) {}
+      refreshIcon();
+    });
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Visualizing CNF & SAT</title>
+<meta name="description" content="Type propositional logic. Watch it get rewritten into CNF step-by-step. Brute-force SAT enumerates every assignment and shows all satisfying models.">
+<style>
+  :root {
+    --bg: #fefdf8; --fg: #1f2937; --muted: #6b7280; --accent: #9333ea;
+    --card: #fff; --border: #e5e7eb; --soft: #f9fafb;
+    --true: #16a34a; --false: #dc2626;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'Georgia', serif; background: var(--bg); color: var(--fg); line-height: 1.6; }
+  .page-header { background: var(--card); border-bottom: 1px solid var(--border);
+                  padding: 16px 24px; display: flex; align-items: center; justify-content: space-between;
+                  flex-wrap: wrap; gap: 12px; }
+  .page-header h1 { margin: 0; font-size: 1.5rem; }
+  .page-header .back { color: var(--accent); text-decoration: none; font-size: 0.9rem;
+                       font-family: -apple-system, system-ui, sans-serif; }
+  .header-tools { display: flex; gap: 8px; align-items: center;
+                   font-family: -apple-system, system-ui, sans-serif; font-size: 0.85rem; }
+  .lang-switch { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  .lang-switch button { padding: 4px 10px; background: white; color: var(--muted);
+                          border: none; cursor: pointer; font: inherit; font-size: 0.78rem; }
+  .lang-switch button.active { background: var(--accent); color: white; font-weight: 600; }
+  .header-reset { padding: 6px 12px; background: white; color: var(--fg);
+                    border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
+                    font: inherit; font-size: 0.82rem; }
+  .header-reset:hover { background: var(--soft); }
+  .tldr { position: fixed; top: 80px; right: 24px; max-width: 250px;
+           background: var(--accent); color: white;
+           border-radius: 8px; padding: 14px 16px; font-size: 0.88rem; font-weight: 500;
+           font-family: -apple-system, system-ui, sans-serif; line-height: 1.45;
+           z-index: 50; box-shadow: 0 6px 20px rgba(0,0,0,0.18); }
+  .tldr strong { color: rgba(255,255,255,0.85); font-size: 0.72rem; letter-spacing: 0.08em;
+                  text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 6px; }
+  @media (max-width: 1100px) { .tldr { display: none; } }
+  .interactive { background: var(--card); padding: 24px; border-bottom: 1px solid var(--border); }
+  .interactive-inner { max-width: 900px; margin: 0 auto;
+                         font-family: -apple-system, system-ui, sans-serif; }
+  .input-row { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 14px; }
+  .input-card { background: white; border: 1px solid var(--border); border-radius: 8px;
+                  padding: 12px; }
+  .input-card h3 { margin: 0 0 8px; font-size: 0.85rem; color: var(--accent);
+                     text-transform: uppercase; letter-spacing: 0.05em; }
+  textarea {
+    width: 100%; min-height: 150px; padding: 10px; background: white; color: var(--fg);
+    border: 1px solid var(--border); border-radius: 6px;
+    font-family: 'SF Mono', Consolas, monospace; font-size: 0.92rem;
+    resize: vertical;
+  }
+  .syntax-card { background: var(--soft); border: 1px solid var(--border); border-radius: 8px;
+                   padding: 12px; font-family: monospace; font-size: 0.82rem;
+                   color: var(--muted); line-height: 1.7; }
+  .syntax-card b { color: var(--accent); }
+  .syntax-card h3 { font-family: -apple-system, system-ui, sans-serif; margin: 0 0 8px;
+                      font-size: 0.85rem; color: var(--accent);
+                      text-transform: uppercase; letter-spacing: 0.05em; }
+  .control-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+                  margin-bottom: 14px; font-size: 0.85rem; }
+  .step-btn { padding: 7px 14px; background: white; color: var(--fg);
+                border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
+                font: inherit; font-size: 0.85rem; }
+  .step-btn.primary { background: var(--accent); color: white;
+                       border-color: var(--accent); font-weight: 600; }
+  .panel { background: white; border: 1px solid var(--border); border-radius: 8px;
+             padding: 14px; margin-bottom: 14px; }
+  .panel h3 { margin: 0 0 8px; font-size: 0.95rem; color: var(--accent); }
+  .panel .sub { color: var(--muted); font-size: 0.8rem; margin-bottom: 10px; }
+  .formula-line { font-family: 'SF Mono', monospace; font-size: 0.92rem;
+                    padding: 6px 10px; background: var(--soft); border-radius: 4px;
+                    margin: 4px 0; border-left: 3px solid var(--border);
+                    overflow-x: auto; word-break: break-all; }
+  .formula-line.original { border-left-color: var(--accent); }
+  .formula-line .step-name { color: var(--accent); font-size: 0.78rem;
+                                text-transform: uppercase; margin-right: 8px;
+                                font-family: -apple-system, system-ui, sans-serif; }
+  .summary { font-size: 1.4rem; font-weight: 700; margin-bottom: 10px;
+              font-family: -apple-system, system-ui, sans-serif; }
+  .summary.sat { color: var(--true); }
+  .summary.unsat { color: var(--false); }
+  .table { border-collapse: collapse; font-family: monospace; font-size: 0.85rem; margin-top: 10px; }
+  .table th, .table td { padding: 5px 9px; border: 1px solid var(--border); text-align: center; }
+  .table th { background: var(--soft); color: var(--accent); }
+  .table td.T { background: #dcfce7; color: var(--true); font-weight: 600; }
+  .table td.F { background: #fee2e2; color: var(--false); font-weight: 600; }
+  .error { color: var(--false); font-family: monospace; font-size: 0.88rem;
+             padding: 8px 12px; background: #fee2e2;
+             border-left: 3px solid var(--false); border-radius: 4px; margin: 4px 0; }
+  .jump-link { display: inline-block; margin-top: 14px;
+                padding: 6px 14px; border: 1px solid var(--border); border-radius: 999px;
+                background: white; color: var(--accent); text-decoration: none;
+                font-family: -apple-system, system-ui, sans-serif; font-size: 0.82rem;
+                font-weight: 600; }
+  .jump-link:hover { background: var(--soft); }
+  .jump-anchor { text-align: center; }
+  .essay { max-width: 720px; margin: 0 auto; padding: 40px 24px 80px; font-size: 1.05rem; }
+  .essay h2 { font-size: 1.5rem; margin-top: 36px; margin-bottom: 12px; color: var(--accent); }
+  .essay h3 { font-size: 1.15rem; margin-top: 24px; margin-bottom: 8px; }
+  .essay .lede { font-size: 1.15rem; color: #374151; }
+  .essay .aha { background: #f3e8ff; border-left: 4px solid #9333ea;
+                 padding: 12px 18px; margin: 18px 0; border-radius: 0 6px 6px 0;
+                 font-style: italic; color: #581c87; }
+  .essay code { background: var(--soft); padding: 1px 6px; border-radius: 4px;
+                 font-family: 'SF Mono', Consolas, monospace; font-size: 0.92em; }
+  .essay ul li { margin-bottom: 6px; }
+  .essay .for-teachers { background: var(--soft); border: 1px solid var(--border);
+                          border-radius: 8px; padding: 20px 24px; margin-top: 36px;
+                          font-family: -apple-system, system-ui, sans-serif; font-size: 0.95rem; }
+  .essay .for-teachers h3 { font-family: -apple-system, system-ui, sans-serif;
+                              color: var(--accent); font-size: 0.9rem;
+                              text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; }
+  }
+  /* === dark mode === */
+  body.dark-mode {
+    --bg: #0f172a; --fg: #e2e8f0; --muted: #94a3b8;
+    --card: #1e293b; --border: #334155; --soft: #1e293b;
+  }
+  body.dark-mode .essay .lede { color: #cbd5e1; }
+  body.dark-mode .essay .for-teachers { background: #0f172a; }
+  body.dark-mode .header-reset,
+  body.dark-mode .lang-switch button:not(.active),
+  body.dark-mode .header-theme,
+  body.dark-mode .step-btn:not(.primary),
+  body.dark-mode .input-card,
+  body.dark-mode .syntax-card,
+  body.dark-mode .panel,
+  body.dark-mode textarea,
+  body.dark-mode .formula-line { background: var(--card); color: var(--fg); }
+  body.dark-mode .table th { background: var(--card); }
+  body.dark-mode .table td.T { background: rgba(22, 163, 74, 0.25); }
+  body.dark-mode .table td.F { background: rgba(220, 38, 38, 0.25); }
+  .header-theme { padding: 6px 10px; background: white; color: var(--fg);
+                    border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
+                    font-size: 1rem; line-height: 1; font-family: inherit; }
+  .header-theme:hover { background: var(--soft); }
+  /* embed mode. Strip chrome so the applet fits cleanly in an LMS iframe. */
+  body.embed-mode .page-header,
+  body.embed-mode aside.tldr,
+  body.embed-mode article.essay,
+  body.embed-mode .jump-anchor { display: none !important; }
+  body.embed-mode .interactive { padding: 12px; border-bottom: none; }
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <h1 data-i18n="title">Visualizing CNF &amp; SAT</h1>
+  <div class="header-tools">
+    <button class="header-theme" id="shareLink" style="font-size:0.9rem;"
+            title="Copy a URL that re-opens this exact formula in another browser.">🔗 Share</button>
+    <button class="header-theme" id="embedLink" style="font-size:0.9rem;"
+            title="Copy an <iframe> snippet for embedding in an LMS. Strips header/essay so only the interactive area shows.">📎 Embed</button>
+    <button class="header-theme" id="themeToggle" aria-label="Toggle dark or light theme"
+            title="Toggle dark / light theme (saved across all playgrounds).">🌙</button>
+    <button class="header-reset" id="hardReset" data-i18n="reset-all"
+            title="Reset input to default 'modus ponens' example.">↺ Reset all</button>
+    <div class="lang-switch" title="Switch interface language">
+      <button data-lang="en" class="active">EN</button>
+      <button data-lang="zh">中文</button>
+    </div>
+    <a class="back" href="../../" data-i18n="back-link">← All playgrounds</a>
+  </div>
+</header>
+
+<aside class="tldr">
+  <strong data-i18n="tldr-strong">The big idea</strong>
+  <span data-i18n="tldr-body">Every SAT solver in the world wants Conjunctive Normal Form. Watch ↔ → ¬ get distributed away in five mechanical steps, then brute-force-enumerate every satisfying assignment.</span>
+</aside>
+
+<section class="interactive">
+<div class="interactive-inner">
+
+  <div class="input-row">
+    <div class="input-card">
+      <h3 data-i18n="input-h3">Propositional sentences (one per line)</h3>
+      <textarea id="input">P -> Q
+Q -> R
+P</textarea>
+    </div>
+    <div class="syntax-card">
+      <h3 data-i18n="syntax-h3">Syntax</h3>
+      <b>~</b> <span data-i18n="syn-not">not</span><br>
+      <b>&amp;</b> <span data-i18n="syn-and">and</span><br>
+      <b>|</b> <span data-i18n="syn-or">or</span><br>
+      <b>-&gt;</b> <span data-i18n="syn-imp">implies</span><br>
+      <b>&lt;-&gt;</b> <span data-i18n="syn-iff">iff</span><br>
+      <b>( )</b> <span data-i18n="syn-paren">grouping</span><br>
+      <span data-i18n="syn-vars">Variables: letters/words</span><br>
+      <code>#</code> <span data-i18n="syn-comment">at line start = comment</span>
+    </div>
+  </div>
+
+  <div class="control-row">
+    <button class="step-btn primary" id="convertBtn" data-i18n="convert-btn"
+            data-i18n-title="convert-btn-title" title="Parse, convert to CNF, brute-force every assignment.">▶ Convert + check SAT</button>
+    <span style="color:var(--muted); font-size:0.82rem; margin-left:8px;" data-i18n="examples-label">Examples:</span>
+    <button class="step-btn" id="ex1" data-i18n="ex-mp" data-i18n-title="ex-mp-title" title="Modus ponens: P→Q, P, conclude Q.">Modus ponens</button>
+    <button class="step-btn" id="ex2" data-i18n="ex-wumpus" data-i18n-title="ex-wumpus-title" title="The Wumpus pit rule from AIMA 7.4.">Wumpus pit rule</button>
+    <button class="step-btn" id="ex3" data-i18n="ex-color" data-i18n-title="ex-color-title" title="3-coloring a triangle. SAT problem from graph theory.">3-coloring</button>
+    <button class="step-btn" id="ex4" data-i18n="ex-xor" data-i18n-title="ex-xor-title" title="A trio that pairwise differs but you try to assert all three true. UNSAT.">XOR UNSAT</button>
+    <button class="step-btn" id="ex5" data-i18n="ex-demorgan" data-i18n-title="ex-demorgan-title" title="De Morgan's law as a tautology — every row is a model.">De Morgan</button>
+  </div>
+
+  <div class="panel">
+    <h3 data-i18n="step1-h3">1. Parsed input</h3>
+    <div class="sub" data-i18n="step1-sub">Your sentences as parsed by the engine. Errors flagged here.</div>
+    <div id="parseOut"></div>
+  </div>
+
+  <div class="panel">
+    <h3 data-i18n="step2-h3">2. Conjunctive Normal Form (step by step)</h3>
+    <div class="sub" data-i18n="step2-sub">Standard rewrite pipeline: eliminate ↔, eliminate →, push ¬ in (De Morgan), distribute ∨ over ∧.</div>
+    <div id="cnfOut"></div>
+  </div>
+
+  <div class="panel">
+    <h3 data-i18n="step3-h3">3. Satisfiability</h3>
+    <div class="sub"><span data-i18n="step3-sub">Brute-force enumeration of all 2</span><sup>n</sup><span data-i18n="step3-sub2"> assignments (cap n = 12).</span></div>
+    <div id="satOut"></div>
+  </div>
+
+  <!-- Entailment by resolution refutation (AIMA Ch 7.5). -->
+  <div class="panel">
+    <h3 data-i18n="step4-h3">4. Entailment by resolution</h3>
+    <div class="sub" data-i18n="step4-sub">
+      To prove KB ⊨ α, add ¬α to the knowledge base and apply the resolution rule until you derive the empty clause (contradiction) or stop. AIMA Ch 7.5.
+    </div>
+    <div style="margin-top:8px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+      <label data-i18n="query-label" style="font-family:-apple-system,system-ui,sans-serif; font-size:0.88rem;">Query α:</label>
+      <input id="queryInput" type="text" value="R" placeholder="e.g. R or (P & Q)"
+             style="padding:6px 10px; border:1px solid var(--border); border-radius:6px; font: inherit; font-family:ui-monospace,monospace; min-width:200px;">
+      <button class="step-btn" id="proveBtn" data-i18n="prove-btn"
+              data-i18n-title="prove-title"
+              title="Negate the query, add to the KB, run resolution refutation. Empty clause = KB entails the query.">▶ Prove by resolution</button>
+    </div>
+    <div id="resolveOut" style="margin-top:8px;"></div>
+  </div>
+
+  <!-- Worksheet/lab mode. 3 questions per applet with instant check. -->
+  <details class="worksheet" style="margin-top:8px;">
+    <summary style="cursor:pointer; padding:8px 12px; background:var(--soft); border:1px solid var(--border); border-radius:6px; font-family:-apple-system,system-ui,sans-serif; font-size:0.88rem; color:var(--accent); font-weight:600;">
+      <span data-i18n="ws-summary">📝 Worksheet (3 questions)</span>
+    </summary>
+    <div style="margin-top:8px; padding:12px 14px; background:var(--card); border:1px solid var(--border); border-radius:6px; font-size:0.88rem; line-height:1.5;">
+      <div class="ws-q" id="ws1">
+        <p style="margin:0 0 4px;"><strong>Q1.</strong> Load the Modus ponens example and click Convert. How many satisfying assignments does the SAT enumeration find?</p>
+        <input id="ws1ans" type="text" placeholder="number" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit; width:80px;">
+        <button class="step-btn" id="ws1btn">Check</button>
+        <span id="ws1fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
+      </div>
+      <div class="ws-q" id="ws2" style="margin-top:10px;">
+        <p style="margin:0 0 4px;"><strong>Q2.</strong> Load the XOR UNSAT example. How many satisfying assignments?</p>
+        <input id="ws2ans" type="text" placeholder="number" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit; width:80px;">
+        <button class="step-btn" id="ws2btn">Check</button>
+        <span id="ws2fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
+      </div>
+      <div class="ws-q" id="ws3" style="margin-top:10px;">
+        <p style="margin:0 0 4px;"><strong>Q3.</strong> Modus ponens KB. In the query box, type <code>Q</code> and click "Prove by resolution". Does it succeed (empty clause derived)?</p>
+        <input id="ws3ans" type="text" placeholder="yes / no" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+        <button class="step-btn" id="ws3btn">Check</button>
+        <span id="ws3fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
+      </div>
+    </div>
+  </details>
+
+  <!-- Lesson tour. Ordered scenarios that step students through the key ideas. -->
+  <details class="lesson-tour" style="margin-top:12px;">
+    <summary style="cursor:pointer; padding:8px 12px; background:var(--soft); border:1px solid var(--border); border-radius:6px; font-family:-apple-system,system-ui,sans-serif; font-size:0.88rem; color:var(--accent); font-weight:600;">
+      <span data-i18n="tour-summary">📚 Lesson tour (5 steps)</span>
+    </summary>
+    <div style="margin-top:8px; padding:12px 14px; background:var(--card); border:1px solid var(--border); border-radius:6px;">
+      <div style="display:flex; align-items:baseline; gap:10px; margin-bottom:6px;">
+        <strong style="color:var(--accent);">Step <span id="tourPos">1/5</span>:</strong>
+        <strong id="tourName" style="font-family:-apple-system,system-ui,sans-serif;">—</strong>
+      </div>
+      <p id="tourDesc" style="margin:0 0 8px; color:var(--fg); font-size:0.88rem; line-height:1.5;">—</p>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <button class="step-btn secondary" id="tourPrev" data-i18n="tour-prev">← Prev</button>
+        <button class="step-btn" id="tourApply" data-i18n="tour-apply">▶ Apply this scenario</button>
+        <button class="step-btn secondary" id="tourNext" data-i18n="tour-next">Next →</button>
+      </div>
+    </div>
+  </details>
+
+  <div class="jump-anchor"><a href="#essay" class="jump-link" data-i18n="jump-link">↓ Read the explanation</a></div>
+</div>
+</section>
+
+<article class="essay" id="essay">
+
+  <p class="lede">
+    Propositional logic is the simplest form of logic that does anything interesting. You have
+    variables (each either true or false), the four classical connectives (not, and, or,
+    implies, iff), and a question: given a bag of sentences, is there any assignment of true/false
+    to the variables that makes all of them simultaneously true? That question is called SAT.
+    This applet walks you through how a computer answers it.
+  </p>
+
+  <h2>Why CNF first</h2>
+
+  <p>
+    A formula in <strong>Conjunctive Normal Form</strong> is an AND of ORs of literals
+    (variables or their negations). Every propositional formula can be rewritten into CNF, and
+    every SAT solver in production expects CNF as input. The reason: CNF has just enough
+    structure that powerful algorithms (DPLL, CDCL, watched literals) can exploit it efficiently.
+    The conversion is mechanical — five rewriting rules applied in order.
+  </p>
+
+  <h2>The five-step rewrite</h2>
+
+  <ol>
+    <li><strong>Eliminate ↔:</strong> <code>A ↔ B</code> becomes <code>(A → B) ∧ (B → A)</code>.</li>
+    <li><strong>Eliminate →:</strong> <code>A → B</code> becomes <code>¬A ∨ B</code>.</li>
+    <li><strong>Push ¬ inward (De Morgan):</strong> <code>¬(A ∧ B)</code> becomes
+      <code>¬A ∨ ¬B</code>; <code>¬(A ∨ B)</code> becomes <code>¬A ∧ ¬B</code>;
+      <code>¬¬A</code> becomes <code>A</code>.</li>
+    <li><strong>Distribute ∨ over ∧:</strong> <code>A ∨ (B ∧ C)</code> becomes
+      <code>(A ∨ B) ∧ (A ∨ C)</code>.</li>
+    <li><strong>Flatten</strong> into a list of clauses (each clause is a disjunction of literals).</li>
+  </ol>
+
+  <div class="aha">
+    Step 4 (distribute ∨ over ∧) is where formula size can explode. <code>(A ∧ B) ∨ (C ∧ D)</code>
+    becomes four clauses; a chain of n such conjunctions can produce 2<sup>n</sup> clauses.
+    That's why iff-heavy formulas — like the Wumpus pit rule <code>B11 ↔ (P12 ∨ P21)</code> —
+    look so big after conversion.
+  </div>
+
+  <h2>Why brute force is enough here, but never enough in general</h2>
+
+  <p>
+    With n variables there are 2<sup>n</sup> possible truth assignments. The applet enumerates
+    all of them (capped at n = 12, so 4,096 rows). With 30 variables that becomes a billion
+    rows — still doable but slow. With 100, it's 10<sup>30</sup>, which is more rows than there
+    are atoms in your laptop. SAT is the canonical NP-complete problem; real solvers use clever
+    search (DPLL with unit propagation and conflict-driven clause learning) to prune the search
+    space dramatically. Modern SAT solvers routinely handle problems with millions of variables
+    that brute force can't touch.
+  </p>
+
+  <h2>The Wumpus example is the bridge to Chapter 7</h2>
+
+  <p>
+    Click "Wumpus pit rule" up top. It encodes <code>B11 ↔ (P12 ∨ P21)</code>: "breeze at (1,1)
+    iff there's a pit at (1,2) or (2,1)." This is exactly the kind of sentence a Wumpus-world
+    agent builds in its knowledge base. The whole point of the agent (see the Wumpus World
+    applet) is to answer SAT queries against many such sentences to decide where it's safe
+    to move.
+  </p>
+
+  <h2>What this simplifies</h2>
+
+  <p>
+    Real SAT solvers use DPLL with watched literals, conflict-driven clause learning, restarts,
+    and variable activity heuristics. Real-world SAT problems often have 10⁶+ variables and 10⁷+
+    clauses. Real propositional reasoning extends to first-order logic (variables that range over
+    objects, not just true/false), where SAT becomes the undecidable problem of theorem-proving.
+    The five rewrite rules and brute-force enumeration here are the educational entry point, not
+    the production tool.
+  </p>
+
+  <div class="for-teachers">
+    <h3>For teachers</h3>
+    <p><strong>Curriculum:</strong> Unit 2 — Problem Representation (logical knowledge base).
+       Propositional syntax; CNF as a normal form; SAT as the canonical NP-complete decision
+       problem; model counting; reading a truth assignment.</p>
+    <p><strong>Pre-exploration prompts:</strong></p>
+    <ul>
+      <li>If two sentences are equivalent, are they identical? What's the difference?</li>
+      <li>What's the difference between "P → Q" and "Q → P"? Can you convince a computer of the difference?</li>
+      <li>If three friends each refuse to be at the party with one specific other person, is there any assignment that satisfies all of them?</li>
+    </ul>
+    <p><strong>Post-exploration prompts:</strong></p>
+    <ul>
+      <li>Load "Modus ponens." Why is Q forced?</li>
+      <li>Load "XOR UNSAT." Why is the formula unsatisfiable? Trace through every assignment.</li>
+      <li>Load "Wumpus pit rule." Look at the CNF expansion of <code>B11 ↔ (P12 ∨ P21)</code>. Why does ↔ explode into so many clauses?</li>
+      <li>Add a sentence to a SAT formula that's a contradiction. Does the model count drop to zero?</li>
+      <li>Why do we convert to CNF at all? (Hint: every SAT solver in the world expects CNF as input.)</li>
+    </ul>
+    <p><strong>Common misconceptions defeated:</strong>
+       "SAT is easy" (it's NP-complete; brute force is 2<sup>n</sup>);
+       "all formulas have a unique CNF" (no — they have many equivalent CNF forms; rewrite order matters);
+       "logic and probability are unrelated" (no — probability is what you do when logic alone leaves too many satisfying models).</p>
+  </div>
+
+</article>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+
+  // ===== i18n strings =====
+  const STRINGS = {
+    en: {
+      'title': "Visualizing CNF & SAT", 'back-link': '← All playgrounds',
+      'reset-all': '↺ Reset all', 'convert-btn': '▶ Convert + check SAT',
+      'tldr-strong': 'The big idea',
+      'tldr-body': 'Every SAT solver in the world wants Conjunctive Normal Form. Watch ↔ → ¬ get distributed away in five mechanical steps, then brute-force-enumerate every satisfying assignment.',
+      'input-h3': 'Propositional sentences (one per line)',
+      'syntax-h3': 'Syntax',
+      'syn-not': 'not', 'syn-and': 'and', 'syn-or': 'or',
+      'syn-imp': 'implies', 'syn-iff': 'iff', 'syn-paren': 'grouping',
+      'syn-vars': 'Variables: letters/words',
+      'syn-comment': 'at line start = comment',
+      'examples-label': 'Examples:',
+      'ex-mp': 'Modus ponens', 'ex-wumpus': 'Wumpus pit rule',
+      'ex-color': '3-coloring', 'ex-xor': 'XOR UNSAT', 'ex-demorgan': 'De Morgan',
+      'step1-h3': '1. Parsed input',
+      'step1-sub': 'Your sentences as parsed by the engine. Errors flagged here.',
+      'step2-h3': '2. Conjunctive Normal Form (step by step)',
+      'step2-sub': 'Standard rewrite pipeline: eliminate ↔, eliminate →, push ¬ in (De Morgan), distribute ∨ over ∧.',
+      'step3-h3': '3. Satisfiability',
+      'step3-sub': 'Brute-force enumeration of all 2',
+      'step3-sub2': ' assignments (cap n = 12).',
+      'step4-h3': '4. Entailment by resolution',
+      'step4-sub': 'To prove KB ⊨ α, add ¬α to the knowledge base and apply the resolution rule until you derive the empty clause (contradiction) or stop. AIMA Ch 7.5.',
+      'query-label': 'Query α:',
+      'prove-btn': '▶ Prove by resolution',
+      'prove-title': 'Negate the query, add to the KB, run resolution refutation. Empty clause = KB entails the query.',
+      'jump-link': '↓ Read the explanation',
+      'tour-summary': '📚 Lesson tour (5 steps)',
+      'tour-prev': '← Prev', 'tour-next': 'Next →', 'tour-apply': '▶ Apply this scenario',
+      'ws-summary': '📝 Worksheet (3 questions)',
+      // tooltip translations for main button + example buttons.
+      'convert-btn-title': 'Parse, convert to CNF, brute-force every assignment.',
+      'ex-mp-title': 'Modus ponens: P→Q, P, conclude Q.',
+      'ex-wumpus-title': 'The Wumpus pit rule from AIMA 7.4.',
+      'ex-color-title': '3-coloring a triangle. SAT problem from graph theory.',
+      'ex-xor-title': 'A trio that pairwise differs but you try to assert all three true. UNSAT.',
+      'ex-demorgan-title': "De Morgan's law as a tautology — every row is a model.",
+    },
+    zh: {
+      'title': '合取范式与可满足性可视化', 'back-link': '← 所有演示',
+      'reset-all': '↺ 全部重置', 'convert-btn': '▶ 转换 + 检查可满足性',
+      'tldr-strong': '核心思想',
+      'tldr-body': '世界上每一个 SAT 求解器都需要合取范式作为输入。看 ↔ → ¬ 如何在五个机械的步骤里被消除,然后暴力枚举所有满足赋值。',
+      'input-h3': '命题语句(每行一条)',
+      'syntax-h3': '语法',
+      'syn-not': '非', 'syn-and': '与', 'syn-or': '或',
+      'syn-imp': '蕴含', 'syn-iff': '当且仅当', 'syn-paren': '分组',
+      'syn-vars': '变量:字母或单词',
+      'syn-comment': '行首即为注释',
+      'examples-label': '示例:',
+      'ex-mp': '肯定前件', 'ex-wumpus': '吴普士陷阱规则',
+      'ex-color': '三染色', 'ex-xor': '异或不可满足', 'ex-demorgan': '德摩根',
+      'step1-h3': '1. 解析后的输入',
+      'step1-sub': '引擎解析后的语句。错误会在此标注。',
+      'step2-h3': '2. 合取范式(逐步)',
+      'step2-sub': '标准重写流程:消除 ↔,消除 →,把 ¬ 推进去(德摩根),∨ 对 ∧ 分配。',
+      'step3-h3': '3. 可满足性',
+      'step3-sub': '暴力枚举全部 2',
+      'step3-sub2': ' 种赋值(上限 n = 12)。',
+      'step4-h3': '4. 由归结判定蕴含',
+      'step4-sub': '要证明 KB ⊨ α,把 ¬α 加入知识库,反复应用归结规则,直到推出空子句(矛盾)或饱和为止。AIMA 第 7.5 节。',
+      'query-label': '查询 α:',
+      'prove-btn': '▶ 用归结证明',
+      'prove-title': '把查询取反加入 KB,运行归结反驳。出现空子句 = KB 蕴含查询。',
+      'jump-link': '↓ 阅读说明',
+      'tour-summary': '📚 课程导览(5 步)',
+      'tour-prev': '← 上一步', 'tour-next': '下一步 →', 'tour-apply': '▶ 应用此场景',
+      'ws-summary': '📝 练习题(3 题)',
+      // 主按钮与示例按钮的提示翻译。
+      'convert-btn-title': '解析,转换为合取范式,对每个赋值进行暴力检查。',
+      'ex-mp-title': '肯定前件:P→Q,P,得 Q。',
+      'ex-wumpus-title': '吴普士陷阱规则,来自 AIMA 第 7.4 节。',
+      'ex-color-title': '三角形三染色。来自图论的 SAT 问题。',
+      'ex-xor-title': '三者两两不同,却试图断言全为真。UNSAT。',
+      'ex-demorgan-title': '德摩根律的重言式——每一行都是模型。',
+    },
+  };
+  function setLang(lang) {
+    if (!STRINGS[lang]) lang = 'en';
+    document.documentElement.lang = lang;
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const k = el.dataset.i18n;
+      if (STRINGS[lang][k]) el.textContent = STRINGS[lang][k];
+    });
+    document.querySelectorAll('[data-i18n-title]').forEach(el => {
+      const k = el.dataset.i18nTitle;
+      if (STRINGS[lang][k]) el.title = STRINGS[lang][k];
+    });
+    document.querySelectorAll('.lang-switch button').forEach(b =>
+      b.classList.toggle('active', b.dataset.lang === lang));
+    try { localStorage.setItem('cnf-lang', lang); } catch (_) {}
+  }
+  document.querySelectorAll('.lang-switch button').forEach(b =>
+    b.addEventListener('click', () => setLang(b.dataset.lang)));
+  let initialLang = 'en';
+  try { initialLang = localStorage.getItem('cnf-lang') || 'en'; } catch (_) {}
+  setLang(initialLang);
+
+  function setTheme(t) {
+    document.body.classList.toggle('dark-mode', t === 'dark');
+    const btn = document.getElementById('themeToggle');
+    if (btn) btn.textContent = t === 'dark' ? '☀' : '🌙';
+    try { localStorage.setItem('theme', t); } catch (_) {}
+  }
+  let initialTheme = 'light';
+  try {
+    initialTheme = localStorage.getItem('theme') ||
+      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  } catch (_) {}
+  setTheme(initialTheme);
+  document.getElementById('themeToggle').addEventListener('click', () => {
+    setTheme(document.body.classList.contains('dark-mode') ? 'light' : 'dark');
+  });
+
+  // For-teachers is hidden by default (cognitive-load floor). User toggles persist.
+  // `?teacher=1` opens on load. `?teacher=0` hides completely (no toggle, for projection).
+  try {
+    const tp = new URLSearchParams(location.search).get('teacher');
+    if (tp === '0') {
+      document.querySelectorAll('.for-teachers').forEach(el => el.style.display = 'none');
+    } else {
+      const style = document.createElement('style');
+      style.textContent = '.for-teachers-expander{margin-top:36px}.for-teachers-expander>summary{cursor:pointer;padding:12px 16px;background:var(--soft);border:1px solid var(--border);border-radius:8px;font-family:-apple-system,system-ui,sans-serif;font-size:0.9rem;color:var(--accent);font-weight:600;list-style:none;user-select:none}.for-teachers-expander>summary::-webkit-details-marker{display:none}.for-teachers-expander[open]>summary{border-bottom-left-radius:0;border-bottom-right-radius:0}.for-teachers-expander>.for-teachers{margin-top:0;border-top:0;border-top-left-radius:0;border-top-right-radius:0}';
+      document.head.appendChild(style);
+      document.querySelectorAll('.for-teachers').forEach(div => {
+        const details = document.createElement('details');
+        details.className = 'for-teachers-expander';
+        const summary = document.createElement('summary');
+        summary.textContent = '▸ Show teacher notes (discussion prompts + curriculum)';
+        div.parentNode.insertBefore(details, div);
+        details.appendChild(summary);
+        details.appendChild(div);
+      });
+      const saved = (() => { try { return localStorage.getItem('teacher-notes-open'); } catch (_) { return null; } })();
+      const shouldOpen = tp === '1' || saved === '1';
+      document.querySelectorAll('details.for-teachers-expander').forEach(d => {
+        d.open = shouldOpen;
+        d.addEventListener('toggle', () => {
+          try { localStorage.setItem('teacher-notes-open', d.open ? '1' : '0'); } catch (_) {}
+        });
+      });
+    }
+  } catch (_) {}
+  // Ctrl+Enter inside the textarea = Convert + check SAT.
+  // (Plain spacebar would interrupt typing in the textarea.)
+  document.getElementById('input').addEventListener('keydown', e => {
+    if (e.code === 'Enter' && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      document.getElementById('convertBtn').click();
+    }
+  });
+
+  function tokenize(s) {
+    const tokens = []; let i = 0;
+    while (i < s.length) {
+      const c = s[i];
+      if (/\s/.test(c)) { i++; continue; }
+      if (c === '(' || c === ')') { tokens.push({type: c}); i++; continue; }
+      if (c === '~') { tokens.push({type: 'not'}); i++; continue; }
+      if (c === '&') { tokens.push({type: 'and'}); i++; continue; }
+      if (c === '|') { tokens.push({type: 'or'}); i++; continue; }
+      if (s.substr(i, 3) === '<->') { tokens.push({type: 'iff'}); i += 3; continue; }
+      if (s.substr(i, 2) === '->') { tokens.push({type: 'imp'}); i += 2; continue; }
+      if (/[A-Za-z_]/.test(c)) {
+        let j = i;
+        while (j < s.length && /[A-Za-z0-9_]/.test(s[j])) j++;
+        tokens.push({type: 'var', name: s.substring(i, j)});
+        i = j; continue;
+      }
+      throw new Error(`Unexpected character '${c}' at position ${i}`);
+    }
+    return tokens;
+  }
+  function parse(s) {
+    const tokens = tokenize(s);
+    let pos = 0;
+    function peek() { return tokens[pos]; }
+    function eat(t) { if (tokens[pos] && tokens[pos].type === t) { pos++; return true; } return false; }
+    function parseAtom() {
+      if (eat('(')) {
+        const e = parseIff();
+        if (!eat(')')) throw new Error("Expected ')'");
+        return e;
+      }
+      if (eat('not')) return {op: 'not', a: parseAtom()};
+      const t = tokens[pos];
+      if (t && t.type === 'var') { pos++; return {op: 'var', name: t.name}; }
+      throw new Error(`Unexpected token at position ${pos}`);
+    }
+    function parseAnd() {
+      let left = parseAtom();
+      while (peek() && peek().type === 'and') { eat('and'); left = {op: 'and', a: left, b: parseAtom()}; }
+      return left;
+    }
+    function parseOr() {
+      let left = parseAnd();
+      while (peek() && peek().type === 'or') { eat('or'); left = {op: 'or', a: left, b: parseAnd()}; }
+      return left;
+    }
+    function parseImp() {
+      const left = parseOr();
+      if (peek() && peek().type === 'imp') { eat('imp'); return {op: 'imp', a: left, b: parseImp()}; }
+      return left;
+    }
+    function parseIff() {
+      let left = parseImp();
+      while (peek() && peek().type === 'iff') { eat('iff'); left = {op: 'iff', a: left, b: parseImp()}; }
+      return left;
+    }
+    const e = parseIff();
+    if (pos < tokens.length) throw new Error(`Unexpected token after parse end (position ${pos})`);
+    return e;
+  }
+  function fmt(e, parent) {
+    const prec = {var: 99, not: 7, and: 6, or: 5, imp: 4, iff: 3};
+    const p = prec[e.op];
+    let s;
+    if (e.op === 'var') s = e.name;
+    else if (e.op === 'not') s = '¬' + fmt(e.a, e.op);
+    else if (e.op === 'and') s = fmt(e.a, e.op) + ' ∧ ' + fmt(e.b, e.op);
+    else if (e.op === 'or') s = fmt(e.a, e.op) + ' ∨ ' + fmt(e.b, e.op);
+    else if (e.op === 'imp') s = fmt(e.a, e.op) + ' → ' + fmt(e.b, e.op);
+    else if (e.op === 'iff') s = fmt(e.a, e.op) + ' ↔ ' + fmt(e.b, e.op);
+    if (parent && prec[parent] > p) s = '(' + s + ')';
+    return s;
+  }
+  function elimIff(e) {
+    if (e.op === 'var') return e;
+    if (e.op === 'not') return {op: 'not', a: elimIff(e.a)};
+    if (e.op === 'iff') {
+      const a = elimIff(e.a), b = elimIff(e.b);
+      return {op: 'and',
+              a: {op: 'imp', a: a, b: b},
+              b: {op: 'imp', a: b, b: a}};
+    }
+    return {op: e.op, a: elimIff(e.a), b: elimIff(e.b)};
+  }
+  function elimImp(e) {
+    if (e.op === 'var') return e;
+    if (e.op === 'not') return {op: 'not', a: elimImp(e.a)};
+    if (e.op === 'imp') return {op: 'or', a: {op: 'not', a: elimImp(e.a)}, b: elimImp(e.b)};
+    return {op: e.op, a: elimImp(e.a), b: elimImp(e.b)};
+  }
+  function pushNeg(e) {
+    if (e.op === 'var') return e;
+    if (e.op === 'not') {
+      const inner = e.a;
+      if (inner.op === 'var') return e;
+      if (inner.op === 'not') return pushNeg(inner.a);
+      if (inner.op === 'and')
+        return {op: 'or', a: pushNeg({op: 'not', a: inner.a}), b: pushNeg({op: 'not', a: inner.b})};
+      if (inner.op === 'or')
+        return {op: 'and', a: pushNeg({op: 'not', a: inner.a}), b: pushNeg({op: 'not', a: inner.b})};
+    }
+    return {op: e.op, a: pushNeg(e.a), b: pushNeg(e.b)};
+  }
+  function distribute(e) {
+    if (e.op === 'var' || e.op === 'not') return e;
+    const a = distribute(e.a), b = distribute(e.b);
+    if (e.op === 'and') return {op: 'and', a, b};
+    if (e.op === 'or') {
+      if (a.op === 'and')
+        return distribute({op: 'and',
+                           a: {op: 'or', a: a.a, b: b},
+                           b: {op: 'or', a: a.b, b: b}});
+      if (b.op === 'and')
+        return distribute({op: 'and',
+                           a: {op: 'or', a: a, b: b.a},
+                           b: {op: 'or', a: a, b: b.b}});
+      return {op: 'or', a, b};
+    }
+    return {op: e.op, a, b};
+  }
+  function clausify(e) {
+    const clauses = [];
+    function gatherAnds(n) {
+      if (n.op === 'and') { gatherAnds(n.a); gatherAnds(n.b); }
+      else clauses.push(gatherOrs(n));
+    }
+    function gatherOrs(n) {
+      if (n.op === 'or') return gatherOrs(n.a).concat(gatherOrs(n.b));
+      if (n.op === 'var') return [{name: n.name, neg: false}];
+      if (n.op === 'not' && n.a.op === 'var') return [{name: n.a.name, neg: true}];
+      return [{name: '?', neg: false}];
+    }
+    gatherAnds(e);
+    return clauses;
+  }
+  function fmtClauses(clauses) {
+    return clauses.map(cl => '(' + cl.map(l => (l.neg ? '¬' : '') + l.name).join(' ∨ ') + ')').join(' ∧ ');
+  }
+  function collectVars(e, set) {
+    if (e.op === 'var') set.add(e.name);
+    else { if (e.a) collectVars(e.a, set); if (e.b) collectVars(e.b, set); }
+  }
+  function evalE(e, env) {
+    if (e.op === 'var') return env[e.name];
+    if (e.op === 'not') return !evalE(e.a, env);
+    if (e.op === 'and') return evalE(e.a, env) && evalE(e.b, env);
+    if (e.op === 'or') return evalE(e.a, env) || evalE(e.b, env);
+    if (e.op === 'imp') return !evalE(e.a, env) || evalE(e.b, env);
+    if (e.op === 'iff') return evalE(e.a, env) === evalE(e.b, env);
+  }
+
+  function run() {
+    const input = $('input').value;
+    const lines = input.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#'));
+    if (!lines.length) { $('parseOut').innerHTML = '<div class="error">Enter at least one sentence.</div>'; return; }
+    let asts = []; let parseHtml = ''; let parseError = null;
+    for (let i = 0; i < lines.length; i++) {
+      try {
+        const ast = parse(lines[i]);
+        asts.push(ast);
+        parseHtml += `<div class="formula-line original"><span class="step-name">${i+1}.</span>${fmt(ast)}</div>`;
+      } catch (err) {
+        parseHtml += `<div class="formula-line original"><span class="step-name">${i+1}.</span>${lines[i]}</div>`;
+        parseHtml += `<div class="error">Parse error on line ${i+1}: ${err.message}</div>`;
+        parseError = err;
+      }
+    }
+    $('parseOut').innerHTML = parseHtml;
+    if (parseError) { $('cnfOut').innerHTML = ''; $('satOut').innerHTML = ''; return; }
+    let combined = asts[0];
+    for (let i = 1; i < asts.length; i++) combined = {op: 'and', a: combined, b: asts[i]};
+    const step1 = elimIff(combined);
+    const step2 = elimImp(step1);
+    const step3 = pushNeg(step2);
+    const step4 = distribute(step3);
+    const clauses = clausify(step4);
+    let cnfHtml = '';
+    cnfHtml += `<div class="formula-line"><span class="step-name">Combined (∧):</span>${fmt(combined)}</div>`;
+    cnfHtml += `<div class="formula-line"><span class="step-name">1. ↔ eliminated:</span>${fmt(step1)}</div>`;
+    cnfHtml += `<div class="formula-line"><span class="step-name">2. → eliminated:</span>${fmt(step2)}</div>`;
+    cnfHtml += `<div class="formula-line"><span class="step-name">3. ¬ pushed in (De Morgan):</span>${fmt(step3)}</div>`;
+    cnfHtml += `<div class="formula-line"><span class="step-name">4. ∨ distributed over ∧:</span>${fmt(step4)}</div>`;
+    cnfHtml += `<div class="formula-line"><span class="step-name">CNF clauses (${clauses.length}):</span>${fmtClauses(clauses)}</div>`;
+    $('cnfOut').innerHTML = cnfHtml;
+    const vars = new Set(); collectVars(combined, vars);
+    const varList = [...vars].sort();
+    if (varList.length > 12) {
+      $('satOut').innerHTML = `<div class="error">Too many variables (${varList.length}). Cap is 12 for this brute-force demo.</div>`;
+      return;
+    }
+    const models = [];
+    const total = 1 << varList.length;
+    for (let m = 0; m < total; m++) {
+      const env = {};
+      for (let i = 0; i < varList.length; i++) env[varList[i]] = !!(m & (1 << i));
+      if (evalE(combined, env)) models.push(env);
+    }
+    let satHtml = '';
+    const isSat = models.length > 0;
+    satHtml += `<div class="summary ${isSat ? 'sat' : 'unsat'}">`
+              + (isSat ? `✓ SAT (${models.length} model${models.length===1?'':'s'} out of ${total})`
+                       : '✗ UNSAT (no satisfying assignment)') + '</div>';
+    if (models.length > 0) {
+      satHtml += '<table class="table">';
+      satHtml += '<tr>' + varList.map(v => `<th>${v}</th>`).join('') + '</tr>';
+      const show = models.slice(0, 16);
+      for (const env of show) {
+        satHtml += '<tr>';
+        for (const v of varList) satHtml += `<td class="${env[v] ? 'T' : 'F'}">${env[v] ? 'T' : 'F'}</td>`;
+        satHtml += '</tr>';
+      }
+      satHtml += '</table>';
+      if (models.length > 16) satHtml += `<div class="sub" style="margin-top:8px">…and ${models.length - 16} more.</div>`;
+    }
+    $('satOut').innerHTML = satHtml;
+
+    // DPLL trace. Shows the step-by-step decision/propagation tree.
+    renderDpllTrace(clauses, varList);
+  }
+
+  // ===== DPLL with trace =====
+  // Each step pushed onto the trace: {depth, action, detail, clauses}
+  // action ∈ 'unit' | 'pure' | 'branch+' | 'branch-' | 'sat' | 'unsat'
+  function dpllTrace(initialClauses, vars) {
+    const trace = [];
+    const assignment = {};
+    function simplify(clauses, lit) {
+      // Remove satisfied clauses; drop falsified literal from remaining.
+      const out = [];
+      for (const cl of clauses) {
+        let satisfied = false;
+        const remaining = [];
+        for (const l of cl) {
+          if (l.name === lit.name && l.neg === lit.neg) { satisfied = true; break; }
+          if (l.name === lit.name && l.neg !== lit.neg) continue; // dropped
+          remaining.push(l);
+        }
+        if (!satisfied) out.push(remaining);
+      }
+      return out;
+    }
+    function pureLiteral(clauses) {
+      const polarity = {}; // name → 'T' | 'F' | 'both'
+      for (const cl of clauses) for (const l of cl) {
+        const p = l.neg ? 'F' : 'T';
+        if (!polarity[l.name]) polarity[l.name] = p;
+        else if (polarity[l.name] !== p) polarity[l.name] = 'both';
+      }
+      for (const name in polarity) {
+        if (polarity[name] !== 'both') return {name, neg: polarity[name] === 'F'};
+      }
+      return null;
+    }
+    function snap(cl) {
+      return cl.map(c => '(' + c.map(l => (l.neg ? '¬' : '') + l.name).join('∨') + ')').join(' ∧ ') || '⊤';
+    }
+    function solve(clauses, depth) {
+      if (clauses.length === 0) {
+        trace.push({depth, action: 'sat', detail: `All clauses satisfied. Assignment: ${JSON.stringify({...assignment})}`, clauses: snap(clauses)});
+        return {sat: true, model: {...assignment}};
+      }
+      if (clauses.some(c => c.length === 0)) {
+        trace.push({depth, action: 'unsat', detail: 'Empty clause → contradiction. Backtrack.', clauses: snap(clauses)});
+        return {sat: false};
+      }
+      // Unit propagation.
+      const unit = clauses.find(c => c.length === 1);
+      if (unit) {
+        const lit = unit[0];
+        assignment[lit.name] = !lit.neg;
+        trace.push({depth, action: 'unit', detail: `Unit clause forces ${lit.name} = ${!lit.neg ? 'T' : 'F'}.`, clauses: snap(clauses)});
+        const result = solve(simplify(clauses, lit), depth + 1);
+        if (!result.sat) delete assignment[lit.name];
+        return result;
+      }
+      // Pure literal elimination.
+      const pure = pureLiteral(clauses);
+      if (pure) {
+        assignment[pure.name] = !pure.neg;
+        trace.push({depth, action: 'pure', detail: `Pure literal: ${pure.name} appears only ${pure.neg ? 'negated' : 'positive'} → assign ${!pure.neg ? 'T' : 'F'}.`, clauses: snap(clauses)});
+        const result = solve(simplify(clauses, pure), depth + 1);
+        if (!result.sat) delete assignment[pure.name];
+        return result;
+      }
+      // Branch on first unassigned variable.
+      const branchVar = vars.find(v => assignment[v] === undefined);
+      if (!branchVar) {
+        // All assigned but clauses remain → check
+        return {sat: false};
+      }
+      // Try TRUE first.
+      assignment[branchVar] = true;
+      trace.push({depth, action: 'branch+', detail: `Branch: try ${branchVar} = T.`, clauses: snap(clauses)});
+      let result = solve(simplify(clauses, {name: branchVar, neg: false}), depth + 1);
+      if (result.sat) return result;
+      delete assignment[branchVar];
+      // Backtrack, try FALSE.
+      assignment[branchVar] = false;
+      trace.push({depth, action: 'branch-', detail: `Branch: backtrack, try ${branchVar} = F.`, clauses: snap(clauses)});
+      result = solve(simplify(clauses, {name: branchVar, neg: true}), depth + 1);
+      if (!result.sat) delete assignment[branchVar];
+      return result;
+    }
+    const final = solve(initialClauses, 0);
+    return {trace, final};
+  }
+  function renderDpllTrace(clauses, vars) {
+    // Avoid mutating original clauses.
+    const deep = clauses.map(c => c.map(l => ({...l})));
+    const {trace, final} = dpllTrace(deep, vars);
+    const target = document.getElementById('satOut');
+    if (!target) return;
+    let html = '<details style="margin-top:10px; padding:8px 12px; background:var(--soft); border:1px solid var(--border); border-radius:6px;">';
+    const lang = document.documentElement.lang === 'zh' ? 'zh' : 'en';
+    const summaryT = lang === 'zh' ? '🔬 DPLL 跟踪(替代暴力枚举)' : '🔬 DPLL trace (alternative to brute-force)';
+    html += `<summary style="cursor:pointer; color:var(--accent); font-weight:600;">${summaryT}</summary>`;
+    html += '<table style="border-collapse:collapse; font-family:ui-monospace,monospace; font-size:0.82rem; width:100%; margin-top:8px;">';
+    const actLabels = lang === 'zh'
+      ? {unit:'单元传播', pure:'纯文字消去', 'branch+':'分支 (T)', 'branch-':'回溯 (F)', sat:'✓ SAT', unsat:'✗ UNSAT'}
+      : {unit:'unit-prop', pure:'pure-lit', 'branch+':'branch+', 'branch-':'branch−', sat:'✓ SAT', unsat:'✗ UNSAT'};
+    for (const step of trace) {
+      const indent = '·&nbsp;&nbsp;'.repeat(step.depth);
+      const color = step.action === 'sat' ? '#16a34a' :
+                    step.action === 'unsat' ? '#dc2626' :
+                    step.action === 'unit' ? '#0284c7' :
+                    step.action === 'pure' ? '#9333ea' : 'var(--fg)';
+      html += `<tr><td style="padding:2px 6px; vertical-align:top;">${indent}<span style="color:${color}; font-weight:600;">[${actLabels[step.action]}]</span></td>`;
+      html += `<td style="padding:2px 6px;">${step.detail}</td></tr>`;
+    }
+    html += '</table></details>';
+    target.innerHTML += html;
+  }
+
+  $('convertBtn').addEventListener('click', run);
+
+  // ===== Resolution refutation =====
+  // To prove KB ⊨ α: convert (KB ∧ ¬α) to CNF, apply resolution until empty clause or saturation.
+  // Resolution rule: from (A ∨ ℓ) and (B ∨ ¬ℓ) derive (A ∨ B).
+  function clauseKey(cl) {
+    // Canonical signature of a clause for dedup. Sort literals by name+neg.
+    return cl.map(l => (l.neg ? '¬' : '') + l.name).sort().join('|');
+  }
+  function isTautology(cl) {
+    // (P ∨ ¬P ∨ …) is always true; resolution skips these.
+    const seen = new Map();
+    for (const l of cl) {
+      const prev = seen.get(l.name);
+      if (prev !== undefined && prev !== l.neg) return true;
+      seen.set(l.name, l.neg);
+    }
+    return false;
+  }
+  function resolveClauses(c1, c2) {
+    // Returns array of resolvents (one per complementary pair). Skips tautologies.
+    const out = [];
+    for (let i = 0; i < c1.length; i++) {
+      for (let j = 0; j < c2.length; j++) {
+        if (c1[i].name === c2[j].name && c1[i].neg !== c2[j].neg) {
+          // Combine, dropping the complementary pair.
+          const merged = [];
+          const seen = new Set();
+          for (let k = 0; k < c1.length; k++) if (k !== i) {
+            const sig = (c1[k].neg ? '¬' : '') + c1[k].name;
+            if (!seen.has(sig)) { seen.add(sig); merged.push(c1[k]); }
+          }
+          for (let k = 0; k < c2.length; k++) if (k !== j) {
+            const sig = (c2[k].neg ? '¬' : '') + c2[k].name;
+            if (!seen.has(sig)) { seen.add(sig); merged.push(c2[k]); }
+          }
+          if (!isTautology(merged)) out.push(merged);
+        }
+      }
+    }
+    return out;
+  }
+  function fmtClauseLine(cl) {
+    if (cl.length === 0) return '<span style="color:#dc2626; font-weight:700;">□ (empty)</span>';
+    return '{' + cl.map(l => (l.neg ? '¬' : '') + l.name).join(', ') + '}';
+  }
+  function resolutionRefutation(kbClauses, negQueryClauses) {
+    // Returns {proved: bool, clauses: [{id, lits, source}], stepCount}
+    // source = null for base, [i, j] for derived from clauses i and j.
+    const records = [];
+    const seen = new Set();
+    function add(lits, source) {
+      const k = clauseKey(lits);
+      if (seen.has(k)) return null;
+      if (isTautology(lits)) return null;
+      seen.add(k);
+      const id = records.length + 1;
+      records.push({id, lits, source});
+      return id;
+    }
+    for (const cl of kbClauses) add(cl, ['KB']);
+    for (const cl of negQueryClauses) add(cl, ['¬α']);
+    let foundEmpty = false;
+    let proofEmptyId = null;
+    const CAP_CLAUSES = 200;
+    const CAP_STEPS = 1000;
+    let steps = 0;
+    let changed = true;
+    while (changed && !foundEmpty && records.length < CAP_CLAUSES && steps < CAP_STEPS) {
+      changed = false;
+      const n = records.length;
+      for (let i = 0; i < n && !foundEmpty; i++) {
+        for (let j = i + 1; j < n && !foundEmpty; j++) {
+          steps++;
+          const resolvents = resolveClauses(records[i].lits, records[j].lits);
+          for (const r of resolvents) {
+            const newId = add(r, [records[i].id, records[j].id]);
+            if (newId !== null) {
+              changed = true;
+              if (r.length === 0) { foundEmpty = true; proofEmptyId = newId; break; }
+            }
+          }
+        }
+      }
+    }
+    return {proved: foundEmpty, records, proofEmptyId, steps, capped: records.length >= CAP_CLAUSES || steps >= CAP_STEPS};
+  }
+  function extractProofChain(records, emptyId) {
+    // Walk backward from the empty clause, collecting only ancestor records.
+    const needed = new Set([emptyId]);
+    let added = true;
+    while (added) {
+      added = false;
+      for (const r of records) {
+        if (needed.has(r.id) && Array.isArray(r.source) && typeof r.source[0] === 'number') {
+          for (const parentId of r.source) {
+            if (!needed.has(parentId)) { needed.add(parentId); added = true; }
+          }
+        }
+      }
+    }
+    return records.filter(r => needed.has(r.id));
+  }
+  function proveByResolution() {
+    const out = document.getElementById('resolveOut');
+    out.innerHTML = '';
+    const queryText = $('queryInput').value.trim();
+    const inputText = $('input').value;
+    const lang = document.documentElement.lang === 'zh' ? 'zh' : 'en';
+    if (!queryText) {
+      out.innerHTML = `<div class="error">${lang === 'zh' ? '请输入查询 α。' : 'Enter a query α.'}</div>`;
+      return;
+    }
+    let queryAst;
+    try { queryAst = parse(queryText); }
+    catch (err) {
+      out.innerHTML = `<div class="error">${lang === 'zh' ? '查询解析错误:' : 'Query parse error:'} ${err.message}</div>`;
+      return;
+    }
+    // Parse KB lines.
+    const lines = inputText.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#'));
+    if (!lines.length) {
+      out.innerHTML = `<div class="error">${lang === 'zh' ? 'KB 为空。' : 'Knowledge base is empty.'}</div>`;
+      return;
+    }
+    let kbAsts = [];
+    try { kbAsts = lines.map(parse); }
+    catch (err) {
+      out.innerHTML = `<div class="error">${lang === 'zh' ? 'KB 解析错误:' : 'KB parse error:'} ${err.message}</div>`;
+      return;
+    }
+    // Convert KB to CNF clauses.
+    let kbCombined = kbAsts[0];
+    for (let i = 1; i < kbAsts.length; i++) kbCombined = {op: 'and', a: kbCombined, b: kbAsts[i]};
+    const kbClauses = clausify(distribute(pushNeg(elimImp(elimIff(kbCombined)))));
+    // Negate the query and convert to CNF.
+    const negQuery = {op: 'not', a: queryAst};
+    const negQueryClauses = clausify(distribute(pushNeg(elimImp(elimIff(negQuery)))));
+    const {proved, records, proofEmptyId, steps, capped} = resolutionRefutation(kbClauses, negQueryClauses);
+    // Render.
+    let html = '';
+    const headerColor = proved ? '#16a34a' : '#dc2626';
+    const headerText = proved
+      ? (lang === 'zh' ? `✓ KB ⊨ α 证明完成(${steps} 次配对尝试,${records.length} 个子句)。` : `✓ Proved KB ⊨ α (${steps} pair attempts, ${records.length} clauses).`)
+      : (capped
+          ? (lang === 'zh' ? '⚠ 在搜索上限内未能证明(可能不蕴含,或问题太大)。' : '⚠ Could not prove within search cap (may not be entailed, or problem too large).')
+          : (lang === 'zh' ? '✗ KB ⊭ α(达到饱和,未找到空子句)。' : '✗ KB ⊭ α (saturated without finding the empty clause).'));
+    html += `<div style="padding:8px 12px; background:${proved ? '#dcfce7' : '#fee2e2'}; border-radius:6px; font-weight:600; color:${headerColor}; margin-bottom:8px;">${headerText}</div>`;
+    // Show full clause list, then highlight the proof chain (if proved).
+    const proofIds = proved ? new Set(extractProofChain(records, proofEmptyId).map(r => r.id)) : new Set();
+    html += '<details style="margin-bottom:6px;"><summary style="cursor:pointer; color:var(--accent); font-weight:600;">' +
+            (lang === 'zh' ? `📋 所有派生子句 (${records.length})` : `📋 All derived clauses (${records.length})`) +
+            '</summary>';
+    html += '<table style="border-collapse:collapse; font-family:ui-monospace,monospace; font-size:0.82rem; margin-top:6px;">';
+    html += '<thead><tr style="background:var(--soft);">';
+    html += `<th style="text-align:left; padding:3px 8px; border-bottom:1px solid var(--border);">#</th>`;
+    html += `<th style="text-align:left; padding:3px 8px; border-bottom:1px solid var(--border);">${lang === 'zh' ? '子句' : 'Clause'}</th>`;
+    html += `<th style="text-align:left; padding:3px 8px; border-bottom:1px solid var(--border);">${lang === 'zh' ? '来源' : 'From'}</th>`;
+    html += '</tr></thead><tbody>';
+    for (const r of records) {
+      const inProof = proofIds.has(r.id);
+      const bg = inProof ? 'background:rgba(250, 204, 21, 0.18);' : '';
+      let srcTxt = '—';
+      if (Array.isArray(r.source)) {
+        if (typeof r.source[0] === 'number') srcTxt = `resolve(${r.source[0]}, ${r.source[1]})`;
+        else srcTxt = r.source[0];
+      }
+      html += `<tr style="${bg}"><td style="padding:3px 8px; border-bottom:1px solid var(--border);">${r.id}${inProof ? ' ⭐' : ''}</td>`;
+      html += `<td style="padding:3px 8px; border-bottom:1px solid var(--border);">${fmtClauseLine(r.lits)}</td>`;
+      html += `<td style="padding:3px 8px; border-bottom:1px solid var(--border); color:var(--muted);">${srcTxt}</td></tr>`;
+    }
+    html += '</tbody></table></details>';
+    if (proved) {
+      const chain = extractProofChain(records, proofEmptyId);
+      html += `<div style="margin-top:8px;"><strong style="color:var(--accent);">${lang === 'zh' ? '⭐ 证明链(' : '⭐ Proof chain ('}${chain.length}${lang === 'zh' ? ' 步)' : ' steps)'}:</strong>`;
+      html += '<ol style="margin-top:6px; padding-left:22px; font-family:ui-monospace,monospace; font-size:0.85rem;">';
+      for (const r of chain) {
+        let srcTxt = '';
+        if (Array.isArray(r.source) && typeof r.source[0] === 'number') {
+          srcTxt = ` <span style="color:var(--muted);">[resolve #${r.source[0]} with #${r.source[1]}]</span>`;
+        } else if (Array.isArray(r.source)) {
+          srcTxt = ` <span style="color:var(--muted);">[${r.source[0]}]</span>`;
+        }
+        html += `<li>${fmtClauseLine(r.lits)}${srcTxt}</li>`;
+      }
+      html += '</ol></div>';
+    }
+    out.innerHTML = html;
+  }
+  $('proveBtn').addEventListener('click', proveByResolution);
+
+  const EX = {
+    ex1: 'P -> Q\nP',
+    ex2: '# Wumpus pit rule (AIMA 7.4):\n# Breeze at (1,1) iff there is a pit in (1,2) or (2,1).\nB11 <-> (P12 | P21)\nB11',
+    ex3: '# Color 3 nodes (a, b, c) red, green, or blue.\n# Edges: a-b, b-c, a-c (triangle).\n# Each node must be exactly one color.\n(Ra | Ga | Ba) & (Rb | Gb | Bb) & (Rc | Gc | Bc)\n~(Ra & Ga) & ~(Ra & Ba) & ~(Ga & Ba)\n~(Ra & Rb) & ~(Ga & Gb) & ~(Ba & Bb)',
+    ex4: '# Each pair must differ; assert all three true → UNSAT.\nA -> ~B\nB -> ~C\nC -> ~A\nA & B & C',
+    ex5: '# De Morgan: ~(A & B) <-> (~A | ~B). Tautology.\n~(A & B) <-> (~A | ~B)',
+  };
+  Object.keys(EX).forEach(k => $(k).addEventListener('click', () => {
+    $('input').value = EX[k]; run();
+  }));
+  $('hardReset').addEventListener('click', () => {
+    $('input').value = EX.ex1; run();
+  });
+
+  // URL-shareable config — formula (base64-encoded since it has special chars).
+  try {
+    const f = new URLSearchParams(location.search).get('f');
+    if (f) {
+      const decoded = decodeURIComponent(escape(atob(f.replace(/-/g, '+').replace(/_/g, '/'))));
+      $('input').value = decoded;
+    }
+  } catch (_) {}
+  document.getElementById('shareLink').addEventListener('click', async () => {
+    const formula = $('input').value;
+    // URL-safe base64.
+    const b64 = btoa(unescape(encodeURIComponent(formula)))
+      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    const params = new URLSearchParams();
+    params.set('f', b64);
+    const url = `${location.origin}${location.pathname}?${params.toString()}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      const btn = document.getElementById('shareLink');
+      const orig = btn.textContent; btn.textContent = '✓ Copied';
+      setTimeout(() => btn.textContent = orig, 1500);
+    } catch (_) { prompt('Copy this URL:', url); }
+  });
+
+  run();
+
+  // Lesson tour. Five canonical scenarios that step through CNF conversion + SAT + resolution.
+  const LESSON_TOUR = [
+    { name: 'Modus ponens (SAT, simple)',
+      description: "P → Q and P. CNF is already two clauses. SAT enumeration finds 1 model: {P=T, Q=T}. Then prove Q by resolution — the empty clause appears in one step.",
+      apply: () => { $('input').value = EX.ex1; run(); $('queryInput').value = 'Q'; } },
+    { name: 'Biconditional → CNF rewrite (Wumpus rule)',
+      description: "B11 ↔ (P12 ∨ P21). Watch the rewrite pipeline: ↔ becomes two implications, → becomes ∨, ¬ distributes, then ∨ distributes over ∧. The single sentence expands into multiple clauses.",
+      apply: () => { $('input').value = EX.ex2; run(); $('queryInput').value = 'P12'; } },
+    { name: '3-coloring a triangle (SAT)',
+      description: "Three nodes, three colors, edges form a triangle. SAT enumeration finds the 6 valid colorings (3! permutations). This is graph coloring as propositional logic.",
+      apply: () => { $('input').value = EX.ex3; run(); } },
+    { name: 'XOR triangle (UNSAT)',
+      description: "Each pair must differ AND all three must be true. No assignment satisfies all clauses. SAT returns UNSAT — every row of the truth table fails.",
+      apply: () => { $('input').value = EX.ex4; run(); } },
+    { name: 'Prove by resolution refutation',
+      description: "Use the modus-ponens KB, query Q. The prover negates Q (adds ¬Q), resolves with P→Q and P, derives the empty clause. KB ⊨ Q is proved. Try changing the query to R (should fail).",
+      apply: () => { $('input').value = EX.ex1; run(); $('queryInput').value = 'Q'; $('proveBtn').click(); } },
+  ];
+  let tourIdx = 0;
+  function renderTour() {
+    if (!$('tourName')) return;
+    const s = LESSON_TOUR[tourIdx];
+    $('tourName').textContent = s.name;
+    $('tourDesc').textContent = s.description;
+    $('tourPos').textContent = `${tourIdx + 1}/${LESSON_TOUR.length}`;
+    $('tourPrev').disabled = (tourIdx === 0);
+    $('tourNext').disabled = (tourIdx === LESSON_TOUR.length - 1);
+  }
+  $('tourApply').addEventListener('click', () => LESSON_TOUR[tourIdx].apply());
+  $('tourPrev').addEventListener('click', () => { if (tourIdx > 0) { tourIdx--; renderTour(); } });
+  $('tourNext').addEventListener('click', () => { if (tourIdx < LESSON_TOUR.length - 1) { tourIdx++; renderTour(); } });
+  renderTour();
+
+  // Worksheet/lab mode — 3 questions with instant ✓/✗ feedback.
+  const WORKSHEET = [
+    { check: ans => {
+        const ok = ans.trim() === '1';
+        return { ok,
+          msg: ok
+            ? "Correct. P→Q, P → forces P=T, Q=T. Exactly one of the 4 truth-table rows satisfies the KB."
+            : "Try 1. The KB {P→Q, P} forces both P=T and Q=T — only one row in the truth table works." };
+      } },
+    { check: ans => {
+        const ok = ans.trim() === '0';
+        return { ok,
+          msg: ok
+            ? "Correct. UNSAT means no assignment satisfies all clauses. SAT enumeration tries all 2³ = 8 rows and rejects every one."
+            : "Try 0. UNSAT means literally no satisfying assignment exists — that's what makes it unsatisfiable." };
+      } },
+    { check: ans => {
+        const ok = ans.includes('yes');
+        return { ok,
+          msg: ok
+            ? "Right. Negate Q (¬Q), add to KB, resolve with P→Q to get ¬P, then resolve ¬P with the fact P to get the empty clause. KB ⊨ Q is proved."
+            : "Try 'yes'. Q follows from {P→Q, P} by modus ponens, which resolution can derive: ¬Q + (¬P∨Q) → ¬P, then ¬P + P → empty clause." };
+      } },
+  ];
+  WORKSHEET.forEach((q, i) => {
+    const n = i + 1;
+    $(`ws${n}btn`).addEventListener('click', () => {
+      const ans = (($(`ws${n}ans`).value) || '').trim().toLowerCase();
+      const { ok, msg } = q.check(ans);
+      const fb = $(`ws${n}fb`);
+      fb.textContent = (ok ? '✓ ' : '✗ ') + msg;
+      fb.style.color = ok ? '#16a34a' : '#dc2626';
+    });
+  });
+})();
+</script>
+<!-- Embed mode handler (shared pattern across all 12 applets). -->
+<script>
+(() => {
+  try {
+    if (new URLSearchParams(location.search).get('embed') === '1') {
+      document.body.classList.add('embed-mode');
+    }
+  } catch (_) {}
+  const btn = document.getElementById('embedLink');
+  if (!btn) return;
+  btn.addEventListener('click', async () => {
+    const url = new URL(location.href);
+    url.searchParams.set('embed', '1');
+    const snippet = `<iframe src="${url.toString()}" width="100%" height="720" frameborder="0" style="border:1px solid #e5e7eb; border-radius:8px;" loading="lazy"></iframe>`;
+    try {
+      await navigator.clipboard.writeText(snippet);
+      const orig = btn.textContent; btn.textContent = '✓ Copied iframe';
+      setTimeout(() => btn.textContent = orig, 1800);
+    } catch (_) { prompt('Copy this iframe snippet:', snippet); }
+  });
+})();
+</script>
+</body>
+</html>

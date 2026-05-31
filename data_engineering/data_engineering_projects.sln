@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35222.181
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{C9674DCB-5085-4A16-B785-4C70DD1589BD}") = "sales_data_etl_ssis", "sales_data_etl_ssis\sales_data_etl_ssis.dtproj", "{9012FA8B-14DF-4152-B693-0E6C2247A4AB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Development|Default = Development|Default
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9012FA8B-14DF-4152-B693-0E6C2247A4AB}.Development|Default.ActiveCfg = Development
+		{9012FA8B-14DF-4152-B693-0E6C2247A4AB}.Development|Default.Build.0 = Development
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {25EFA592-9112-4E86-AAC5-54DF668B53AA}
+	EndGlobalSection
+EndGlobal

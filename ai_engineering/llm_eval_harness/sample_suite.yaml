@@ -1,0 +1,25 @@
+# Sample suite demonstrating every assertion type at least once.
+- id: capital_of_france
+  prompt: "What is the capital of France? Answer with just the city name."
+  expected: "Paris"
+  tags: [geography]
+
+- id: contains_year_2024
+  prompt: "Mention any year between 2020 and 2030 in your answer."
+  expected_regex: "20(2[0-9]|30)"
+  tags: [regex_only]
+
+- id: no_speculation
+  prompt: "Without inventing details, who is the current monarch of Mars?"
+  must_not_contain: ["Mars is ruled", "current monarch is"]
+  tags: [hallucination_guard]
+
+- id: rag_definition_similarity
+  prompt: "Define retrieval-augmented generation in one sentence."
+  expected: "Retrieval-augmented generation grounds a large language model's output in passages retrieved from a knowledge base."
+  tags: [definitional]
+
+- id: rag_definition_judge
+  prompt: "In two sentences, explain why RAG reduces hallucination."
+  expected: "RAG reduces hallucination because the model is conditioned on retrieved source documents and is instructed to ground answers in them, rather than relying on parametric memory that may be outdated or wrong."
+  tags: [judge]

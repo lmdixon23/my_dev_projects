@@ -1,0 +1,17 @@
+[package]
+name = "rust_defi_lending_protocol"
+version = "0.2.0"
+edition = "2021"
+description = "Collateralized lending simulation with time-based interest, liquidation, and an append-only transaction ledger."
+license = "MIT"
+
+[dependencies]
+thiserror = "1.0"
+
+[lib]
+name = "rust_defi_lending_protocol"
+path = "src/lib.rs"
+
+[[bin]]
+name = "rust_defi_lending_protocol"
+path = "src/main.rs"

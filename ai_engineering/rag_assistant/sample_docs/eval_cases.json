@@ -1,0 +1,22 @@
+[
+  {
+    "question": "What is retrieval-augmented generation?",
+    "relevant_sources": ["rag_overview.md"]
+  },
+  {
+    "question": "Why L2-normalize embedding vectors?",
+    "relevant_sources": ["embeddings_explained.md"]
+  },
+  {
+    "question": "When should I use approximate nearest neighbor search?",
+    "relevant_sources": ["vector_stores.md"]
+  },
+  {
+    "question": "What are the four components of a RAG pipeline?",
+    "relevant_sources": ["rag_overview.md"]
+  },
+  {
+    "question": "Which embedding model works for multilingual corpora?",
+    "relevant_sources": ["embeddings_explained.md"]
+  }
+]

@@ -1,0 +1,109 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# Each job is independent so a failure in one doesn't stop the others.
+# The matrix is structured so adding a new project requires touching at
+# most two places: this file, and the project itself.
+jobs:
+  # ----- Python projects ----- #
+  python:
+    name: Python tests — ${{ matrix.project }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - project: ai_engineering/rag_assistant
+            test-cmd: 'python -m pytest tests/ -v'
+          - project: ai_engineering/agent_toolkit
+            test-cmd: 'python -m pytest tests/ -v'
+          - project: ai_engineering/llm_eval_harness
+            # bridge test imports the sibling rag_assistant project:
+            test-cmd: 'PYTHONPATH=$PYTHONPATH:$(realpath ../rag_assistant) python -m pytest tests/ -v'
+          - project: ai_engineering/rlvr/regularized_operator_zoo
+            test-cmd: 'python -m pytest tests/ -v'
+          - project: ai_engineering/rlvr/grpo_minimal
+            # grpo_minimal imports from sibling regularized_operator_zoo:
+            test-cmd: 'PYTHONPATH=$PYTHONPATH:$(realpath ../regularized_operator_zoo) python -m pytest tests/ -v'
+          - project: ai_engineering/nlp_text_summarization_api
+            test-cmd: 'python -m unittest discover tests'
+          - project: machine_learning/image_captioning_cnn_rnn_tpu
+            test-cmd: 'python -m pytest tests/ -v'
+          - project: machine_learning/image_classification
+            test-cmd: 'python -m pytest tests/ -v'
+          - project: machine_learning/predictive_maintenance
+            test-cmd: 'python -m pytest tests/ -v'
+          - project: machine_learning/sentiment_analysis_transfer_learning
+            test-cmd: 'SKIP_NETWORK_TESTS=1 python -m pytest tests/ -v'
+          - project: data_engineering/sales_data_etl_ssis
+            test-cmd: 'python -m unittest discover python_reference_etl'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install dependencies
+        working-directory: ${{ matrix.project }}
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install pytest
+      - name: Run tests
+        working-directory: ${{ matrix.project }}
+        env:
+          TF_CPP_MIN_LOG_LEVEL: '3'
+        run: ${{ matrix.test-cmd }}
+
+  # ----- Rust crates ----- #
+  rust:
+    name: cargo test — ${{ matrix.crate }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        crate:
+          - blockchain_protocols/rust_cross_chain_atomic_bridge
+          - blockchain_protocols/rust_decentralized_voting
+          - blockchain_protocols/rust_quadratic_voting
+          - blockchain_protocols/rust_pos_zkp_voting
+          - blockchain_protocols/rust_poa_zkp_voting
+          - blockchain_protocols/rust_defi_lending_protocol
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ${{ matrix.crate }}
+      - name: Build
+        working-directory: ${{ matrix.crate }}
+        run: cargo build --verbose
+      - name: Test
+        working-directory: ${{ matrix.crate }}
+        run: cargo test --verbose
+      - name: Clippy (warnings only)
+        working-directory: ${{ matrix.crate }}
+        run: cargo clippy --all-targets --no-deps -- -W clippy::all
+        continue-on-error: true
+
+  # ----- Terraform validation ----- #
+  terraform:
+    name: terraform validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: network_security/sse_coexistence_testing/terraform
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - run: terraform init -backend=false
+      - run: terraform validate

@@ -1,0 +1,5 @@
+tensorflow>=2.15,<2.18
+numpy>=1.26
+Pillow>=10.0
+Flask>=3.0
+gunicorn>=22.0

@@ -1,0 +1,17 @@
+[package]
+name = "rust_quadratic_voting"
+version = "0.2.0"
+edition = "2021"
+description = "Quadratic Voting + Liquid Democracy in pure Rust. Single-process simulation."
+license = "MIT"
+
+[dependencies]
+thiserror = "1.0"
+
+[lib]
+name = "rust_quadratic_voting"
+path = "src/lib.rs"
+
+[[bin]]
+name = "rust_quadratic_voting"
+path = "src/main.rs"

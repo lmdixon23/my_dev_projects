@@ -1,0 +1,43 @@
+# Smoke-Pipeline Results — Index
+
+Every project with a non-trivial runtime ships a `smoke/run_smoke.py` that exercises the code path end-to-end on synthetic or in-repo data and writes a report into the project's `reports/` directory. This index links each one.
+
+> **Reading note:** The committed reports are *placeholder shells* with the expected structural shape (qualitative ranking, identity-check rows, expected metric ranges) but **not** filled-in numbers. The regenerate command in each report file produces the actual numbers — they're left out of source control because they drift run-to-run with random seeds. The shape of the output is what's stable.
+
+## All committed smoke reports
+
+| Project | Report file | Regenerate command |
+|---|---|---|
+| RAG Assistant | [`ai_engineering/rag_assistant/reports/smoke_eval.md`](./ai_engineering/rag_assistant/reports/smoke_eval.md) | `cd ai_engineering/rag_assistant && python -m smoke.run_smoke` |
+| Agent Toolkit | [`ai_engineering/agent_toolkit/reports/smoke_trace.md`](./ai_engineering/agent_toolkit/reports/smoke_trace.md) | `cd ai_engineering/agent_toolkit && python -m smoke.run_smoke` |
+| LLM Eval Harness | [`ai_engineering/llm_eval_harness/reports/smoke_eval.html`](./ai_engineering/llm_eval_harness/reports/smoke_eval.html) | `cd ai_engineering/llm_eval_harness && python -m smoke.run_smoke` |
+| Regularized Operator Zoo | [`ai_engineering/rlvr/regularized_operator_zoo/reports/smoke_report.md`](./ai_engineering/rlvr/regularized_operator_zoo/reports/smoke_report.md) | `cd ai_engineering/rlvr/regularized_operator_zoo && python -m smoke.run_smoke` |
+| GRPO Minimal (reproduces Shao et al. 2024 Figure 5) | [`ai_engineering/rlvr/grpo_minimal/reports/figure_5_reproduction.md`](./ai_engineering/rlvr/grpo_minimal/reports/figure_5_reproduction.md) | `cd ai_engineering/rlvr/grpo_minimal && PYTHONPATH=$PYTHONPATH:$(realpath ../regularized_operator_zoo) python -m smoke.run_smoke` |
+| Image Classification | [`machine_learning/image_classification/reports/smoke_eval.md`](./machine_learning/image_classification/reports/smoke_eval.md) | `cd machine_learning/image_classification && python -m smoke.run_smoke` |
+| Image Captioning (CNN+RNN) | [`machine_learning/image_captioning_cnn_rnn_tpu/reports/smoke_eval.md`](./machine_learning/image_captioning_cnn_rnn_tpu/reports/smoke_eval.md) | `cd machine_learning/image_captioning_cnn_rnn_tpu && python -m smoke.run_smoke` |
+| Sentiment Analysis (BERT) | [`machine_learning/sentiment_analysis_transfer_learning/reports/smoke_eval.md`](./machine_learning/sentiment_analysis_transfer_learning/reports/smoke_eval.md) | `cd machine_learning/sentiment_analysis_transfer_learning && python -m smoke.run_smoke` |
+| Predictive Maintenance | [`machine_learning/predictive_maintenance/reports/smoke_eval.md`](./machine_learning/predictive_maintenance/reports/smoke_eval.md) | `cd machine_learning/predictive_maintenance && python -m smoke.run_smoke` |
+| Sales Data ETL (Python reference) | [`data_engineering/sales_data_etl_ssis/python_reference_etl/reports/smoke_eval.md`](./data_engineering/sales_data_etl_ssis/python_reference_etl/reports/smoke_eval.md) | See the report — uses `create_sales_data.py` then `sales_etl.py` |
+
+That's 10 of the 10 runnable projects in the portfolio — full coverage.
+
+## Projects without a smoke pipeline
+
+The following projects don't have a `smoke/` directory because their full test suite already exercises the code path end-to-end without external resources:
+
+- **All five Rust blockchain projects** — `cargo test` runs the unit + integration tests on every push.
+- **The seven Power BI reports** — manual review only (see the [Power BI README](./business_intelligence/) for the standard four-step manual smoke procedure).
+- **The Terraform SSE coexistence test** — `terraform validate` runs in the CI Terraform job; the deployment harness has its own mocked-network unit tests.
+- **The ink! counter prototype** — `cargo test` covers it.
+
+## What "placeholder report" means
+
+Each committed `reports/*.md` (or `.html`) under the projects above contains:
+
+- A `_Last regenerated: PLACEHOLDER_` line — clearly flags that the file has not been filled in by a real run yet.
+- The exact command to regenerate it.
+- The **structural shape** of the expected output — qualitative ranking, identity-check rows, expected metric ranges.
+
+It does **not** contain absolute numerical results that would drift between runs. After you run the regenerate command, the file is overwritten with the real run's output (including a real timestamp and the actual numbers).
+
+This pattern lets a reviewer who is browsing the repo on GitHub see *what kind of output the smoke pipeline produces* without having to run the code first. It's the "you can read about my results before installing my code" affordance.

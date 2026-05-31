@@ -1,0 +1,5 @@
+tensorflow>=2.15,<2.18
+transformers>=4.40
+numpy>=1.26
+Flask>=3.0
+gunicorn>=22.0
