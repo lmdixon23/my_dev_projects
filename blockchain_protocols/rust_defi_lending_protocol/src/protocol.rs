@@ -312,9 +312,12 @@ mod tests {
         p.deposit_collateral("alice", 150 * one()).unwrap();
         let lid = p.borrow("alice", 100 * one()).unwrap();
 
-        // Wait long enough that interest pushes outstanding past the 120 %
-        // threshold (collateral * 1.20 = 180 units).
-        p.advance_time(40 * BPS_DENOM as u64); // 40 "years" — exaggerated for the test
+        // Wait long enough that simple interest pushes outstanding past the
+        // 120% threshold (collateral 150 * 1.20 = 180 units). At the ~2%/yr
+        // base rate (utilization ~0 here), interest = principal * rate * years;
+        // reaching +80 units on a 100 principal needs >400 "years", so use 500
+        // (interest = 100 * 0.02 * 500 = 100 units -> outstanding 200 > 180).
+        p.advance_time(500 * BPS_DENOM as u64); // exaggerated; this is a toy time unit
         let outstanding = p.loan(lid).unwrap().outstanding(p.now_tick);
         let threshold = 150 * one() * LIQUIDATION_THRESHOLD_BPS / BPS_DENOM;
         assert!(outstanding > threshold);

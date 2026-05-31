@@ -40,7 +40,13 @@ def train_model(epochs: int = 20) -> None:
     strategy = get_strategy()
 
     with strategy.scope():
-        model = create_model(num_classes=train_data.num_classes)
+        # Build the model to match the data's actual image shape (the iterator
+        # reports it via .image_shape), so a small-image test set and the
+        # full 224x224 production path both work without hardcoding a size.
+        model = create_model(
+            input_shape=tuple(train_data.image_shape),
+            num_classes=train_data.num_classes,
+        )
         model.compile(
             optimizer="adam",
             loss="categorical_crossentropy",
