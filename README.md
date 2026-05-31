@@ -2,6 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![Python: 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
+
 <!-- TODO: add CI badge after first green workflow run on GitHub:
      ![CI](https://github.com/lmdixon23/my_dev_projects/actions/workflows/ci.yml/badge.svg) -->
 
@@ -27,19 +28,20 @@ This is not a collection of tutorial-fork notebooks. Each project demonstrates a
 
 ## How this repository is organized
 
-| Folder | Theme | Project count |
-|---|---|---|
-| [`ai_engineering/`](./ai_engineering/) | Modern LLM systems: RAG, agents, evals, an LLM-API CLI; plus RLVR-operator companion code | 4 + 2 |
-| [`machine_learning/`](./machine_learning/) | Classical and deep ML, CV, NLP | 4 |
-| [`blockchain_protocols/`](./blockchain_protocols/) | Rust protocol implementations | 6 |
-| [`data_engineering/`](./data_engineering/) | ETL, warehousing, analytics | 1 |
-| [`network_security/`](./network_security/) | Cloud security infrastructure | 1 |
-| [`ai_playgrounds/`](./ai_playgrounds/) | Twelve single-file HTML+JS interactive applets for teaching core AI ideas | 12 |
-| [`prototypes/`](./prototypes/) | Sketches and experiments, intentionally below portfolio bar | varies |
+| Folder                                             | Theme                                                                                     | Project count |
+| -------------------------------------------------- | ----------------------------------------------------------------------------------------- | ------------- |
+| [`ai_engineering/`](./ai_engineering/)             | Modern LLM systems: RAG, agents, evals, an LLM-API CLI; plus RLVR-operator companion code | 4 + 2         |
+| [`machine_learning/`](./machine_learning/)         | Classical and deep ML, CV, NLP                                                            | 4             |
+| [`blockchain_protocols/`](./blockchain_protocols/) | Rust protocol implementations                                                             | 6             |
+| [`data_engineering/`](./data_engineering/)         | ETL, warehousing, analytics                                                               | 1             |
+| [`network_security/`](./network_security/)         | Cloud security infrastructure                                                             | 1             |
+| [`ai_playgrounds/`](./ai_playgrounds/)             | Twelve single-file HTML+JS interactive applets for teaching core AI ideas                 | 12            |
+| [`prototypes/`](./prototypes/)                     | Sketches and experiments, intentionally below portfolio bar                               | varies        |
 
 Every project has the same five-section README structure: **Overview**, **Key Features**, **Architecture**, **Example Usage**, **Getting Started** (with **Prerequisites / Installation / Running / Testing**), then **Technical Specifications**, **What This Project Demonstrates**, **Scope** (what this version is and is not — kept explicit because reviewers will check), and **Future Enhancements**.
 
 <a id="featured-projects"></a>
+
 ## Featured projects
 
 ### AI Engineering ([`ai_engineering/`](./ai_engineering/))
@@ -83,9 +85,7 @@ Twelve single-file HTML+JavaScript interactive applets — no build step, no ins
 
 Each applet targets a single "aha" moment — examples include A* vs BFS (search), Bayes-rule for rare diseases (probability), k in KNN (supervised), polynomial overfitting (evaluation), a TF-Playground-style tiny network (neural nets), k-means iteration (unsupervised), 3×3 convolution kernels (CV), and Q-learning gridworld (RL), plus logic/SAT, Bayesian networks, local search, and the Wumpus World. Drag a slider, the visualization re-renders live. See [`ai_playgrounds/README.md`](./ai_playgrounds/) for the full list and deployment guide.
 
-### Business Intelligence — archived ([`archive/business_intelligence/`](./archive/business_intelligence/))
-
-Earlier work, kept for provenance rather than active development. Power BI reports and the underlying data models — seven dashboards covering competitive marketing, customer profitability, HR, procurement, retail, sales & marketing, and supplier quality. Each `.pbix` ships with its source `.xlsx` so reviewers can open and refresh without external connections.
+# 
 
 ## Continuous integration
 
