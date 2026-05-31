@@ -85,7 +85,7 @@ Twelve single-file HTML+JavaScript interactive applets — no build step, no ins
 
 Each applet targets a single "aha" moment — examples include A* vs BFS (search), Bayes-rule for rare diseases (probability), k in KNN (supervised), polynomial overfitting (evaluation), a TF-Playground-style tiny network (neural nets), k-means iteration (unsupervised), 3×3 convolution kernels (CV), and Q-learning gridworld (RL), plus logic/SAT, Bayesian networks, local search, and the Wumpus World. Drag a slider, the visualization re-renders live. See [`ai_playgrounds/README.md`](./ai_playgrounds/) for the full list and deployment guide.
 
-# 
+ 
 
 ## Continuous integration
 

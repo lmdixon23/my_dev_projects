@@ -1,0 +1,18 @@
+# Dependabot configuration.
+#
+# This repository is a portfolio of self-contained demonstration projects, not a
+# deployed service, so automated dependency-update PRs and the dependency-graph
+# submission job add noise without much value here. We keep a single, low-noise
+# weekly security-only check on GitHub Actions versions (cheap, high-signal) and
+# do not enroll the many per-project requirements.txt manifests.
+#
+# To re-enable richer dependency tracking later, add `package-ecosystem: "pip"`
+# / `"cargo"` entries with the relevant `directory:` paths.
+
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
