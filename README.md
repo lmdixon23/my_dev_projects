@@ -2,9 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![Python: 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
-
-<!-- TODO: add CI badge after first green workflow run on GitHub:
-     ![CI](https://github.com/lmdixon23/my_dev_projects/actions/workflows/ci.yml/badge.svg) -->
+[![CI](https://github.com/lmdixon23/my_dev_projects/actions/workflows/ci.yml/badge.svg)](https://github.com/lmdixon23/my_dev_projects/actions/workflows/ci.yml)
 
 <!--
   REPO DESCRIPTION (for the one-liner under the repo name on GitHub —
