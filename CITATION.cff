@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "my_dev_projects: a working portfolio of AI/ML, blockchain, and data-engineering projects"
+type: software
+authors:
+  - family-names: Dixon
+    given-names: Logan M.
+license: MIT
+repository-code: "https://github.com/lmdixon23/my_dev_projects"
+url: "https://lmdixon23.github.io/my_dev_projects/"
+version: "1.0.0"
+date-released: "2026-06-01"   # set to the day you publish the v1.0.0 release (step 10)
