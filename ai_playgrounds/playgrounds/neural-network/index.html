@@ -1082,12 +1082,12 @@
 
   // Lesson tour. Five canonical scenarios spanning dataset, depth, and non-linearity.
   function applyNN(dataset, activation, h1, h2, lr) {
-    $('ds').value = dataset;
+    $('datasetSel').value = dataset;
     $('act').value = activation;
     $('h1').value = h1; $('h1V').textContent = h1;
     $('h2').value = h2; $('h2V').textContent = h2;
     $('lr').value = lr; $('lrV').textContent = (+lr).toFixed(3);
-    $('ds').dispatchEvent(new Event('change'));
+    $('datasetSel').dispatchEvent(new Event('change'));
   }
   const LESSON_TOUR = [
     { name: 'Linear can split linearly-separable data',
