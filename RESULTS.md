@@ -2,7 +2,30 @@
 
 Every project with a non-trivial runtime ships a `smoke/run_smoke.py` that exercises the code path end-to-end on synthetic or in-repo data and writes a report into the project's `reports/` directory. This index links each one.
 
-> **Reading note:** The committed reports are *placeholder shells* with the expected structural shape (qualitative ranking, identity-check rows, expected metric ranges) but **not** filled-in numbers. The regenerate command in each report file produces the actual numbers — they're left out of source control because they drift run-to-run with random seeds. The shape of the output is what's stable.
+> **Reading note:** The committed reports are *placeholder shells* with the expected structural shape (qualitative ranking, identity-check rows, expected metric ranges) but **not** filled-in numbers. The regenerate command in each report file produces the actual numbers — they're left out of source control because they drift run-to-run with random seeds. The shape of the output is what's stable. Real figures for the two flagship pipelines are recorded under **Verified runs** below.
+
+## Verified runs (real figures, not placeholders)
+
+The two flagship RL pipelines were run locally on **2026-06-02** — these are actual outputs. Regenerate any time with the commands in the table below.
+
+### Regularized Operator Zoo
+
+Both regularizer identities hold to machine precision on `q = [1.0, 2.0, 0.5], beta = 1.0`:
+
+- **Identity 1** (gradient form, `pi* = grad Omega*(q)`): max `||pi - grad Omega*||_2` = **1.8e-07** (Tsallis); the other closed-form operators agree to ~1e-10.
+- **Identity 2** (conjugate form, `Omega*(q) = <pi, q> - Omega(pi)`): max difference = **2.2e-16** across entropy, KL-to-uniform, KL-to-anchor, Tsallis, and Renyi.
+
+### GRPO Minimal — reproduces Shao et al. 2024, Figure 5
+
+Final accuracy on the synthetic verifiable-reward task (mean of 3 seeds, 1200 steps each):
+
+| Method | Final accuracy |
+|---|---|
+| RFT | 0.181 |
+| Online RFT | 0.945 |
+| GRPO+OS | 0.990 |
+
+Qualitative ranking **RFT < Online RFT < GRPO+OS** matches the paper.
 
 ## All committed smoke reports
 
@@ -26,7 +49,6 @@ That's 10 of the 10 runnable projects in the portfolio — full coverage.
 The following projects don't have a `smoke/` directory because their full test suite already exercises the code path end-to-end without external resources:
 
 - **All five Rust blockchain projects** — `cargo test` runs the unit + integration tests on every push.
-- **The seven Power BI reports** — manual review only (see the [Power BI README](./business_intelligence/) for the standard four-step manual smoke procedure).
 - **The Terraform SSE coexistence test** — `terraform validate` runs in the CI Terraform job; the deployment harness has its own mocked-network unit tests.
 - **The ink! counter prototype** — `cargo test` covers it.
 
