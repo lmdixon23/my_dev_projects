@@ -13,7 +13,7 @@ Outputs:
 from __future__ import annotations
 
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
 import numpy as np
 import tensorflow as tf
@@ -81,7 +81,7 @@ def main(epochs: int = 3, max_length: int = 32) -> None:
 def _render_report(history, accuracy, f1, report_text, cm) -> str:
     return (
         f"# Sentiment Analysis — Smoke Run\n\n"
-        f"_Generated: {datetime.utcnow().isoformat(timespec='seconds')}Z_\n\n"
+        f"_Generated: {datetime.now(timezone.utc).replace(tzinfo=None).isoformat(timespec='seconds')}Z_\n\n"
         f"Fine-tunes `{MODEL_NAME}` for {len(history.get('loss', []))} epochs on "
         f"`{CSV_PATH}` (32 hand-written reviews, balanced). The intent is to verify "
         f"the BERT pipeline end-to-end on a machine without a GPU. Real-world "

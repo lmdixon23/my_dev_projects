@@ -27,22 +27,24 @@ Final accuracy on the synthetic verifiable-reward task (mean of 3 seeds, 1200 st
 
 Qualitative ranking **RFT < Online RFT < GRPO+OS** matches the paper.
 
-## All committed smoke reports
+## Smoke reports — regenerate locally
 
-| Project | Report file | Regenerate command |
-|---|---|---|
-| RAG Assistant | [`ai_engineering/rag_assistant/reports/smoke_eval.md`](./ai_engineering/rag_assistant/reports/smoke_eval.md) | `cd ai_engineering/rag_assistant && python -m smoke.run_smoke` |
-| Agent Toolkit | [`ai_engineering/agent_toolkit/reports/smoke_trace.md`](./ai_engineering/agent_toolkit/reports/smoke_trace.md) | `cd ai_engineering/agent_toolkit && python -m smoke.run_smoke` |
-| LLM Eval Harness | [`ai_engineering/llm_eval_harness/reports/smoke_eval.html`](./ai_engineering/llm_eval_harness/reports/smoke_eval.html) | `cd ai_engineering/llm_eval_harness && python -m smoke.run_smoke` |
-| Regularized Operator Zoo | [`ai_engineering/rlvr/regularized_operator_zoo/reports/smoke_report.md`](./ai_engineering/rlvr/regularized_operator_zoo/reports/smoke_report.md) | `cd ai_engineering/rlvr/regularized_operator_zoo && python -m smoke.run_smoke` |
-| GRPO Minimal (reproduces Shao et al. 2024 Figure 5) | [`ai_engineering/rlvr/grpo_minimal/reports/figure_5_reproduction.md`](./ai_engineering/rlvr/grpo_minimal/reports/figure_5_reproduction.md) | `cd ai_engineering/rlvr/grpo_minimal && PYTHONPATH=$PYTHONPATH:$(realpath ../regularized_operator_zoo) python -m smoke.run_smoke` |
-| Image Classification | [`machine_learning/image_classification/reports/smoke_eval.md`](./machine_learning/image_classification/reports/smoke_eval.md) | `cd machine_learning/image_classification && python -m smoke.run_smoke` |
-| Image Captioning (CNN+RNN) | [`machine_learning/image_captioning_cnn_rnn_tpu/reports/smoke_eval.md`](./machine_learning/image_captioning_cnn_rnn_tpu/reports/smoke_eval.md) | `cd machine_learning/image_captioning_cnn_rnn_tpu && python -m smoke.run_smoke` |
-| Sentiment Analysis (BERT) | [`machine_learning/sentiment_analysis_transfer_learning/reports/smoke_eval.md`](./machine_learning/sentiment_analysis_transfer_learning/reports/smoke_eval.md) | `cd machine_learning/sentiment_analysis_transfer_learning && python -m smoke.run_smoke` |
-| Predictive Maintenance | [`machine_learning/predictive_maintenance/reports/smoke_eval.md`](./machine_learning/predictive_maintenance/reports/smoke_eval.md) | `cd machine_learning/predictive_maintenance && python -m smoke.run_smoke` |
-| Sales Data ETL (Python reference) | [`data_engineering/sales_data_etl_ssis/python_reference_etl/reports/smoke_eval.md`](./data_engineering/sales_data_etl_ssis/python_reference_etl/reports/smoke_eval.md) | See the report — uses `create_sales_data.py` then `sales_etl.py` |
+Each runnable project's `smoke/run_smoke.py` writes a report into its `reports/` folder. Those report files are **gitignored** (their numbers drift with random seeds), so they are not committed — run the command to produce them in a local clone. For committed, real figures see **Verified runs** above.
 
-That's 10 of the 10 runnable projects in the portfolio — full coverage.
+| Project | Regenerate command |
+|---|---|
+| RAG Assistant | `cd ai_engineering/rag_assistant && python -m smoke.run_smoke` |
+| Agent Toolkit | `cd ai_engineering/agent_toolkit && python -m smoke.run_smoke` |
+| LLM Eval Harness | `cd ai_engineering/llm_eval_harness && python -m smoke.run_smoke` |
+| Regularized Operator Zoo | `cd ai_engineering/rlvr/regularized_operator_zoo && python -m smoke.run_smoke` |
+| GRPO Minimal (reproduces Shao et al. 2024 Figure 5) | `cd ai_engineering/rlvr/grpo_minimal && PYTHONPATH=$PYTHONPATH:$(realpath ../regularized_operator_zoo) python -m smoke.run_smoke` |
+| Image Classification | `cd machine_learning/image_classification && python -m smoke.run_smoke` |
+| Image Captioning (CNN+RNN) | `cd machine_learning/image_captioning_cnn_rnn_tpu && python -m smoke.run_smoke` |
+| Sentiment Analysis (BERT) | `cd machine_learning/sentiment_analysis_transfer_learning && python -m smoke.run_smoke` |
+| Predictive Maintenance | `cd machine_learning/predictive_maintenance && python -m smoke.run_smoke` |
+| Sales Data ETL (Python reference) | uses `create_sales_data.py` then `sales_etl.py` |
+
+That's all 10 runnable projects — full coverage.
 
 ## Projects without a smoke pipeline
 

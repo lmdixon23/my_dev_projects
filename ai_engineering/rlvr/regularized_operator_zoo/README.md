@@ -91,6 +91,15 @@ The conjugate identity `Ω*(q) = ⟨π★, q⟩ − Ω(π★)` is the algebraic 
 
 Both numbers are reproducible from `reports/smoke_report.md` after running `python -m smoke.run_smoke`. The gradient identity is what Article 1 §3 actually anchors on; the conjugate identity is what falls out of it.
 
+## Results (verified run, 2026-06-02)
+
+Smoke run on `q = [1.0, 2.0, 0.5], beta = 1.0` (`python -m smoke.run_smoke`):
+
+- **Gradient identity** `pi* = grad Omega*(q)` — max `||pi - grad Omega*||_2` across all five operators: **1.8e-07** (Tsallis; entropy, KL-to-uniform, KL-to-anchor, and Renyi land near 1e-10).
+- **Conjugate identity** `Omega*(q) = <pi, q> - Omega(pi)` — max difference: **2.2e-16** (machine precision).
+
+Both identities hold for negative-entropy, KL-to-uniform, KL-to-anchor, Tsallis, and Renyi. Regenerate with `python -m smoke.run_smoke`.
+
 ## Getting Started
 
 ### Prerequisites

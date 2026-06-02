@@ -7,7 +7,7 @@ LLMJudge (skipped via no_api_key path). Writes reports/smoke_eval.html.
 from __future__ import annotations
 
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
 from evals.cases import Case
 from evals.evaluators import (
@@ -55,7 +55,7 @@ def main() -> None:
     run = Runner(_fake_respond, evaluators).run("smoke", cases)
     out_path = "reports/smoke_eval.html"
     HTMLReport.write(run, out_path)
-    print(f"{run.passed()}/{run.total()} passed -> {out_path}  ({datetime.utcnow().isoformat(timespec='seconds')}Z)")
+    print(f"{run.passed()}/{run.total()} passed -> {out_path}  ({datetime.now(timezone.utc).replace(tzinfo=None).isoformat(timespec='seconds')}Z)")
 
 
 if __name__ == "__main__":

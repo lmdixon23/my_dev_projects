@@ -10,7 +10,7 @@ Steps:
 from __future__ import annotations
 
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
 from smoke.generate_dataset import main as generate_dataset_main
 from src.data_preprocessing import main as preprocess_main
@@ -47,7 +47,7 @@ def main() -> None:
     with open(REPORT_PATH, "w", encoding="utf-8") as fh:
         fh.write(
             "# Predictive Maintenance — Smoke Run\n\n"
-            f"_Generated: {datetime.utcnow().isoformat(timespec='seconds')}Z_\n\n"
+            f"_Generated: {datetime.now(timezone.utc).replace(tzinfo=None).isoformat(timespec='seconds')}Z_\n\n"
             "Synthesized 3 'regular' + 3 'recommissioned' battery CSVs (200 rows "
             "each) and ran the full preprocessing + training + evaluation "
             "pipeline. Real Li-ion telemetry is GB-scale and not committed; "

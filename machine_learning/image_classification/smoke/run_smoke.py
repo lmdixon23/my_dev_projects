@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
 import numpy as np
 import tensorflow as tf
@@ -78,7 +78,7 @@ def main(epochs: int = 2) -> None:
 def _render_report(history, accuracy, class_names, report_text, cm) -> str:
     return (
         f"# Image Classification — Smoke Run\n\n"
-        f"_Generated: {datetime.utcnow().isoformat(timespec='seconds')}Z_\n\n"
+        f"_Generated: {datetime.now(timezone.utc).replace(tzinfo=None).isoformat(timespec='seconds')}Z_\n\n"
         f"This report is produced by `python -m smoke.run_smoke`. It uses a "
         f"synthetic 80-image training set / 20-image test set of red-dominant "
         f"vs blue-dominant 64x64 noise images. The intent is end-to-end "

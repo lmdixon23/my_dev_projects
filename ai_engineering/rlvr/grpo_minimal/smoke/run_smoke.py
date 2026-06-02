@@ -19,7 +19,7 @@ Outputs:
 from __future__ import annotations
 
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 import matplotlib
@@ -125,7 +125,7 @@ def main(n_steps: int = 1200) -> None:
     md = [
         f"# grpo_minimal — Figure 5 reproduction",
         f"",
-        f"_Generated: {datetime.utcnow().isoformat(timespec='seconds')}Z_",
+        f"_Generated: {datetime.now(timezone.utc).replace(tzinfo=None).isoformat(timespec='seconds')}Z_",
         f"",
         f"Reproduces the qualitative ranking from **Figure 5 of Shao et al. 2024**",
         f"([arXiv:2402.03300v3](https://arxiv.org/abs/2402.03300), Figure 5, page 19)",

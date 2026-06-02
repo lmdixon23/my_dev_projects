@@ -10,7 +10,7 @@ and writes:
 from __future__ import annotations
 
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 import matplotlib
@@ -71,7 +71,7 @@ def main() -> None:
     lines = [
         f"# Regularized Operator Zoo — Smoke Run",
         f"",
-        f"_Generated: {datetime.utcnow().isoformat(timespec='seconds')}Z_",
+        f"_Generated: {datetime.now(timezone.utc).replace(tzinfo=None).isoformat(timespec='seconds')}Z_",
         f"",
         f"q = {q.tolist()}, beta = 1.0",
         f"",

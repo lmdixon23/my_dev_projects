@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
 from rag.chunker import Chunker, Document
 from rag.embedder import make_default_embedder
@@ -59,7 +59,7 @@ def main() -> None:
     with open(REPORT_PATH, "w", encoding="utf-8") as fh:
         fh.write(
             f"# RAG Assistant — Smoke Run\n\n"
-            f"_Generated: {datetime.utcnow().isoformat(timespec='seconds')}Z_\n\n"
+            f"_Generated: {datetime.now(timezone.utc).replace(tzinfo=None).isoformat(timespec='seconds')}Z_\n\n"
             f"- **Embedder**: `{type(embedder).__name__}` (dim {embedder.dim})\n"
             f"- **Docs**: {len(docs)}  **Chunks**: {len(chunks)}\n"
             f"- **k**: 3\n\n"

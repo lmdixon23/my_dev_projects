@@ -40,6 +40,18 @@ After running the project, you can observe the following sequence of operations:
 - **Update logits**: Gradient ascent step on the per-prompt logits.
 - **Repeat & evaluate**: After every `eval_every` steps, the oracle accuracy is recorded for plotting.
 
+## Results (verified run, 2026-06-02)
+
+`python -m smoke.run_smoke` — final accuracy on the synthetic verifiable-reward task (mean of 3 seeds, 1200 steps each):
+
+| Method | Final accuracy |
+|---|---|
+| RFT | 0.181 |
+| Online RFT | 0.945 |
+| GRPO+OS | 0.990 |
+
+Qualitative ranking **RFT < Online RFT < GRPO+OS** reproduces Figure 5 of Shao et al. 2024. Regenerate with `python -m smoke.run_smoke` (with the operator zoo on `PYTHONPATH`).
+
 ## Getting Started
 
 ### Prerequisites

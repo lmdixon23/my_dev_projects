@@ -14,7 +14,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
 import numpy as np
 from PIL import Image
@@ -78,7 +78,7 @@ def main() -> None:
         "info": {
             "description": "Smoke-run synthetic captions",
             "version": "1.0",
-            "year": datetime.utcnow().year,
+            "year": datetime.now(timezone.utc).replace(tzinfo=None).year,
         },
         "images": images_meta,
         "annotations": annotations,

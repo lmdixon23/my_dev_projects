@@ -12,7 +12,7 @@ what happened.
 from __future__ import annotations
 
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
 from agent import Agent, ScriptedLLM
 from agent.llm import LLMResponse
@@ -46,7 +46,7 @@ def main() -> None:
 
     report = (
         f"# Agent Toolkit — Smoke Run\n\n"
-        f"_Generated: {datetime.utcnow().isoformat(timespec='seconds')}Z_\n\n"
+        f"_Generated: {datetime.now(timezone.utc).replace(tzinfo=None).isoformat(timespec='seconds')}Z_\n\n"
         f"**Stopped for:** {result.stopped_for}\n\n"
         f"**Tool calls:** {len(result.trace.tool_calls())}\n\n"
         f"## Final answer\n\n{result.answer}\n\n"

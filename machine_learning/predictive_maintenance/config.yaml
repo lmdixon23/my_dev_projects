@@ -1,0 +1,24 @@
+data:
+  regular_dir: data/battery_alt_dataset/regular_alt_batteries
+  recommissioned_dir: data/battery_alt_dataset/recommissioned_batteries
+  processed_dir: data
+  failure_threshold_hours: 1000
+  drop_columns: [start time, mode]
+  preprocessing:
+    normalize: true
+
+training:
+  test_size: 0.2
+  random_state: 42
+
+model:
+  type: random_forest
+  parameters:
+    n_estimators: 200
+    max_depth: 12
+
+paths:
+  model: models/random_forest_model.pkl
+  scaler: models/standard_scaler.pkl
+  feature_columns: models/feature_columns.json
+  evaluation_report: reports/evaluation_report.txt

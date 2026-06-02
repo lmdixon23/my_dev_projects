@@ -9,7 +9,7 @@ inline `<style>` block.
 from __future__ import annotations
 
 import html
-from datetime import datetime
+from datetime import datetime, timezone
 
 from .cases import EvalRun
 
@@ -62,7 +62,7 @@ class HTMLReport:
             f"<div class='summary'>"
             f"<div class='big'>{run.passed()}/{run.total()} passed "
             f"({run.pass_rate() * 100:.1f}%)</div>"
-            f"<div>Generated {datetime.utcnow().isoformat(timespec='seconds')}Z</div>"
+            f"<div>Generated {datetime.now(timezone.utc).replace(tzinfo=None).isoformat(timespec='seconds')}Z</div>"
             f"</div>"
             f"<table>"
             f"<thead><tr><th>Case</th><th>Prompt</th><th>Response</th>"

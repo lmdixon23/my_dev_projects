@@ -13,7 +13,7 @@ Outputs:
 from __future__ import annotations
 
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
 import tensorflow as tf
 from tensorflow.keras.optimizers import Adam
@@ -69,7 +69,7 @@ def main() -> None:
     with open(REPORT_PATH, "w", encoding="utf-8") as fh:
         fh.write(
             "# Image Captioning — Smoke Run\n\n"
-            f"_Generated: {datetime.utcnow().isoformat(timespec='seconds')}Z_\n\n"
+            f"_Generated: {datetime.now(timezone.utc).replace(tzinfo=None).isoformat(timespec='seconds')}Z_\n\n"
             "Generated a 12-image synthetic COCO-shaped dataset (red/green/blue "
             "squares + matching short captions), trained for 3 epochs on CPU, "
             "decoded greedily, and computed corpus BLEU-4 on the same images. "
