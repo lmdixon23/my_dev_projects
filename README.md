@@ -11,7 +11,7 @@
      Every project ships tests, smoke pipelines, and honest limitations."
 -->
 
-A working portfolio of production-shaped projects across AI engineering, machine learning, blockchain protocols, data engineering, network security, and business intelligence. Every project here has a working build, a real test suite or smoke pipeline, and an honest README that distinguishes what's implemented from what's aspirational.
+A working portfolio of production-shaped projects across AI engineering, machine learning, blockchain protocols, data engineering, and network security. Every project here has a working build, a real test suite or smoke pipeline, and an honest README that distinguishes what's implemented from what's aspirational.
 
 ## Start here (30-second tour)
 
