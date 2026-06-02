@@ -2,7 +2,7 @@
 
 ## Overview
 
-**GRPO_Minimal** is a small Python implementation of three RL post-training methods — **RFT**, **Online RFT**, and **GRPO+OS** — that all share a single training loop. The point of the project is to make Article 1's central claim of the [RLVR Operator Series](https://github.com/lmdixon23/rlvr-operator-series) concrete: these methods are *knobs on one skeleton*, not separate algorithms. The reproduction targets the qualitative ranking from **Figure 5 of Shao et al. 2024** (arXiv:2402.03300v3, page 19) on a synthetic verifiable-reward task, in under a minute of CPU time. The KL-anchor regularizer that GRPO adds to its loss is imported from `operator_zoo.losses` — that import is the load-bearing bridge between this project and the regularized-operator-zoo.
+**GRPO_Minimal** is a small Python implementation of three RL post-training methods — **RFT**, **Online RFT**, and **GRPO+OS** — that all share a single training loop. The point of the project is to make Article 1's central claim of the RLVR Operator Series concrete: these methods are *knobs on one skeleton*, not separate algorithms. The reproduction targets the qualitative ranking from **Figure 5 of Shao et al. 2024** (arXiv:2402.03300v3, page 19) on a synthetic verifiable-reward task, in under a minute of CPU time. The KL-anchor regularizer that GRPO adds to its loss is imported from `operator_zoo.losses` — that import is the load-bearing bridge between this project and the regularized-operator-zoo.
 
 ## Key Features
 
