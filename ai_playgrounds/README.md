@@ -10,8 +10,7 @@ Haidian Kaiwen Academy) and map 1-to-1 to the curriculum's most
 visually-rich units, with extra depth on the under-served Russell & Norvig topics
 (logical agents, knowledge bases, Bayesian networks, local search). They're free for any classroom to use.
 
-> **Live demo:** see `index.html` (open it in a browser, or push this folder
-> to GitHub Pages and the landing page lists all twelve applets).
+> **Live demo:** https://lmdixon23.github.io/my_dev_projects/
 
 ## The twelve applets
 
