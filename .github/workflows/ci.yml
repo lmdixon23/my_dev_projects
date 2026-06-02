@@ -45,7 +45,7 @@ jobs:
           - project: data_engineering/sales_data_etl_ssis
             test-cmd: 'python -m unittest discover python_reference_etl'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -78,7 +78,7 @@ jobs:
           - blockchain_protocols/rust_poa_zkp_voting
           - blockchain_protocols/rust_defi_lending_protocol
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
         with:
@@ -103,7 +103,7 @@ jobs:
       run:
         working-directory: network_security/sse_coexistence_testing/terraform
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: hashicorp/setup-terraform@v3
       - run: terraform init -backend=false
       - run: terraform validate
