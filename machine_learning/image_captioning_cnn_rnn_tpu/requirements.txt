@@ -1,5 +1,9 @@
-tensorflow==2.15.*
-numpy>=1.26,<2.0
+# Keras 2 comes from tf-keras; TF_USE_LEGACY_KERAS=1 (set in conftest.py) routes
+# tf.keras to it, so this project's preprocessing.Tokenizer / pad_sequences APIs
+# still resolve on TensorFlow >= 2.16 (which now bundles Keras 3).
+tensorflow>=2.16
+tf-keras>=2.16
+numpy>=1.26
 pandas>=2.2
 pillow>=10.0
 matplotlib>=3.8
