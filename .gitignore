@@ -188,5 +188,15 @@ ai_engineering/rag_assistant/index/
 # Saved model artifacts (re-downloadable / re-trainable)
 **/saved_models/
 
-# Archived BI — kept locally, not published
+# Archived BI ï¿½ kept locally, not published
 archive/
+
+# ===========================================
+# Local-only notes / scratch â€” NEVER published
+# Put anything you don't want on GitHub in _local/ and it stays on your disk only.
+# ===========================================
+_local/
+GITHUB_METADATA.md
+PHASE2_HANDOFF.md
+RLVR_PORTFOLIO_PROJECT_PLAN.md
+RUNBOOK.md
