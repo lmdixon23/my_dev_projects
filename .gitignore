@@ -193,10 +193,6 @@ archive/
 
 # ===========================================
 # Local-only notes / scratch — NEVER published
-# Put anything you don't want on GitHub in _local/ and it stays on your disk only.
+# Put anything I don't want on GitHub in _local/ and it stays on my disk only.
 # ===========================================
 _local/
-GITHUB_METADATA.md
-PHASE2_HANDOFF.md
-RLVR_PORTFOLIO_PROJECT_PLAN.md
-RUNBOOK.md
