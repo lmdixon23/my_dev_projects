@@ -104,6 +104,6 @@ jobs:
         working-directory: network_security/sse_coexistence_testing/terraform
     steps:
       - uses: actions/checkout@v6
-      - uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v4
       - run: terraform init -backend=false
       - run: terraform validate
