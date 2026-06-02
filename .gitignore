@@ -1,0 +1,198 @@
+# ===========================================
+# Private Projects and Data
+# ===========================================
+**/websites/
+**/content/
+**/drive/MyDrive/
+
+# ===========================================
+# Model and Generated Files
+# ===========================================
+*.keras
+*.h5
+*.pbtxt
+*.tfrecord
+
+# ===========================================
+# Python-Specific
+# ===========================================
+**/__pycache__/
+*.py[cod]
+*$py.class  # Could be retained if you want to be very specific, but *.py[cod] should cover it already.
+**/.ipynb_checkpoints/
+
+# ===========================================
+# Virtual Environment Directories
+# ===========================================
+**/.env/
+**/.venv/
+**/venv/
+**/env/
+
+# ===========================================
+# Rust/Cargo-Specific
+# ===========================================
+*.rs.bk  # Backup files created by cargo fmt
+
+# ===========================================
+# Terraform-Specific
+# ===========================================
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# ===========================================
+# SSH / TLS Material — NEVER COMMIT
+# ===========================================
+*.pem
+*.key
+*.pfx
+*.p12
+id_rsa
+id_rsa.pub
+id_ed25519
+id_ed25519.pub
+
+# ===========================================
+# IDE Files
+# ===========================================
+**/.vscode/
+**/.idea/
+**/.vs/
+*.code-workspace
+*.iml
+*.iws
+*.ipr
+*.project
+*.classpath
+**/.csettings/
+**/.settings/
+**/nbproject/
+
+# ===========================================
+# Build and Distribution Directories
+# ===========================================
+**/dist/
+**/build/
+**/target/
+**/bin/
+**/obj/
+
+# ===========================================
+# Dependency Directories
+# ===========================================
+**/node_modules/
+
+# ===========================================
+# General Lock Files
+# ===========================================
+**/*.lock
+
+# ===========================================
+# Backup, Log, and Temporary Files
+# ===========================================
+**/*.log
+**/*.tmp
+**/*.bak
+**/*.swp
+*~  # This is a temporary file created by editors like vim.
+*.orig
+*.old
+*.swo
+*.swp
+
+# ===========================================
+# System-Specific Files
+# ===========================================
+**/.DS_Store
+**/.AppleDouble
+**/.Trash-*
+**/Thumbs.db
+**/Desktop.ini
+$RECYCLE.BIN/
+
+# ===========================================
+# Large and Voluminous Directories
+# ===========================================
+**/datasets/
+**/data/
+**/logs/
+**/outputs/
+**/generated/
+
+# ===========================================
+# Sensitive Files
+# ===========================================
+**/.env
+**/config/
+**/config.*
+**/secrets/
+**/secrets.*
+
+# ===========================================
+# SQL Server and Database Files
+# ===========================================
+**/*.mdf
+**/*.ldf
+**/*.sqlite
+**/*.db
+
+# ===========================================
+# Large Media and Binary Files
+# ===========================================
+**/*.mp4
+**/*.avi
+**/*.mov
+**/*.zip
+**/*.tar
+**/*.gz
+**/*.exe
+**/*.dll
+**/*.iso
+**/*.dmg
+**/*.csv
+
+# ===========================================
+# Publish Profiles for Deployments
+# ===========================================
+*.publish.xml
+
+# ===========================================
+# SSIS-Specific Files
+# ===========================================
+*.dtproj.user
+*.dbproj.user
+*.ispac
+*.datasource
+*.conmgr
+
+# ===========================================
+# User-Specific Files
+# ===========================================
+*.user
+*.suo
+
+# Generated smoke/eval reports (regenerable; numbers drift with seeds)
+**/reports/
+
+# Generated vector-store / index artifacts (rebuilt by the smoke pipeline)
+ai_engineering/rag_assistant/index/
+
+# Saved model artifacts (re-downloadable / re-trainable)
+**/saved_models/
+
+# Archived BI � kept locally, not published
+archive/
+
+# ===========================================
+# Local-only notes / scratch — NEVER published
+# Put anything I don't want on GitHub in _local/ and it stays on my disk only.
+# ===========================================
+_local/
