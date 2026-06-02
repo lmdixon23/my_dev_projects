@@ -22,7 +22,7 @@ I'll acknowledge receipt within 7 days and aim to publish a fix or a written res
 
 | Category | In scope | Out of scope |
 |---|---|---|
-| Code in this repository | ✅ everything under `ai_engineering/`, `machine_learning/`, `blockchain_protocols/`, `data_engineering/`, `network_security/`, `business_intelligence/`, `prototypes/` | n/a |
+| Code in this repository | ✅ everything under `ai_engineering/`, `machine_learning/`, `blockchain_protocols/`, `data_engineering/`, `network_security/`, `prototypes/` | n/a |
 | Documentation | ✅ if an example in a README leaks credentials or recommends a clearly unsafe pattern | typos, formatting nits |
 | Third-party dependencies | ⚠ I'll forward to upstream; no bounty | known issues already tracked by the upstream project |
 | The author's personal infrastructure | n/a | ❌ not in scope |

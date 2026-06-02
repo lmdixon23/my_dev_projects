@@ -11,7 +11,7 @@
      Every project ships tests, smoke pipelines, and honest limitations."
 -->
 
-A working portfolio of production-shaped projects across AI engineering, machine learning, blockchain protocols, data engineering, network security, and business intelligence. Every project here has a working build, a real test suite or smoke pipeline, and an honest README that distinguishes what's implemented from what's aspirational.
+A working portfolio of production-shaped projects across AI engineering, machine learning, blockchain protocols, data engineering, and network security. Every project here has a working build, a real test suite or smoke pipeline, and an honest README that distinguishes what's implemented from what's aspirational.
 
 ## Start here (30-second tour)
 
@@ -48,7 +48,7 @@ Every project has the same five-section README structure: **Overview**, **Key Fe
 - **[Agent Toolkit](./ai_engineering/agent_toolkit/)** — ReAct-style LLM agent with a typed tool registry (`@tool` decorator), trace logging, structured tool calls, and an AST-allowlisted expression evaluator for the built-in calculator (no `eval()`).
 - **[LLM Eval Harness](./ai_engineering/llm_eval_harness/)** — Test-case format, four evaluator strategies (exact match, regex, embedding similarity, LLM-as-judge), aggregation, and an HTML report. The complement to RAG and agents that lets you actually measure them.
 - **[NLP Text Summarization CLI](./ai_engineering/nlp_text_summarization_api/)** — Async OpenAI client with proper concurrency control, API-key rotation on 429, SQLite persistence, real trend analysis, tokenizer-free test suite via `httpx.MockTransport`.
-- **[Regularized Operator Zoo](./ai_engineering/rlvr/regularized_operator_zoo/)** — Pedagogical implementations of the regularized greedy operators at the heart of modern RL post-training (negative entropy, KL-to-uniform, KL-to-anchor / Vieillard, Tsallis / sparsemax, Rényi). Companion code for my [RLVR Operator Series](https://github.com/lmdixon23/rlvr-operator-series) articles.
+- **[Regularized Operator Zoo](./ai_engineering/rlvr/regularized_operator_zoo/)** — Pedagogical implementations of the regularized greedy operators at the heart of modern RL post-training (negative entropy, KL-to-uniform, KL-to-anchor / Vieillard, Tsallis / sparsemax, Rényi). Companion code for my RLVR Operator Series articles.
 - **[GRPO Minimal](./ai_engineering/rlvr/grpo_minimal/)** — RFT, Online RFT, and GRPO+OS on a synthetic verifiable-reward task, sharing a single training loop. Reproduces the qualitative ranking from Figure 5 of Shao et al. 2024 (arXiv:2402.03300v3). Imports `kl_anchor_term` from the operator zoo — the load-bearing bridge between the two projects.
 
 ### Machine Learning ([`machine_learning/`](./machine_learning/))
