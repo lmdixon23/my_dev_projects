@@ -129,10 +129,9 @@ $RECYCLE.BIN/
 
 # ===========================================
 # Sensitive Files
+# (source config like config.py / config.yaml is committed; real secrets live in .env)
 # ===========================================
 **/.env
-**/config/
-**/config.*
 **/secrets/
 **/secrets.*
 
@@ -157,7 +156,6 @@ $RECYCLE.BIN/
 **/*.dll
 **/*.iso
 **/*.dmg
-**/*.csv
 
 # ===========================================
 # Publish Profiles for Deployments

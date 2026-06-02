@@ -11,7 +11,7 @@
      Every project ships tests, smoke pipelines, and honest limitations."
 -->
 
-A working portfolio of production-shaped projects across AI engineering, machine learning, blockchain protocols, data engineering, and network security. Every project here has a working build, a real test suite or smoke pipeline, and an honest README that distinguishes what's implemented from what's aspirational.
+A working portfolio of production-shaped projects across AI engineering, machine learning, blockchain protocols, data engineering, and network security. Every project here has a working build, a real test suite or smoke pipeline, and a README that distinguishes what's implemented from what's aspirational.
 
 ## Start here (30-second tour)
 
@@ -36,7 +36,7 @@ This is not a collection of tutorial-fork notebooks. Each project demonstrates a
 | [`ai_playgrounds/`](./ai_playgrounds/)             | Twelve single-file HTML+JS interactive applets for teaching core AI ideas                 | 12            |
 | [`prototypes/`](./prototypes/)                     | Sketches and experiments, intentionally below portfolio bar                               | varies        |
 
-Every project has the same five-section README structure: **Overview**, **Key Features**, **Architecture**, **Example Usage**, **Getting Started** (with **Prerequisites / Installation / Running / Testing**), then **Technical Specifications**, **What This Project Demonstrates**, **Scope** (what this version is and is not — kept explicit because reviewers will check), and **Future Enhancements**.
+Every project has the same five-section README structure: **Overview**, **Key Features**, **Architecture**, **Example Usage**, **Getting Started** (with **Prerequisites / Installation / Running / Testing**), then **Technical Specifications**, **What This Project Demonstrates**, **Scope**, and **Future Enhancements**.
 
 <a id="featured-projects"></a>
 
@@ -83,7 +83,7 @@ Twelve single-file HTML+JavaScript interactive applets — no build step, no ins
 
 Each applet targets a single "aha" moment — examples include A* vs BFS (search), Bayes-rule for rare diseases (probability), k in KNN (supervised), polynomial overfitting (evaluation), a TF-Playground-style tiny network (neural nets), k-means iteration (unsupervised), 3×3 convolution kernels (CV), and Q-learning gridworld (RL), plus logic/SAT, Bayesian networks, local search, and the Wumpus World. Drag a slider, the visualization re-renders live. See [`ai_playgrounds/README.md`](./ai_playgrounds/) for the full list and deployment guide.
 
- 
+
 
 ## Continuous integration
 
