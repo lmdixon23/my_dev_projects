@@ -13,7 +13,7 @@ CASES = [
     ("kl_anchor",        {}),
     ("kl_anchor",        {"anchor": np.array([0.7, 0.2, 0.1])}),
     ("tsallis",          {}),
-    ("renyi",            {}),
+    ("chi2",             {}),
 ]
 
 

@@ -8,7 +8,7 @@ Each subclass of OmegaBase provides three primitives:
     omega(pi)        -- Omega(pi), evaluated at a given policy
 
 Where a closed-form policy is available we use it (entropy / KL-anchor /
-Tsallis). Where it is not (Renyi alpha=2), we solve the convex problem
+Tsallis). Where it is not (Chi2 / Pearson, alpha=2), we solve the convex problem
 with a projected-gradient step. The solver is correct enough for
 pedagogical use; it is not optimized for large action spaces.
 """
@@ -235,12 +235,17 @@ class Tsallis(OmegaBase):
 
 
 # --------------------------------------------------------------------- #
-# Renyi (alpha = 2): Omega(pi) = (beta/2) * sum (pi^2 / mu)
+# Chi2 / Pearson (alpha = 2): Omega(pi) = (beta/2) * sum (pi^2 / mu)
+#   Note: sum_a pi^2/mu = 1 + chi^2(pi || mu), so this Omega is the
+#   Pearson chi-square divergence to mu (up to an additive constant) --
+#   NOT the Renyi-2 divergence, which is log(sum pi^2/mu). It is the
+#   mu-anchored sibling of the Tsallis (alpha=2) quadratic above.
+#   Source: Belousov & Peters (2017), arXiv:1801.00056.
 # Solved via projected gradient since there is no clean closed form for
 # the inner product version we use. Pedagogical only.
 # --------------------------------------------------------------------- #
-class Renyi(OmegaBase):
-    name = "renyi"
+class Chi2(OmegaBase):
+    name = "chi2"
 
     def __init__(self, beta: float = 1.0, anchor: np.ndarray | None = None,
                  iters: int = 200, lr: float = 0.1):

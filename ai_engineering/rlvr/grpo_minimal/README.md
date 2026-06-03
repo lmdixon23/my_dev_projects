@@ -2,7 +2,7 @@
 
 ## Overview
 
-**GRPO_Minimal** is a small Python implementation of three RL post-training methods — **RFT**, **Online RFT**, and **GRPO+OS** — that all share a single training loop. The point of the project is to make Article 1's central claim of the RLVR Operator Series concrete: these methods are *knobs on one skeleton*, not separate algorithms. The reproduction targets the qualitative ranking from **Figure 5 of Shao et al. 2024** (arXiv:2402.03300v3, page 19) on a synthetic verifiable-reward task, in under a minute of CPU time. The KL-anchor regularizer that GRPO adds to its loss is imported from `operator_zoo.losses` — the import that actually ties the two projects together.
+**GRPO_Minimal** is a small Python implementation of three RL post-training methods — **RFT**, **Online RFT**, and **GRPO+OS** — that all share a single training loop. The point of the project is to make Article 1's central claim of the RLVR Operator Series concrete: these methods are *knobs on one skeleton*, not separate algorithms. The reproduction targets the qualitative ranking from **Figure 5 of Shao et al. 2024** (arXiv:2402.03300v3, page 19; the DeepSeekMath-Instruct 1.3B comparison) on a synthetic verifiable-reward task, in under a minute of CPU time. The KL-anchor regularizer that GRPO adds to its loss is imported from `operator_zoo.losses` — the import that actually ties the two projects together.
 
 ## Key Features
 
@@ -107,7 +107,7 @@ python -m pytest tests/      # 11+ tests, no network required
 - **Language**: Python 3.10+
 - **Task**: Categorical bandit conditioned on a small integer prompt; 0/1 verifier
 - **Policy**: Tabular logits, per-prompt softmax over a 32-action vocabulary
-- **Methods Implemented**: RFT, Online RFT, GRPO+OS (Shao et al. 2024 Table 10, rows 2/4/6)
+- **Methods Implemented**: RFT, Online RFT, GRPO+OS (Shao et al. 2024 Table 10, rows 2/4/6 = RFT / Online RFT / GRPO; Table 10 labels row 6 "GRPO", and "+OS" is the outcome-supervision variant shown in Figure 5)
 - **KL Anchor**: `beta * KL(pi || pi_ref)`, imported from `operator_zoo.losses.kl_anchor_term`
 - **Plot Backend**: Matplotlib (`Agg` headless backend, CI-safe)
 - **Test Coverage**: 11+ tests; one explicitly verifies the operator-zoo bridge

@@ -2,14 +2,14 @@
 
 ## Overview
 
-**Regularized_Operator_Zoo** is a small, pedagogical Python library that implements the regularized greedy operators at the heart of modern RL post-training methods. For an action-value vector `q` and a convex regularizer `Ω` on the action simplex, the *regularized greedy step* is `Ω*(q) = max_π <π, q> − Ω(π)` and the resulting policy is `π* = ∇Ω*(q)`. This library ships concrete implementations for five named `Ω` — negative entropy, KL-to-uniform (mellowmax), KL-to-anchor (Vieillard), Tsallis (sparsemax), and Rényi — with a unified API, a numerical conjugate-identity test for each, and a one-command smoke run that produces a comparison plot suitable for embedding in articles or talks.
+**Regularized_Operator_Zoo** is a small, pedagogical Python library that implements the regularized greedy operators at the heart of modern RL post-training methods. For an action-value vector `q` and a convex regularizer `Ω` on the action simplex, the *regularized greedy step* is `Ω*(q) = max_π <π, q> − Ω(π)` and the resulting policy is `π* = ∇Ω*(q)`. This library ships concrete implementations for five named `Ω` — negative entropy, KL-to-uniform (mellowmax), KL-to-anchor (Vieillard), Tsallis (sparsemax), and χ² (Pearson) — with a unified API, a numerical conjugate-identity test for each, and a one-command smoke run that produces a comparison plot suitable for embedding in articles or talks.
 
 ## Key Features
 
-- **Five Concrete Operators**: Negative entropy, KL-to-uniform, KL-to-anchor with a configurable `μ`, Tsallis (`α=2` → sparsemax), and Rényi (`α=2`).
+- **Five Concrete Operators**: Negative entropy, KL-to-uniform, KL-to-anchor with a configurable `μ`, Tsallis (`α=2` → sparsemax), and χ² / Pearson (`α=2`, μ-anchored).
 - **Unified API**: `RegularizedOp(omega, beta=...).policy(q)` returns the maximizer; `.value(q)` returns `Ω*(q)`; `.omega(π)` returns `Ω(π)`.
 - **Conjugate-Identity Test Per Operator**: Every operator is verified numerically against `Ω*(q) == ⟨π*, q⟩ − Ω(π*)` — the identity Article 1 §3 turns on.
-- **Closed Forms Where They Exist**: Entropy / KL-uniform → softmax; KL-anchor → Vieillard's `μ ⋅ exp(q/β)/Z`; Tsallis → projection-onto-the-simplex (sparsemax). Rényi uses a small projected-gradient solver with a looser tolerance flagged in the tests.
+- **Closed Forms Where They Exist**: Entropy / KL-uniform → softmax; KL-anchor → Vieillard's `μ ⋅ exp(q/β)/Z`; Tsallis → projection-onto-the-simplex (sparsemax). χ² (Pearson) uses a small projected-gradient solver with a looser tolerance flagged in the tests.
 - **Beta-Sweep Plot**: `python -m smoke.run_smoke` sweeps `β` from `0.01` to `100` for each operator on a fixed `q` and writes `reports/policy_vs_beta.png`. The figure that "small β → greedy on argmax, large β → anchor" claim is supposed to show.
 - **Numerical Stability**: Softmax / log-sum-exp use the standard max-subtraction trick; KL-to-anchor uses `log μ + q/β` in log space before exponentiating.
 
@@ -78,7 +78,7 @@ The `_kl` suffix on `lambda_kl` is deliberate. The series bible warns:
 | `"kl_uniform"` (mellowmax) | `Ω(π) = β·KL(π ∥ U)`; same maximizer, +log\|A\| in value | Asadi & Littman (2017) | A1 §3 |
 | `"kl_anchor"` (Vieillard) | `Ω(π) = β·KL(π ∥ μ)`; maximizer is `μ·exp(q/β) / Z` | Vieillard et al. (2020) | A1 §4, A3 |
 | `"tsallis"` (sparsemax) | `Ω(π) = (β/2)(Σ π² − 1)`; maximizer is sparse | Martins & Astudillo (2016) | A1 §3 |
-| `"renyi"` | `Ω(π) = (β/2) Σ π²/μ`; solved by projected gradient | Belousov & Peters (2017) | A7 |
+| `"chi2"` (Pearson) | `Ω(π) = (β/2) Σ π²/μ` = Pearson χ²(π‖μ) + const; projected gradient | Belousov & Peters (2017) | A7 |
 
 ## The two identities, verified
 
@@ -95,10 +95,10 @@ Both numbers are reproducible from `reports/smoke_report.md` after running `pyth
 
 Smoke run on `q = [1.0, 2.0, 0.5], beta = 1.0` (`python -m smoke.run_smoke`):
 
-- **Gradient identity** `pi* = grad Omega*(q)` — max `||pi - grad Omega*||_2` across all five operators: **1.8e-07** (Tsallis; entropy, KL-to-uniform, KL-to-anchor, and Renyi land near 1e-10).
+- **Gradient identity** `pi* = grad Omega*(q)` — max `||pi - grad Omega*||_2` across all five operators: **1.8e-07** (Tsallis; entropy, KL-to-uniform, KL-to-anchor, and χ² land near 1e-10).
 - **Conjugate identity** `Omega*(q) = <pi, q> - Omega(pi)` — max difference: **2.2e-16** (machine precision).
 
-Both identities hold for negative-entropy, KL-to-uniform, KL-to-anchor, Tsallis, and Renyi. Regenerate with `python -m smoke.run_smoke`.
+Both identities hold for negative-entropy, KL-to-uniform, KL-to-anchor, Tsallis, and χ². Regenerate with `python -m smoke.run_smoke`.
 
 ## Getting Started
 
@@ -135,7 +135,7 @@ python -m pytest tests/        # no network, no model download
 - **Language**: Python 3.10+
 - **Numerics**: NumPy, with a `project_to_simplex` implementation following Wang & Carreira-Perpiñán (2013)
 - **Plot Backend**: Matplotlib (`Agg` backend so the smoke run is CI-headless safe)
-- **Test Coverage**: 7+ tests across two files; closed-form operators verified to `1e-9`, Rényi to `1e-3` (solver tolerance is intentionally loose)
+- **Test Coverage**: 7+ tests across two files; closed-form operators verified to `1e-9`, χ² to `1e-3` (solver tolerance is intentionally loose)
 - **Article References**: A1 §3 (Geist 2019), A3 (Vieillard et al. 2020), A7 (control as inference foundations) of the RLVR Operator Series
 
 ## What This Project Demonstrates
@@ -148,7 +148,7 @@ python -m pytest tests/        # no network, no model download
 
 ## Scope
 
-- This is a pedagogical zoo, not a production RL library. The Rényi operator uses a projected-gradient solver with a fixed step size (200 iterations by default; the tests and smoke run use 500 for tighter convergence); it converges, but slowly compared with a proper interior-point solver.
+- This is a pedagogical zoo, not a production RL library. The χ² operator uses a projected-gradient solver with a fixed step size (200 iterations by default; the tests and smoke run use 500 for tighter convergence); it converges, but slowly compared with a proper interior-point solver.
 - The "action simplex" here is over a small discrete action set (3-10 actions). For large vocabularies (e.g. LLM token distributions) you'd want the same identities but a sparse / batched implementation.
 - The KL-anchor operator's closed form requires the anchor to be nonzero everywhere; the implementation clips to `EPS = 1e-12` to handle the boundary safely.
 - No connection to a learned `q` function — `q` here is a hand-set vector, not the output of a value network.
@@ -157,7 +157,7 @@ python -m pytest tests/        # no network, no model download
 
 1. **Stochastic-Simplex Operator**: A version that operates over distributions of `q` rather than a single point, matching Article 2's Gaussian toy. Promoted because it is the direct bridge to the RLVR-Operator-Series essay project.
 2. **Streamlit Demo**: Interactive sliders over `β`, the regularizer choice, and `μ`, with the simplex visualized as a 2-simplex triangle.
-3. **Tsallis-α General**: Extend the Tsallis operator beyond `α = 2` (sparsemax). Note: general `α` has **no** closed-form simplex argmax — only `α = 1` (softmax) and `α = 2` (sparsemax) do — so this reuses the iterative projected-gradient solver the Rényi operator already uses (`iters=500`), not a closed form.
+3. **Tsallis-α General**: Extend the Tsallis operator beyond `α = 2` (sparsemax). Note: general `α` has **no** closed-form simplex argmax — only `α = 1` (softmax) and `α = 2` (sparsemax) do — so this reuses the iterative projected-gradient solver the χ² operator already uses (`iters=500`), not a closed form.
 4. **JAX Backend**: For batched / vectorized use across many states.
 
 ## References

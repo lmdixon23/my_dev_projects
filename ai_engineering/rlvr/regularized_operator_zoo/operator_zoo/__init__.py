@@ -13,7 +13,7 @@ This module ships concrete implementations for five named Omega:
                                    (mellowmax differs only in the *value* Omega_star)
   - KLToAnchor (Vieillard)      -> mu * exp(q / beta) / Z
   - Tsallis (alpha=2)           -> sparsemax (genuinely sparse policy)
-  - Renyi (alpha=2)             -> a smooth interpolant
+  - Chi2 / Pearson (alpha=2)    -> mu-anchored quadratic = chi-square to mu
 
 The contract every operator implements is identical:
 
@@ -44,7 +44,7 @@ from .operators import (
     KLToUniform,
     KLToAnchor,
     Tsallis,
-    Renyi,
+    Chi2,
     OmegaBase,
 )
 
@@ -57,6 +57,6 @@ __all__ = [
     "KLToUniform",
     "KLToAnchor",
     "Tsallis",
-    "Renyi",
+    "Chi2",
     "OmegaBase",
 ]

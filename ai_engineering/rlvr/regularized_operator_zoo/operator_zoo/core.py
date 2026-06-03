@@ -17,7 +17,7 @@ from .operators import (
     KLToUniform,
     KLToAnchor,
     Tsallis,
-    Renyi,
+    Chi2,
 )
 
 _REGISTRY: Dict[str, Type[OmegaBase]] = {
@@ -26,7 +26,7 @@ _REGISTRY: Dict[str, Type[OmegaBase]] = {
     "kl_anchor": KLToAnchor,
     "tsallis": Tsallis,
     "tsallis_sparsemax": Tsallis,
-    "renyi": Renyi,
+    "chi2": Chi2,
 }
 
 

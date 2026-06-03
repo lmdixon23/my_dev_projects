@@ -78,13 +78,13 @@ def main() -> None:
         f"## Identity 1 — gradient form: pi* = grad Omega*(q)",
         f"",
         f"Verified by central finite difference of Omega*. The closed-form",
-        f"operators should agree to ~1e-6; renyi is solver-based and uses a",
+        f"operators should agree to ~1e-6; chi2 is solver-based and uses a",
         f"looser tolerance.",
         f"",
         f"| Operator | ||pi - grad Omega*||_2 |",
         f"|---|---|",
     ]
-    for name, kwargs in operators + [("renyi", {})]:
+    for name, kwargs in operators + [("chi2", {})]:
         op = RegularizedOp(name, beta=1.0, **kwargs)
         pi = op.policy(q)
         grad_star = finite_diff_gradient(op, q)
@@ -97,7 +97,7 @@ def main() -> None:
         f"| Operator | Omega*(q) | <pi, q> - Omega(pi) | diff |",
         f"|---|---|---|---|",
     ]
-    for name, kwargs in operators + [("renyi", {})]:
+    for name, kwargs in operators + [("chi2", {})]:
         op = RegularizedOp(name, beta=1.0, **kwargs)
         pi = op.policy(q)
         lhs = op.value(q)

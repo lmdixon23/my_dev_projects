@@ -14,7 +14,7 @@ from operator_zoo import RegularizedOp
 
 CLOSED_FORM_CASES = [
     # (name, kwargs, tolerance) — operators with closed-form policies
-    # should match the identity to high tolerance. Renyi uses a solver
+    # should match the identity to high tolerance. Chi2 uses a solver
     # and gets a looser tolerance.
     ("entropy",     {},                                   1e-9),
     ("kl_uniform",  {},                                   1e-9),
@@ -40,10 +40,10 @@ class TestConjugateIdentity(unittest.TestCase):
                         msg=f"{name} beta={beta} q={q}: lhs={lhs} rhs={rhs}",
                     )
 
-    def test_renyi_identity_within_solver_tolerance(self):
-        """Renyi uses projected-gradient; identity holds approximately."""
+    def test_chi2_identity_within_solver_tolerance(self):
+        """Chi2 (Pearson) uses projected-gradient; identity holds approximately."""
         q = np.array([1.0, 2.0, 0.5])
-        op = RegularizedOp("renyi", beta=1.0, iters=500, lr=0.1)
+        op = RegularizedOp("chi2", beta=1.0, iters=500, lr=0.1)
         pi = op.policy(q)
         rhs = float(np.dot(pi, q) - op.omega(pi))
         lhs = op.value(q)
