@@ -34,10 +34,10 @@ Cargo.toml
 
 ## Example Usage
 
-After running the project, you can observe the following sequence of operations:
+Running the demo binary walks through these steps:
 
 - **Asset Registration**: Native assets are deposited on a source `MockChain` with a unique identifier.
-- **HTLC Creation**: A Hashed TimeLock Contract is created for the asset transfer, locking the source asset under `hash(preimage)` with a timeout.
+- **HTLC Creation**: A Hashed TimeLock Contract is created for the transfer, locking the source asset under `hash(preimage)` with a timeout.
 - **Cross-Chain Transfer**: An explicit `MessageSent("LockObserved")` audit event marks the source-to-dest boundary; the destination mints the wrapped representation.
 - **Preimage Reveal**: The reverse boundary message (`PreimageRevealed`) triggers source-side release once the rehashed preimage matches the commitment.
 - **Logging and Auditing**: All eight events of a successful transfer are visible in the `AuditLog`.
@@ -84,10 +84,10 @@ cargo test                 # 6 unit tests + 3 integration tests
 
 ## What This Project Demonstrates
 
-- Understanding of the **HTLC primitive** and the commit/reveal mechanic that makes atomic swaps trustless.
-- **Two-phase protocol design with rollback** — the project explicitly tests that no execution path leaves the system with a source asset released but the wrapped not minted (or vice versa).
+- The **HTLC primitive** and the commit/reveal mechanic that makes atomic swaps trustless.
+- **Two-phase protocol design with rollback**: the integration tests explicitly verify that no execution path leaves a source asset released without the wrapped being minted, or vice versa.
 - **Constant-time cryptographic comparison** — `subtle::ConstantTimeEq` instead of `==`, the same pattern used in real wallets and signature libraries.
-- Architectural honesty: cross-chain message boundaries are made explicit as audit events rather than hidden inside the same `tokio::Mutex`, so the simulation is upfront about where a real relayer would live.
+- Architectural honesty: cross-chain message boundaries surface as audit events rather than being hidden inside the same `tokio::Mutex`, keeping the simulation upfront about where a real relayer would live.
 - Idiomatic Rust: `Arc<Mutex<…>>` for shared chain state, `thiserror` for ergonomic error types, integration tests under `tests/` (the Cargo convention).
 
 ## Scope
@@ -109,14 +109,4 @@ This is a learning artifact, not a real bridge. Specifically, the following are 
 3. **Signature verification on cross-chain messages** with Ed25519 keys for relayers. (Future — no signature crate is wired in yet; the README describes this in future tense.)
 4. **Timelock-refund path**: expose the HTLC's expiry-refund branch so a locked asset can be reclaimed after timeout — the safety half of an atomic swap.
 
-## Contributing
-
-I welcome contributions from the community to enhance the features, security, and performance of this project. Feel free to fork the repository, make your changes, and submit a pull request.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Contact
-
-For further inquiries or partnership opportunities, please contact lmdixon23@gmail.com.
+Licensed under the [MIT License](https://github.com/lmdixon23/my_dev_projects/blob/main/LICENSE).

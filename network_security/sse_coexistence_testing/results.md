@@ -10,7 +10,7 @@ _Not yet populated. After deploying with `terraform apply` and running:_
 python sse_simulation/test_traffic.py --host <public_ip_or_dns>
 ```
 
-_paste the harness output below._
+_Harness output from the latest run goes here._
 
 ## Template
 

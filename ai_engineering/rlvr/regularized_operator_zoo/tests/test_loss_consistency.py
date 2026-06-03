@@ -1,6 +1,6 @@
 """Loss-side equals closed-form, in the limit.
 
-This is the load-bearing test that bridges this zoo to `grpo_minimal`:
+This is the test that ties this zoo to `grpo_minimal`:
 when gradient ascent on `<pi, q> - kl_anchor_term(log_pi, log_mu, beta)`
 converges, the resulting `pi` must equal `KLToAnchor(lambda_kl=beta,
 anchor=mu).policy(q)` — the Vieillard closed form.

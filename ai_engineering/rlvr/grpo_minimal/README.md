@@ -2,12 +2,12 @@
 
 ## Overview
 
-**GRPO_Minimal** is a small Python implementation of three RL post-training methods — **RFT**, **Online RFT**, and **GRPO+OS** — that all share a single training loop. The point of the project is to make Article 1's central claim of the RLVR Operator Series concrete: these methods are *knobs on one skeleton*, not separate algorithms. The reproduction targets the qualitative ranking from **Figure 5 of Shao et al. 2024** (arXiv:2402.03300v3, page 19) on a synthetic verifiable-reward task, in under a minute of CPU time. The KL-anchor regularizer that GRPO adds to its loss is imported from `operator_zoo.losses` — that import is the load-bearing bridge between this project and the regularized-operator-zoo.
+**GRPO_Minimal** is a small Python implementation of three RL post-training methods — **RFT**, **Online RFT**, and **GRPO+OS** — that all share a single training loop. The point of the project is to make Article 1's central claim of the RLVR Operator Series concrete: these methods are *knobs on one skeleton*, not separate algorithms. The reproduction targets the qualitative ranking from **Figure 5 of Shao et al. 2024** (arXiv:2402.03300v3, page 19) on a synthetic verifiable-reward task, in under a minute of CPU time. The KL-anchor regularizer that GRPO adds to its loss is imported from `operator_zoo.losses` — the import that actually ties the two projects together.
 
 ## Key Features
 
 - **One Training Loop, Three Methods**: `train.py` takes a method callable as input. RFT, Online RFT, and GRPO+OS are each ~30 lines in `methods.py`. The *only* thing that differs between them is the `(data source, gradient coefficient)` pair — which is exactly the dimension Shao et al. Section 5.2.1 uses to unify them in Equation 5 / Table 10.
-- **Load-Bearing Bridge to `operator_zoo`**: GRPO+OS imports `kl_anchor_term` from the zoo; a dedicated test (`tests/test_bridge_to_zoo.py`) confirms the import is non-decorative *and* that the Vieillard closed form holds for the advantages-as-`q` substitution.
+- **Bridge to `operator_zoo`**: GRPO+OS imports `kl_anchor_term` from the zoo; a dedicated test (`tests/test_bridge_to_zoo.py`) confirms the import is not decorative *and* that the Vieillard closed form holds for the advantages-as-`q` substitution.
 - **Figure 5 Reproduction**: `python -m smoke.run_smoke` produces `reports/figure_5_reproduction.png` showing the three methods' accuracy curves on a synthetic categorical-bandit task. The smoke run also verifies the qualitative ranking RFT < Online RFT < GRPO+OS and writes the verdict into `reports/figure_5_reproduction.md`.
 - **Synthetic but Honest Task**: A categorical bandit conditioned on a prompt, with a 0/1 verifier. The task has the structural elements GRPO actually exercises (group sampling, within-group advantage normalization, KL anchor) at the smallest possible scale.
 - **Real Unit Tests**: 11+ tests across three files. The qualitative-ranking test in `test_methods.py` is the empirical analogue of Figure 5's headline claim, exercised at smoke-run scale.
@@ -24,14 +24,14 @@ grpo_minimal/
 tests/
   test_task_and_policy.py    simplex invariants, sampling, snapshot
   test_methods.py            each step runs; KL anchor pulls back; ranking holds
-  test_bridge_to_zoo.py      the operator_zoo import is load-bearing and correct
+  test_bridge_to_zoo.py      verifies the operator_zoo import is real and correct
 smoke/run_smoke.py           Reproduces Figure 5 (3 curves) → reports/*.png + .md
 requirements.txt             numpy, matplotlib
 ```
 
 ## Example Usage
 
-After running the project, you can observe the following sequence of operations:
+Each training step works as follows:
 
 - **Sample a group**: For each prompt, sample `G` completions from the current (or previous-iterate, or SFT) policy.
 - **Score**: A deterministic verifier returns 0/1 for each completion.
@@ -98,10 +98,10 @@ python -m pytest tests/      # 11+ tests, no network required
 
 ## What This Project Demonstrates
 
-- The **central claim of Article 1** of the RLVR series — that GRPO methods are knobs on one skeleton — *empirically*, in code, on a single training loop with three pluggable methods.
-- A **load-bearing import** between two portfolio projects (`grpo_minimal` and `regularized_operator_zoo`) with a dedicated test that catches future "this looks unused, let's clean it up" mistakes.
+- The **central claim of Article 1** of the RLVR series — that GRPO methods are knobs on one skeleton — made concrete: a single training loop, three pluggable methods, empirical curves.
+- A **real, tested dependency** between two portfolio projects (`grpo_minimal` and `regularized_operator_zoo`): the bridge test catches future "this looks unused, let's clean it up" mistakes.
 - **Faithful scoping**: a synthetic task that has the structural elements of GRPO without pretending to scale to GSM8K; absolute accuracy numbers are intentionally not compared against the paper.
-- **Verifier-style reward shaping** with group-normalized advantages — the exact computation Shao et al. Section 4.1.2 ("Outcome Supervision RL with GRPO") describes.
+- **Verifier-style reward shaping** with group-normalized advantages. This is the exact computation Shao et al. Section 4.1.2 ("Outcome Supervision RL with GRPO") describes.
 
 ## Scope
 
@@ -123,14 +123,4 @@ python -m pytest tests/      # 11+ tests, no network required
 - DeepSeek-AI. (2025). *DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning.* arXiv:2501.12948.
 - Schulman, J., et al. (2017). *Proximal Policy Optimization Algorithms.* arXiv:1707.06347.
 
-## Contributing
-
-Contributions are welcome. Open an issue first if you're planning a substantial change so we can align on scope.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Contact
-
-For further inquiries or collaboration opportunities, please contact lmdixon23@gmail.com.
+Licensed under the [MIT License](https://github.com/lmdixon23/my_dev_projects/blob/main/LICENSE).

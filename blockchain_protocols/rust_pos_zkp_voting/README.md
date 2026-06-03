@@ -27,12 +27,12 @@ Cargo.toml
 
 ## Example Usage
 
-After running the project, you can observe the following sequence of operations:
+The demo binary walks through a full round of signing, mining, and verification:
 
 - **Voter Registration**: Voters register with a public key and a SHA-256 eligibility commitment.
 - **Validator Registration**: Validators register with a stake amount; only active validators are eligible for selection.
 - **Vote Submission**: Votes are signed locally, then submitted; the chain verifies signature + eligibility commitment + no-double-vote before accepting.
-- **Consensus and Block Mining**: Stake-weighted leader selection picks the miner; the block is sealed with `prev_hash` and `hash`.
+- **Block Mining**: Stake-weighted leader selection picks the miner; the block is sealed with `prev_hash` and `hash`.
 - **Vote Tallying**: All votes across the chain are summed by candidate.
 - **Integrity Check**: `verify_integrity()` walks the chain to catch tampering.
 
@@ -77,11 +77,11 @@ cargo test       # 5 unit tests
 
 ## What This Project Demonstrates
 
-- Concrete understanding of **what makes a hash function "broken"**: MD5 was used as the block hash in the original code and the rewrite explicitly replaces it with SHA-256 with domain separation.
+- **What makes a hash function "broken"**: MD5 was used as the block hash in the original code; the rewrite replaces it with SHA-256 with domain separation and explains why.
 - Real **Ed25519 signature verification** wired into the validation path — not just a `String` field that gets logged and ignored.
 - **Domain-separated message construction** (`"poa-zkp-voting/v1:" || ...`) so signatures from this protocol cannot be replayed in other contexts.
 - **Tamper-evident chain design**: each block carries its own hash plus `prev_hash`, and the `verify_integrity()` test proves that a one-byte change inside a sealed block is detected.
-- **Honest scoping**: the README explicitly calls out that the eligibility commitment is *not* a real ZKP, and a real ZKP would be a multi-month project; the rewrite gives the structural shape of an eligibility proof and labels it as such.
+- Honest scoping: the eligibility commitment is explicitly labeled *not* a real ZKP. A genuine ZKP would be a multi-month project; this gives the structural shape of an eligibility proof and says so.
 
 ## Scope
 
@@ -96,14 +96,4 @@ cargo test       # 5 unit tests
 2. **Slashing for Validator Misbehavior**: Penalize validators who try to seal an invalid block.
 3. **On-Chain Smart Contracts**: A scripting layer for vote-tally automation.
 
-## Contributing
-
-I welcome contributions from the community to enhance the features, security, and performance of this project. Feel free to fork the repository, make your changes, and submit a pull request.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Contact
-
-For further inquiries or partnership opportunities, please contact lmdixon23@gmail.com.
+Licensed under the [MIT License](https://github.com/lmdixon23/my_dev_projects/blob/main/LICENSE).

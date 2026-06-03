@@ -15,8 +15,8 @@ Table 10 of the paper maps:
     GRPO+OS       samples from old policy                   group-normalized advantage
 
 This module implements those three rows. The KL anchor term that GRPO's
-loss adds is imported from `operator_zoo.losses` — that import is the
-load-bearing bridge to the regularized-operator-zoo project.
+loss adds is imported from `operator_zoo.losses`. That import is the
+real bridge to the regularized-operator-zoo project.
 """
 
 from __future__ import annotations

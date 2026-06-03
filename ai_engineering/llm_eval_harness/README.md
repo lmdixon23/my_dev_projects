@@ -2,7 +2,7 @@
 
 ## Overview
 
-**LLM_Eval_Harness** is a Python evaluation framework for LLM-based systems. You define cases in YAML or JSON, plug in any `respond_fn(prompt) -> str` callable (a RAG pipeline, an agent, a raw OpenAI call, a deterministic stub), and run them through four kinds of evaluators (exact match, regex, embedding similarity, LLM-as-judge). Results land in a self-contained HTML report you can ship as a CI artifact. Designed so the same harness grades the RAG assistant and the agent toolkit in this repo, or any other LLM system you want to ship safely.
+**LLM_Eval_Harness** is a Python evaluation framework for LLM-based systems. Define cases in YAML or JSON, plug in any `respond_fn(prompt) -> str` callable (a RAG pipeline, an agent, a raw OpenAI call, a deterministic stub), and run them through four kinds of evaluators: exact match, regex, embedding similarity, LLM-as-judge. Results land in a self-contained HTML report you can ship as a CI artifact. The same harness grades the RAG assistant and the agent toolkit in this repo, and works equally well on anything else you want to measure.
 
 ## Key Features
 
@@ -34,7 +34,7 @@ requirements.txt
 
 ## Example Usage
 
-After running the project, you can observe the following sequence of operations:
+Running a suite works in five steps:
 
 - **Load**: Cases are loaded from a YAML or JSON file (the on-disk shape matches the `Case` dataclass field-for-field).
 - **Respond**: For each case, the user-supplied `respond_fn(prompt)` is called.
@@ -91,7 +91,7 @@ python -m pytest tests/      # no network, no API key
 
 ## What This Project Demonstrates
 
-- **Eval-first thinking**: this is the complement to the RAG and agent projects — you can't claim "production-shaped" without a way to measure regression. The harness here is exactly that.
+- **Eval-first thinking**: this is the complement to the RAG and agent projects — you can't ship confidently without a way to measure regression. The harness here is exactly that.
 - **A clean evaluator interface** (`Evaluator.grade`) that hides the differences between cheap string evaluators and expensive LLM-judge evaluators behind the same shape.
 - **LLM-as-judge done responsibly**: deterministic prompt template, 0-temperature call, integer score parsing, clamped to a valid range, with a clear fallback when no API key is configured.
 - **CI-friendly**: structured exit codes, single-file HTML report uploadable as an artifact, no external dashboards required to get value.
@@ -118,14 +118,4 @@ python -m pytest tests/      # no network, no API key
 - Zheng, L., et al. (2023). *Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena.* arXiv:2306.05685.
 - Srivastava, A., et al. (2022). *Beyond the Imitation Game: Quantifying and Extrapolating the Capabilities of Language Models (BIG-bench).* arXiv:2206.04615.
 
-## Contributing
-
-Contributions are welcome. Open an issue first if you're planning a substantial change so we can align on scope.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Contact
-
-For further inquiries or collaboration opportunities, please contact lmdixon23@gmail.com.
+Licensed under the [MIT License](https://github.com/lmdixon23/my_dev_projects/blob/main/LICENSE).

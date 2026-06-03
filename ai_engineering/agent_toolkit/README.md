@@ -2,7 +2,7 @@
 
 ## Overview
 
-**Agent_Toolkit** is a Python library for building ReAct-style LLM agents with structured tool use. A `@tool` decorator registers Python functions as callable tools, an `Agent` orchestrates the model -> tool -> result loop, and a `Trace` records every step for debugging, eval, and observability. The LLM is behind a small `BaseLLM` interface so tests run end-to-end against a `ScriptedLLM` stub — no network or API key required.
+**Agent_Toolkit** is a Python library for building ReAct-style LLM agents with structured tool use. A `@tool` decorator registers Python functions as callable tools; an `Agent` orchestrates the model -> tool -> result loop; a `Trace` records every step for debugging, eval, and observability. Because the LLM sits behind a small `BaseLLM` interface, tests run end-to-end against a `ScriptedLLM` stub with no network or API key required.
 
 ## Key Features
 
@@ -32,7 +32,7 @@ requirements.txt
 
 ## Example Usage
 
-After running the project, you can observe the following sequence of operations:
+Each agent run follows the same sequence:
 
 - **Registration**: Python functions are registered as tools and the registry produces JSON-schema specs the LLM can see.
 - **Inference**: The agent sends the conversation + tool specs to the LLM, which either answers or proposes a tool call with structured arguments.
@@ -88,9 +88,9 @@ python -m pytest tests/      # no network, no API key
 
 - A **clean dependency-injection seam** for the LLM. The agent is testable end-to-end with a 30-line stub instead of a mocked-out OpenAI client.
 - Idiomatic **typed-tool registration**: Python type hints flow into JSON schemas via `inspect.get_type_hints`, so the schema and the function signature can never drift apart.
-- A **`max_steps` guard** as a first-class loop-termination rule — the simplest defense against the most common agent failure mode (infinite tool-call loops).
+- A **`max_steps` guard** as a first-class loop-termination rule. It's the simplest defense against the most common agent failure mode: infinite tool-call loops.
 - **Structured error surfacing** through `ToolResult`: tool errors are visible to the model in the next turn so it can self-recover instead of crashing the agent.
-- **Append-only Trace as observability primitive**: ships with `to_pretty()` for humans and `to_json()` for machines — the shape your team will eventually want when running agents in production.
+- **Append-only Trace as observability primitive**: ships with `to_pretty()` for humans and `to_json()` for machines. That's the shape you'll want when agents need proper observability.
 
 ## Scope
 
@@ -113,14 +113,4 @@ python -m pytest tests/      # no network, no API key
 - Yao, S., et al. (2022). *ReAct: Synergizing Reasoning and Acting in Language Models.* arXiv:2210.03629.
 - Schick, T., et al. (2023). *Toolformer: Language Models Can Teach Themselves to Use Tools.* arXiv:2302.04761.
 
-## Contributing
-
-Contributions are welcome. Open an issue first if you're planning a substantial change so we can align on scope.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Contact
-
-For further inquiries or collaboration opportunities, please contact lmdixon23@gmail.com.
+Licensed under the [MIT License](https://github.com/lmdixon23/my_dev_projects/blob/main/LICENSE).

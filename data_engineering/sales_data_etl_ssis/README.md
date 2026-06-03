@@ -7,12 +7,12 @@
 ## Key Features
 
 - **Data Extraction**: CSV source with explicit column typing in the Flat File Connection Manager.
-- **Data Transformation**: `Convert_SalesDataTypes` task performs string -> DateTime + numeric conversions; the Python reference ETL applies the identical conversions.
-- **Error Handling**: SSIS error-redirect routes bad rows to `dbo.SalesData_ErrorLog`; the Python reference ETL writes the same structure to the same table name in SQLite.
-- **Row Count Logging**: SSIS RowCount transformation captures success counts; the SQL schema includes `dbo.SalesData_RunLog` for per-run totals (rows read / written / rejected / duration ms).
-- **Automated Execution**: A SQL Server Agent job that executes the deployed SSIS package nightly is checked in as an idempotent setup script.
+- **Data Transformation**: `Convert_SalesDataTypes` performs string-to-DateTime and numeric conversions. The Python reference ETL applies the identical conversions so you can audit them without SSDT.
+- **Error Handling**: SSIS error-redirect routes bad rows to `dbo.SalesData_ErrorLog`. The Python reference writes the same structure to the same table name in SQLite.
+- **Row Count Logging**: SSIS RowCount transformation captures success counts. The SQL schema includes `dbo.SalesData_RunLog` for per-run totals (rows read / written / rejected / duration ms).
+- **Automated Execution**: A SQL Server Agent job that runs the deployed SSIS package nightly, checked in as an idempotent setup script.
 - **Performance**: Batch inserts into the destination; the schema includes indexes on `OrderDate` and `CustomerID` for downstream analytics.
-- **Portable Verification**: A Python reference implementation makes the project's transform/validation logic auditable and unit-testable outside the SQL Server stack.
+- **Portable Verification**: A Python reference implementation keeps the transform/validation logic auditable and unit-testable outside the SQL Server stack.
 
 ## Architecture
 
@@ -102,11 +102,11 @@ python -m unittest python_reference_etl/test_sales_etl.py
 
 ## What This Project Demonstrates
 
-- A real **SSIS package with error-redirect, row-count, and type-conversion components** — not a toy data flow.
-- **Idempotent SQL setup scripts** (DDL + Agent job) so the project is reproducible from a blank SQL Server instance.
-- **Portable verification**: keeping a Python implementation of the same transform/validation logic next to the SSIS package means anyone reviewing the project on a Mac or in CI can verify it actually does what the README claims.
-- Realistic **sample data with intentional bad rows** so the error-handling branch is actually exercised, not just theoretically present.
-- Production-shaped SQL schema (PRIMARY KEY, CHECK constraints, indexes on common analytics columns, structured error log + run log).
+- A real **SSIS package with error-redirect, row-count, and type-conversion components**, not a toy data flow.
+- **Idempotent SQL setup scripts** (DDL + Agent job) make the project reproducible from a blank SQL Server instance.
+- **Portable verification**: keeping a Python implementation of the same transform/validation logic next to the SSIS package means anyone reviewing on a Mac or in CI can verify what the project actually does.
+- Realistic **sample data with intentional bad rows**, so the error-handling branch is exercised rather than just theoretically present.
+- A SQL schema with PRIMARY KEY, CHECK constraints, indexes on common analytics columns, and a structured error log + run log.
 
 ## Scope
 
@@ -122,14 +122,4 @@ python -m unittest python_reference_etl/test_sales_etl.py
 4. **Data Enrichment**: Join in product/customer reference data during transform.
 5. **Scaling for Larger Datasets**: Add partitioning + parallelism in the data flow — after a perf baseline shows the current flow is actually a bottleneck.
 
-## Contributing
-
-Contributions to enhance the ETL process, performance, or error handling are welcome. Feel free to fork the repository, make your changes, and submit a pull request.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Contact
-
-For further inquiries, please contact lmdixon23@gmail.com.
+Licensed under the [MIT License](https://github.com/lmdixon23/my_dev_projects/blob/main/LICENSE).

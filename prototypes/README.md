@@ -1,6 +1,6 @@
 # Prototypes
 
-Small sketches and exploratory code. Everything in this folder is intentionally **not** held to the standards in the main projects above — these are 30-200 line experiments, not portfolio pieces. They live here so the main folders stay focused on the work that's actually production-shaped.
+Small sketches and exploratory code. Everything in this folder is intentionally **not** held to the same standards as the main projects — these are 30-200 line experiments, not finished pieces. They live here so the main folders stay focused.
 
 If a prototype matures into something substantial, it graduates out of this folder and into the appropriate category (`blockchain_protocols/`, `ai_engineering/`, etc.).
 

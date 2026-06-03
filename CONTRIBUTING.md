@@ -1,6 +1,6 @@
 # Contributing
 
-This is a portfolio repository. Most of the projects are intentionally scoped to "production-shaped portfolio piece" rather than "production system" — contributions that move them in either direction are welcome, but please open an issue first so we can align on scope before you spend time.
+This is a portfolio repository. Most projects are scoped somewhere between "working experiment" and "production system" — contributions that move them in either direction are welcome, but please open an issue first so we can align before you invest time.
 
 ## Ground rules
 
@@ -8,7 +8,7 @@ This is a portfolio repository. Most of the projects are intentionally scoped to
 - **One project per PR.** Each project (`ai_engineering/rag_assistant/`, `blockchain_protocols/rust_decentralized_voting/`, etc.) has its own dependency surface and CI matrix entry. Mixing changes across projects makes review hard.
 - **Match the existing style of the project you're touching.** Python projects use `argparse`, `dataclasses`, and `httpx`. Rust projects use `thiserror`, `lib + bin` layout, and `tests/` for integration tests. Don't add a new framework without discussion.
 - **Tests are not optional.** If you change behavior, add or update a test. The CI workflow in `.github/workflows/ci.yml` will run them; a green CI is the bar for merge.
-- **Match the README template.** Every per-project README has the same section order. If you add a project, follow that template. See any of the existing READMEs for the exact shape.
+- **Match the README structure.** Per-project READMEs follow a consistent section order. If you add a project, follow that same order — any existing README shows the pattern.
 
 ## Local setup
 

@@ -6,8 +6,8 @@
 
 ## Key Features
 
-- **Production-Shaped Chunker**: Paragraph-first splitting with a sentence-level fallback for very long paragraphs, plus configurable character-based overlap so answers aren't split across chunk boundaries.
-- **Pluggable Embedder**: `Embedder` protocol with two implementations — `SentenceTransformerEmbedder` (the production default, MiniLM 384-d) and `HashEmbedder` (deterministic, zero-dep, used by tests so CI doesn't need to download model weights).
+- **Chunker**: Paragraph-first splitting with a sentence-level fallback for very long paragraphs, plus configurable character-based overlap so answers aren't split across chunk boundaries.
+- **Pluggable Embedder**: `Embedder` protocol with two implementations. `SentenceTransformerEmbedder` is the default (MiniLM 384-d); `HashEmbedder` is deterministic, zero-dep, and what the tests use so CI never has to download model weights.
 - **FAISS Vector Store with NumPy Fallback**: `IndexFlatIP` over L2-normalized embeddings; falls back to NumPy cosine search if FAISS is unavailable.
 - **Cited Answers, Refuses on Empty Retrieval**: The generator instructs the model to cite sources in `[source: ...]` brackets and returns a clear "no context" response when retrieval is empty — fixing the single most common RAG failure mode.
 - **Retrieval Eval Harness**: `eval_retrieval(retriever, cases, k=)` reports **recall@k** and **MRR (mean reciprocal rank)** with per-case breakdowns.
@@ -17,6 +17,28 @@
 ## Architecture
 
 Standard Python package layout. Each pipeline stage is a separate class behind an interface, so swapping out the vector store (Chroma, Pinecone), embedder (OpenAI embeddings, Cohere), or generator (Anthropic, local Llama) is a one-class change.
+
+```mermaid
+flowchart TD
+    subgraph ingest["Ingest — offline, no API key needed"]
+        D["Documents (sample_docs/)"] --> C["Chunker — paragraph-first + overlap"]
+        C --> EM["Embedder — MiniLM 384-d / HashEmbedder"]
+        EM --> VS[("FAISS IndexFlatIP + NumPy fallback, persisted to ./index/")]
+    end
+
+    subgraph ask["Ask — query time"]
+        Q["Question"] --> RET["Retriever — Embedder + VectorStore"]
+        VS --> RET
+        RET -->|"top-k chunks"| GEN["Generator — OpenAI Chat Completions"]
+        RET -->|"empty retrieval"| NC["No-context answer (guard)"]
+        GEN --> ANS["Cited answer with source tags"]
+    end
+
+    subgraph evalh["Eval harness"]
+        EC["eval_cases.json"] --> RET
+        RET --> MET["recall@k + MRR"]
+    end
+```
 
 ```
 rag/
@@ -39,7 +61,7 @@ requirements.txt
 
 ## Example Usage
 
-After running the project, you can observe the following sequence of operations:
+The pipeline runs in four stages:
 
 - **Ingest**: Documents are loaded, chunked, embedded, and stored in a FAISS index that's persisted to disk under `./index/`.
 - **Retrieve**: A user question is embedded and matched against the index; the top-k chunks are returned with cosine-similarity scores.
@@ -117,11 +139,11 @@ This is a 5-case smoke eval (`sample_docs/eval_cases.json`), not a large benchma
 
 ## What This Project Demonstrates
 
-- Production-shaped RAG architecture with **pluggable components** behind small interfaces — the swap-cost of replacing the vector store or embedder is one class, not a rewrite.
-- **Network-free unit tests** for both the retrieval path (`HashEmbedder`) and the generation path (`httpx.MockTransport`). The kind of test design an AI-platform team will probe for.
+- A RAG architecture built around **pluggable components** behind small interfaces. Replacing the vector store or embedder is one class, not a rewrite.
+- **Network-free unit tests** for both the retrieval path (`HashEmbedder`) and the generation path (`httpx.MockTransport`).
 - **Empty-retrieval guard** in the generator — the single most important defense against RAG hallucination, and the one most homemade implementations miss.
 - **Honest evaluation**: ships an actual `recall@k` + MRR eval harness with checked-in cases, instead of just claiming "high quality".
-- **Reproducible smoke pipeline** — `python -m smoke.run_smoke` exercises ingest + retrieve + eval end-to-end, no key required, and writes a markdown report a reviewer can read in 30 seconds.
+- **Reproducible smoke pipeline**: `python -m smoke.run_smoke` exercises ingest + retrieve + eval end-to-end, no key required, and writes a markdown report a reviewer can read in 30 seconds.
 
 ## Scope
 
@@ -148,14 +170,4 @@ Priority order: grow the eval set so the metrics discriminate, then layer qualit
 - Johnson, J., Douze, M., & Jégou, H. (2017). *Billion-scale similarity search with GPUs.* arXiv:1702.08734. (FAISS)
 - Reimers, N., & Gurevych, I. (2019). *Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks.* arXiv:1908.10084.
 
-## Contributing
-
-Contributions are welcome. Open an issue first if you're planning a substantial change so we can align on scope.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Contact
-
-For further inquiries or collaboration opportunities, please contact lmdixon23@gmail.com.
+Licensed under the [MIT License](https://github.com/lmdixon23/my_dev_projects/blob/main/LICENSE).

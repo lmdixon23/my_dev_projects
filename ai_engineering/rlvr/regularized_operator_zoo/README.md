@@ -30,7 +30,7 @@ requirements.txt        numpy, matplotlib
 
 ## Example Usage
 
-After running the project, you can observe the following sequence of operations:
+Working with any operator follows four steps:
 
 - **Construct**: Pick a regularizer by name (`"entropy"`, `"kl_anchor"`, `"tsallis"`, etc.) and a strength `β`.
 - **Apply**: `op.policy(q)` returns the policy `π*` that maximizes `⟨π, q⟩ − Ω(π)`.
@@ -140,11 +140,11 @@ python -m pytest tests/        # no network, no model download
 
 ## What This Project Demonstrates
 
-- Working understanding of the **convex-analytic core** of modern RL post-training — the conjugate-identity-as-a-test pattern is the most direct way to show "I can read Geist 2019 *and* reproduce it."
+- Working understanding of the **convex-analytic core** of modern RL post-training. The conjugate-identity-as-a-test pattern is the most direct way to show "I can read Geist 2019 *and* reproduce it."
 - Discipline around **closed-form-where-available, solver-with-honest-tolerance-otherwise**: the test file makes that distinction explicit instead of hiding it.
 - **Numerical stability done right**: the KL-anchor implementation works in log space; softmax uses max-subtraction; the simplex projection uses the sort-based algorithm with a clean proof.
 - A **single-file plot** (`policy_vs_beta.png`) that demonstrates the qualitative claim ("small β concentrates on the max action; large β returns toward the anchor") in a form that can be linked from the article series.
-- A **lightweight, dependency-free** library — numpy and matplotlib only — easy to import into a notebook, a paper, or a teaching slide deck.
+- A **lightweight, dependency-free** library (numpy and matplotlib only), easy to import into a notebook, a paper, or a teaching slide deck.
 
 ## Scope
 
@@ -160,14 +160,4 @@ python -m pytest tests/        # no network, no model download
 3. **Tsallis-α General**: Extend the Tsallis operator beyond `α = 2` (sparsemax). Note: general `α` has **no** closed-form simplex argmax — only `α = 1` (softmax) and `α = 2` (sparsemax) do — so this reuses the iterative projected-gradient solver the Rényi operator already uses (`iters=500`), not a closed form.
 4. **JAX Backend**: For batched / vectorized use across many states.
 
-## Contributing
-
-Contributions are welcome. Open an issue first if you're planning a substantial change so we can align on scope.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Contact
-
-For further inquiries or collaboration opportunities, please contact lmdixon23@gmail.com.
+Licensed under the [MIT License](https://github.com/lmdixon23/my_dev_projects/blob/main/LICENSE).

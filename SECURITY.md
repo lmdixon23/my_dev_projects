@@ -1,8 +1,8 @@
 # Security Policy
 
-This is a portfolio repository — every project is labeled as a **simulation** or a **portfolio piece**, not a production system. None of the code here should be deployed into an environment that handles real money, real votes, real customer data, or real network traffic. The blockchain, ML, and RAG projects in particular have explicit **Scope** sections that spell out what they do *not* defend against.
+This is a portfolio repository. Every project is labeled as a **simulation** or a **prototype**, not a production system. None of the code here should be deployed into an environment that handles real money, real votes, real customer data, or real network traffic — the blockchain, ML, and RAG projects each have a **Scope** section that spells out what they don't defend against.
 
-That said, a few security concerns are real-enough that they merit a formal policy.
+A few concerns are real enough to merit a written policy.
 
 ## Reporting a vulnerability
 
@@ -43,9 +43,9 @@ These are explicitly out of scope because every project README discloses them in
 - **Cryptographic primitive misuse** in the blockchain projects. The Rust crates explicitly claim to use SHA-256 / Ed25519 / constant-time comparison; if any of those is implemented incorrectly, that's a real bug even in a simulation.
 - **`tool` decorator in `agent_toolkit`** lets the LLM call Python functions you've registered. If the built-in tools (`calculator`, `read_file`, `list_directory`) can be coerced into executing arbitrary code or reading unintended files, that's in scope.
 
-## What we promise not to do
+## What I won't do
 
-- Track or fingerprint users. The Flask projects expose `/health` and a single endpoint each; none of them log IPs or per-request metadata beyond what's needed to serve the response.
+- Track or fingerprint users. The Flask projects expose `/health` and a single endpoint each; none log IPs or per-request metadata beyond what's needed to serve the response.
 - Send analytics or telemetry to any third party from any project in this repo.
 
 ## Secrets, keys, and credentials

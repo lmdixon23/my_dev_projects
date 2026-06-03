@@ -158,7 +158,7 @@ def main(n_steps: int = 1200) -> None:
         f"  only `(data source, gradient coefficient)` differs.  This is the",
         f"  empirical analogue of Shao et al. Equation 5 / Table 10.",
         f"- The KL anchor in GRPO+OS uses `kl_anchor_term` from",
-        f"  `operator_zoo.losses` — the load-bearing import that ties this",
+        f"  `operator_zoo.losses` — the import that ties this",
         f"  project to the regularized-operator-zoo project.",
     ]
     (REPORTS / "figure_5_reproduction.md").write_text("\n".join(md) + "\n", encoding="utf-8")

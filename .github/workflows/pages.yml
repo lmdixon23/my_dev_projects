@@ -29,13 +29,13 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Configure Pages
         uses: actions/configure-pages@v5
         with:
           # Turn Pages on via the API on the first run, so no manual
-          # Settings -> Pages click is needed (requires repo Actions to be
-          # permitted to enable Pages; see fallback in the chat handoff).
+          # Settings -> Pages click is needed. (Requires repo Actions to be
+          # permitted to enable Pages; otherwise enable it once by hand.)
           enablement: true
       - name: Upload ai_playgrounds as the Pages artifact
         uses: actions/upload-pages-artifact@v3

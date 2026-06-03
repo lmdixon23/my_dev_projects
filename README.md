@@ -2,16 +2,16 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![Python: 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
+[![Rust: stable](https://img.shields.io/badge/rust-stable-orange.svg)](https://www.rust-lang.org/)
 [![CI](https://github.com/lmdixon23/my_dev_projects/actions/workflows/ci.yml/badge.svg)](https://github.com/lmdixon23/my_dev_projects/actions/workflows/ci.yml)
+[![Live demo](https://img.shields.io/badge/live_demo-playgrounds-brightgreen.svg)](https://lmdixon23.github.io/my_dev_projects/)
+[![good first issues](https://img.shields.io/github/issues/lmdixon23/my_dev_projects/good%20first%20issue?label=good%20first%20issues&color=7057ff)](https://github.com/lmdixon23/my_dev_projects/issues?q=is%3Aopen+label%3A%22good+first+issue%22)
 
-<!--
-  REPO DESCRIPTION (for the one-liner under the repo name on GitHub —
-  edit at https://github.com/lmdixon23/my_dev_projects → Settings → repo description):
-    "Working portfolio: AI engineering, ML, blockchain protocols, data engineering, BI.
-     Every project ships tests, smoke pipelines, and honest limitations."
--->
+> **▶ Live demo:** [12 interactive AI playgrounds, in your browser](https://lmdixon23.github.io/my_dev_projects/) — no install, bilingual EN / 中文.
 
-A working portfolio of production-shaped projects across AI engineering, machine learning, blockchain protocols, data engineering, and network security. Every project here has a working build, a real test suite or smoke pipeline, and a README that distinguishes what's implemented from what's aspirational.
+A working portfolio spanning AI engineering, machine learning, blockchain protocols, data engineering, and network security. Each project builds and runs, carries a real test suite or smoke pipeline, and ships a README that's clear about what's implemented versus what's still aspirational.
+
+**A representative result:** the GRPO reproduction recovers the qualitative ranking from Figure 5 of Shao et al. 2024 — final accuracy **0.18 / 0.95 / 0.99** for RFT / Online RFT / GRPO+OS on a synthetic verifiable-reward task (mean of 3 seeds), in under a minute of CPU. Details in [`grpo_minimal`](./ai_engineering/rlvr/grpo_minimal/) and [`RESULTS.md`](./RESULTS.md).
 
 ## Start here (30-second tour)
 
@@ -22,7 +22,7 @@ A working portfolio of production-shaped projects across AI engineering, machine
 
 ## Why this repository matters
 
-This is not a collection of tutorial-fork notebooks. Each project demonstrates a concrete engineering skill — a working algorithm, a tested protocol, a deployable service, or a verifiable analytical pipeline — and ships with the scaffolding (tests, Docker, CI) that distinguishes a portfolio piece from a script. Where a real-world version of the system would require infrastructure I don't have (a TPU farm, a real blockchain, a SQL Server cluster, a paid OpenAI quota), the project ships an end-to-end **smoke pipeline** that exercises the code path on synthetic or in-repo data so reviewers can verify the work in under a minute.
+These aren't tutorial forks or throwaway notebooks. Each one shows a concrete engineering skill — a working algorithm, a tested protocol, a deployable service, a verifiable data pipeline — backed by the tests, Docker, and CI that separate a portfolio piece from a script. When a full real-world version would need infrastructure I don't have (a TPU farm, a live blockchain, a SQL Server cluster, a paid OpenAI quota), the project ships a **smoke pipeline** instead: an end-to-end run on synthetic or in-repo data that lets a reviewer check the code path in about a minute.
 
 ## How this repository is organized
 
@@ -36,7 +36,7 @@ This is not a collection of tutorial-fork notebooks. Each project demonstrates a
 | [`ai_playgrounds/`](./ai_playgrounds/)             | Twelve single-file HTML+JS interactive applets for teaching core AI ideas                 | 12            |
 | [`prototypes/`](./prototypes/)                     | Sketches and experiments, intentionally below portfolio bar                               | varies        |
 
-Every project has the same five-section README structure: **Overview**, **Key Features**, **Architecture**, **Example Usage**, **Getting Started** (with **Prerequisites / Installation / Running / Testing**), then **Technical Specifications**, **What This Project Demonstrates**, **Scope**, and **Future Enhancements**.
+Each project README follows a familiar arc: a short overview, key features, architecture and example usage, a Getting Started section (prerequisites, installation, running, testing), then technical specifications, what the project demonstrates, an honest Scope, and Future Enhancements.
 
 <a id="featured-projects"></a>
 
@@ -49,7 +49,7 @@ Every project has the same five-section README structure: **Overview**, **Key Fe
 - **[LLM Eval Harness](./ai_engineering/llm_eval_harness/)** — Test-case format, four evaluator strategies (exact match, regex, embedding similarity, LLM-as-judge), aggregation, and an HTML report. The complement to RAG and agents that lets you actually measure them.
 - **[NLP Text Summarization CLI](./ai_engineering/nlp_text_summarization_api/)** — Async OpenAI client with proper concurrency control, API-key rotation on 429, SQLite persistence, real trend analysis, tokenizer-free test suite via `httpx.MockTransport`.
 - **[Regularized Operator Zoo](./ai_engineering/rlvr/regularized_operator_zoo/)** — Pedagogical implementations of the regularized greedy operators at the heart of modern RL post-training (negative entropy, KL-to-uniform, KL-to-anchor / Vieillard, Tsallis / sparsemax, Rényi). Companion code for my RLVR Operator Series articles.
-- **[GRPO Minimal](./ai_engineering/rlvr/grpo_minimal/)** — RFT, Online RFT, and GRPO+OS on a synthetic verifiable-reward task, sharing a single training loop. Reproduces the qualitative ranking from Figure 5 of Shao et al. 2024 (arXiv:2402.03300v3). Imports `kl_anchor_term` from the operator zoo — the load-bearing bridge between the two projects.
+- **[GRPO Minimal](./ai_engineering/rlvr/grpo_minimal/)** — RFT, Online RFT, and GRPO+OS on a synthetic verifiable-reward task, sharing a single training loop. Reproduces the qualitative ranking from Figure 5 of Shao et al. 2024 (arXiv:2402.03300v3). Imports `kl_anchor_term` from the operator zoo — a real dependency between the two projects, not decoration, and a test proves it.
 
 ### Machine Learning ([`machine_learning/`](./machine_learning/))
 
@@ -75,7 +75,7 @@ All Rust, all `lib + bin` with integration tests under `tests/`, all honest abou
 
 ### Network Security ([`network_security/`](./network_security/))
 
-- **[SSE Coexistence Testing](./network_security/sse_coexistence_testing/)** — Terraform-managed AWS infrastructure for testing Security Service Edge / Global Secure Access coexistence with pfSense.
+- **[SSE Coexistence Testing](./network_security/sse_coexistence_testing/)** — Terraform-managed AWS infrastructure for checking that Security Service Edge / Global Secure Access controls coexist with a host firewall (UFW).
 
 ### AI Playgrounds ([`ai_playgrounds/`](./ai_playgrounds/))
 
@@ -95,7 +95,7 @@ Smoke-pipeline outputs (qualitative rankings, identity checks, expected metric r
 
 ## Repository conventions
 
-- **One README per project**, all in the same template, all linked from the relevant section above.
+- **One README per project**, each linked from the relevant section above.
 - **Tests live next to the code**: `tests/` directory in Python projects, `tests/integration.rs` for Rust crates, `python_reference_etl/` for the SSIS project.
 - **Secrets via `.env`**, never committed. Each project that needs them ships a `.env.example`.
 - **Smoke pipelines** (`smoke/run_smoke.py` or equivalent) wherever a full real-world run requires resources I don't have. These exercise the entire code path on synthetic or in-repo data.

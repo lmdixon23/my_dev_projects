@@ -1,8 +1,8 @@
 # AI Playgrounds — Interactive Visualizations for Intro-to-AI
 
-Twelve single-file HTML+JavaScript applets that let students *drag sliders and
-watch core AI ideas come to life*. No build step, no install, no backend —
-each applet is one HTML file you can open locally or host on GitHub Pages.
+Twelve single-file HTML+JavaScript applets that let students *drag a slider and
+watch a core AI idea play out*. No build step, no install, no backend — each
+applet is one HTML file you can open locally or host on GitHub Pages.
 
 The applets were authored as a companion to the
 **Introduction to Artificial Intelligence** course (Mixed High School, 2025–2026,
@@ -42,27 +42,21 @@ Every applet follows the same template so students who use one know how to use t
 
 ## Deploying
 
-### Option A — GitHub Pages (recommended)
+### Option A — GitHub Pages (how the live demo runs)
 
-```bash
-cd ai_playgrounds
-git init && git add . && git commit -m "AI playgrounds"
-git remote add origin git@github.com:<you>/ai-playgrounds.git
-git push -u origin main
-# In GitHub → Settings → Pages → Source: deploy from /main, /(root)
-```
+These applets live in [`my_dev_projects/ai_playgrounds`](https://github.com/lmdixon23/my_dev_projects/tree/main/ai_playgrounds). A small workflow (`.github/workflows/pages.yml`) publishes this directory to GitHub Pages on every push to `main` that touches it — that's what serves the live demo linked above.
 
-The landing page is at `https://<you>.github.io/ai-playgrounds/`.
+To host your own copy, drop this folder into any repository and either point Pages at it (Settings → Pages) or reuse the same Actions workflow.
 
 ### Option B — open locally
 
-Double-click `index.html`. Everything works in a `file://` URL.
+Double-click `index.html`. Everything works from a `file://` URL.
 
 ### Option C — embed individual applets
 
-Each applet is fully self-contained. You can paste any `playgrounds/*/index.html`
-into a school LMS as an HTML widget and it will work in isolation, with no
-dependency on the landing page or sibling applets.
+Each applet is fully self-contained. Paste any `playgrounds/*/index.html` into a
+school LMS as an HTML widget and it runs in isolation, with no dependency on the
+landing page or sibling applets.
 
 ## Educational notes
 
@@ -96,7 +90,7 @@ MIT — see `LICENSE`. Free to use, fork, modify, deploy, and remix for any clas
 ## Contact
 
 Built by Logan Dixon for the 2025–2026 Intro to AI course at Haidian Kaiwen Academy.
-File issues at <https://github.com/lmdixon23/ai-playgrounds/issues>.
+File issues at <https://github.com/lmdixon23/my_dev_projects/issues>.
 
 ## Scope
 

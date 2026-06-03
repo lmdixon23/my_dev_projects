@@ -6,10 +6,10 @@
 
 ## Key Features
 
-- **Hardened Terraform**: SSH ingress is constrained to operator-specified CIDRs (rejects `0.0.0.0/0` via a precondition guard), AMI is looked up dynamically (no hardcoded image IDs), IMDSv2 is required, EBS root volume is encrypted, and every resource is tagged with `Project = sse-coex` for cost tracking and cleanup.
-- **Idempotent EC2 Bootstrap**: `firewall_setup.sh` is `set -euo pipefail`, installs and starts Apache, enables UFW with default-deny inbound, allows only `22/tcp` + `80/tcp`. Safe to re-run.
-- **Reachability Harness**: `test_traffic.py` probes HTTP/80, SSH/22, and a sample of attack-surface ports (23 / 3389 / 8080) and exits non-zero on any unexpected result — drop-in for CI smoke or post-deploy validation.
-- **Real Unit Tests**: Mocked-socket + mocked-httpx tests for the harness itself so the result-building logic is covered in CI without flaky network calls.
+- **Hardened Terraform**: SSH ingress is constrained to operator-specified CIDRs (a precondition guard rejects `0.0.0.0/0`), the AMI is looked up dynamically rather than hardcoded, IMDSv2 is required, the EBS root volume is encrypted, and every resource is tagged with `Project = sse-coex` for cost tracking and cleanup.
+- **Idempotent EC2 Bootstrap**: `firewall_setup.sh` runs under `set -euo pipefail`, installs and starts Apache, enables UFW with default-deny inbound, and allows only `22/tcp` + `80/tcp`. Safe to re-run.
+- **Reachability Harness**: `test_traffic.py` probes HTTP/80, SSH/22, and a sample of attack-surface ports (23 / 3389 / 8080), exiting non-zero on any unexpected result. Works as a CI smoke test or a post-deploy check.
+- **Real Unit Tests**: Mocked-socket and mocked-httpx tests cover the harness's result-building logic in CI without flaky network calls.
 - **Documented Scenarios**: `sse_simulation/test_scenarios.md` enumerates the three reachability scenarios and the manual step required to prove negative reachability for SSH.
 - **CI Integration**: A repo-level GitHub Actions workflow runs `terraform validate` on every push.
 
@@ -109,11 +109,11 @@ terraform validate
 
 ## What This Project Demonstrates
 
-- **Defense-in-depth done at infra time**: explicit Terraform precondition rejecting `0.0.0.0/0` for SSH; IMDSv2 required by default; root EBS encrypted; tagged for cost/cleanup. These are the AWS-CIS "easy wins" that audits look for.
-- **Dynamic AMI lookup** instead of hardcoded image IDs — the original config had a stale AMI that broke any deploy outside the original developer's session.
-- **Verification as code**: the reachability harness is structured, testable, and has CI-friendly exit codes — not just a one-shot script with a hardcoded IP at the bottom.
-- **A clean separation between infra, bootstrap, and verification**, with each layer independently runnable / testable.
-- **Honest scoping**: the README and `test_scenarios.md` explicitly document the manual step required to prove negative reachability for SSH (run the harness from a non-allowlisted host).
+- **Defense-in-depth at infra time**: explicit Terraform precondition rejecting `0.0.0.0/0` for SSH, IMDSv2 required, root EBS encrypted, and every resource tagged for cost/cleanup. These are the AWS-CIS "easy wins" that audits look for.
+- **Dynamic AMI lookup** instead of hardcoded image IDs. The original config had a stale AMI that broke any deploy outside the original developer's session.
+- **Verification as code**: the reachability harness is structured, testable, and exits non-zero on unexpected results — not a one-shot script with a hardcoded IP at the bottom.
+- Clean separation between infra, bootstrap, and verification, with each layer independently runnable and testable.
+- **Honest scoping**: both the README and `test_scenarios.md` document the manual step required to prove negative reachability for SSH (run the harness from a non-allowlisted host).
 
 ## Scope
 
@@ -129,14 +129,4 @@ terraform validate
 3. **Multi-Region Drift Test**: Apply the existing Terraform module across two AWS regions and run the harness from each to detect region-specific routing surprises.
 4. **Real SSE Vendor Integration**: Add a Terraform module that points the EC2 instance's egress at a Zscaler / Netskope ZIA forwarder and verify the bypass / steer rules. (Lowest priority — heaviest, and needs a paid vendor account; the project's value is the harness itself.)
 
-## Contributing
-
-Contributions are welcome. Open an issue first if you're planning a substantial change so we can align on scope.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Contact
-
-For further inquiries or collaboration opportunities, please contact lmdixon23@gmail.com.
+Licensed under the [MIT License](https://github.com/lmdixon23/my_dev_projects/blob/main/LICENSE).

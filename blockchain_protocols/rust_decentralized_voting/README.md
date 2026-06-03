@@ -30,7 +30,7 @@ Cargo.toml
 
 ## Example Usage
 
-After running the project, you can observe the following sequence of operations:
+The demo binary runs through the full commit-reveal lifecycle:
 
 - **Voter Registration**: Voters are registered by ID with the `BallotBox`.
 - **Vote Commit (Phase 1)**: Each voter publishes `SHA-256("ballot:" || candidate || nonce)`. Their candidate choice is not yet visible to any observer.
@@ -76,9 +76,9 @@ cargo test       # 5 ballot + 3 merkle unit + 2 integration = 10 tests
 
 ## What This Project Demonstrates
 
-- Understanding of the **commit-reveal pattern** — the standard cryptographic primitive for hiding ballot content while preserving auditability.
+- The **commit-reveal pattern** — hiding ballot content until tally time while preserving full auditability.
 - **Domain-separated hashing** (`"ballot:"` prefix) to prevent collisions with other uses of SHA-256 in the same system.
-- **Merkle anchoring** as a verifiability primitive — two observers can independently confirm they saw the same election state.
+- **Merkle anchoring** as a verifiability primitive: two independent observers tallying the same committed set will compute the same root.
 - Defensive design: a failed reveal does not consume the ballot, so an honest voter who fat-fingered their nonce isn't disenfranchised.
 - Idiomatic Rust: `thiserror` for errors, `lib + bin` structure, integration tests under `tests/`.
 
@@ -94,14 +94,4 @@ cargo test       # 5 ballot + 3 merkle unit + 2 integration = 10 tests
 2. **Coercion Resistance**: Explore deniable encryption / receipt-free schemes (e.g. Civitas, JCJ), addressing the Scope note that plain commit-reveal lets a voter prove how they voted.
 3. **Verifiability**: Add Merkle-inclusion proof generation so a voter can prove their ballot is in the tally without revealing the whole set. (Relabeled from "Scalability" — an inclusion proof buys succinct *verifiability*, not throughput; the `merkle.rs` root already exists to build on.)
 
-## Contributing
-
-I welcome contributions from the community to enhance the features, security, and performance of this project. Feel free to fork the repository, make your changes, and submit a pull request.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Contact
-
-For further inquiries or partnership opportunities, please contact lmdixon23@gmail.com.
+Licensed under the [MIT License](https://github.com/lmdixon23/my_dev_projects/blob/main/LICENSE).

@@ -20,8 +20,8 @@ Everything else in the two crates is intentionally identical, so a reader can di
 - **Round-Robin Authority Selection**: block `k` is produced by `sorted_authorities[k mod n]`. Deterministic and reproducible — no RNG in the selection path.
 - **Authority-Signed Blocks**: `mine_block` requires the signing key of the scheduled authority and rejects any out-of-turn or unauthorized key (`WrongProposer`). Each block stores the proposer id and its Ed25519 signature over the block hash.
 - **Ed25519 Vote Verification**: every vote is signed by the voter over a domain-separated message; `submit_vote` verifies it against the registered `VerifyingKey` and rejects forgeries.
-- **Eligibility Commitments**: each voter registers `SHA-256("eligibility:" || secret)` and must reveal the secret in their vote, which the chain re-hashes and matches. (A commit-reveal placeholder for a real ZKP — see Scope.)
-- **Tamper-Evident Chain**: `verify_integrity()` rehashes each block, checks prev-hash linking, checks the round-robin schedule, and verifies each proposer signature; a unit test shows that mutating one sealed vote breaks the check.
+- **Eligibility Commitments**: each voter registers `SHA-256("eligibility:" || secret)` and must reveal the secret in their vote; the chain re-hashes and matches it. This is a commit-reveal placeholder for a real ZKP — see Scope.
+- **Tamper-Evident Chain**: `verify_integrity()` rehashes each block, checks prev-hash linking, checks the round-robin schedule, and verifies each proposer signature. A unit test shows that mutating one sealed vote breaks the check.
 
 ## How to Run
 
@@ -40,9 +40,9 @@ cargo test    # runs the unit tests in src/blockchain.rs
 
 ## What This Project Demonstrates
 
-- The concrete difference between PoA and PoS, reduced to a single swapped method (`current_proposer` / `mine_block`) against a shared codebase — so the consensus distinction is legible in code, not just prose.
+- The concrete difference between PoA and PoS comes down to a single swapped method (`current_proposer` / `mine_block`) against a shared codebase. The consensus distinction is legible in code, not just prose.
 - Authority identity enforced cryptographically: a block is only valid if signed by the authority the schedule names, and the chain proves it on replay.
-- The same honest commit-reveal "ZKP placeholder" framing as the sibling, with the caveat kept in the docs rather than hidden.
+- The same honest commit-reveal "ZKP placeholder" framing as the sibling crate, with the caveat surfaced in the docs rather than glossed over.
 
 ## Scope
 
@@ -62,14 +62,4 @@ cargo test    # runs the unit tests in src/blockchain.rs
 - De Angelis, S., et al. (2018). *PBFT vs Proof-of-Authority: Applying the CAP Theorem to Permissioned Blockchain.*
 - Szilágyi, P. (2017). *Clique PoA protocol & Rinkeby PoA testnet.* EIP-225.
 
-## Contributing
-
-I welcome contributions from the community to enhance the features, security, and performance of this project. Feel free to fork the repository, make your changes, and submit a pull request.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Contact
-
-For further inquiries, please contact lmdixon23@gmail.com.
+Licensed under the [MIT License](https://github.com/lmdixon23/my_dev_projects/blob/main/LICENSE).

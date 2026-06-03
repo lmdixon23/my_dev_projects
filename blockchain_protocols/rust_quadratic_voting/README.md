@@ -30,7 +30,7 @@ Cargo.toml
 
 ## Example Usage
 
-After running the project, you can observe the following sequence of operations:
+The demo steps through registration, delegation, voting, and tally:
 
 - **Voter Registration**: Voters register with an ID and an initial credit balance.
 - **Delegation** (optional): A voter delegates their remaining credits to another voter; their credits become 0 and the delegate's credit balance increases.
@@ -77,9 +77,9 @@ cargo test       # 9 unit + 2 integration = 11 tests
 ## What This Project Demonstrates
 
 - Precise modeling of two interacting voting mechanisms (QV + LD) without letting them quietly contradict each other.
-- **Cycle detection as a correctness requirement**, not an afterthought — the integration test explicitly verifies a 3-step cycle is rejected.
+- **Cycle detection as a correctness requirement**, not an afterthought. The integration test explicitly verifies that a 3-step cycle is rejected.
 - **Saturating arithmetic** throughout the credit math, so adversarial inputs never produce undefined behavior or overflow panics.
-- A clean **single-source-of-truth invariant**: `Voter::delegate` is the only place delegation state lives, so the bug from the previous version (parallel `delegations` HashMap + dead `Voter::delegate` field) cannot recur.
+- A **single-source-of-truth invariant**: `Voter::delegate` is the only place delegation state lives, ruling out the bug from the previous version (parallel `delegations` HashMap + dead `Voter::delegate` field).
 - Idiomatic Rust: `lib + bin`, `thiserror`, integration tests under `tests/`.
 
 ## Scope
@@ -90,19 +90,9 @@ cargo test       # 9 unit + 2 integration = 11 tests
 
 ## Future Enhancements
 
-1. **Sybil Resistance**: Tie voter IDs to a proof-of-personhood layer so attackers can't farm credits with fake identities — the load-bearing assumption behind quadratic voting's fairness.
+1. **Sybil Resistance**: Tie voter IDs to a proof-of-personhood layer so attackers can't farm credits with fake identities — the assumption quadratic voting's fairness rests on.
 2. **Smart Contract Integration**: Anchor the tally in an on-chain Merkle root, reusing the pattern already implemented in `rust_decentralized_voting/src/merkle.rs` rather than building it greenfield.
 
 > **Implemented** — _Partial delegation_: `delegate_n(from, to, k)` moves only `k` credits and preserves the delegator's voting rights over the remainder (`voting.rs`), closing the Scope note that `delegate` was all-or-nothing. Verified: `cargo test` reports 9 unit + 2 integration = 11/11 passing.
 
-## Contributing
-
-I welcome contributions from the community to enhance the features, security, and performance of this project. Feel free to fork the repository, make your changes, and submit a pull request.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Contact
-
-For further inquiries or partnership opportunities, please contact lmdixon23@gmail.com.
+Licensed under the [MIT License](https://github.com/lmdixon23/my_dev_projects/blob/main/LICENSE).

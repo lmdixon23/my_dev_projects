@@ -6,10 +6,10 @@
 
 ## Key Features
 
-- **TPU Acceleration**: `tf.distribute.TPUStrategy` initialization with automatic CPU/GPU fallback, so the same `train.py` runs on a TPU runtime, a GPU, or a laptop.
+- **TPU Acceleration**: `tf.distribute.TPUStrategy` initialization with automatic CPU/GPU fallback. The same `train.py` runs unchanged on a TPU runtime, a GPU, or a laptop.
 - **Transfer Learning**: Frozen VGG16 (ImageNet weights) used as the image encoder, projected to a 256-d feature vector.
 - **Sequence Generation**: LSTM decoder with teacher forcing during training and greedy decoding at inference; integer-token targets and `sparse_categorical_crossentropy` instead of memory-blowing one-hot encoding.
-- **End-to-End Pipeline**: COCO caption loading, persistent Keras tokenizer, on-the-fly image decoding via `tf.data`, model save/restore, BLEU-4 reporting — all wired together.
+- **End-to-End Pipeline**: COCO caption loading, persistent Keras tokenizer, on-the-fly image decoding via `tf.data`, model save/restore, and BLEU-4 reporting are all wired into a single flow.
 - **Smoke Run**: `python -m smoke.run_smoke` generates a 12-image synthetic dataset and runs the entire pipeline so the project's correctness can be checked without downloading COCO.
 
 ## Architecture
@@ -88,7 +88,7 @@ python -m smoke.run_smoke
 - Comfort with **TensorFlow distribution strategies** and the realities of moving the same model between TPU, GPU, and CPU.
 - Idiomatic use of **`tf.data`** pipelines (on-the-fly decoding, prefetching, parallel mapping).
 - Understanding of when **one-hot encoding is the wrong choice** and how `sparse_categorical_crossentropy` solves it.
-- Cleanly separated **encoder / decoder / config / training / evaluation** modules — production-shaped layout, not a single 500-line notebook.
+- Cleanly separated **encoder / decoder / config / training / evaluation** modules rather than one 500-line notebook.
 - Honest **end-to-end correctness check** (the smoke pipeline) so a reviewer can verify the project actually works.
 
 ## Scope
@@ -105,14 +105,4 @@ python -m smoke.run_smoke
 4. **Multi-Language Support**: Extend the model to generate captions in multiple languages.
 5. **Fine-Tuning Pre-trained Models**: Unfreeze the top conv blocks of VGG16 after the head converges.
 
-## Contributing
-
-I welcome contributions from the community to enhance the features, performance, and accuracy of this project. Feel free to fork the repository, make your changes, and submit a pull request.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Contact
-
-For further inquiries or partnership opportunities, please contact lmdixon23@gmail.com.
+Licensed under the [MIT License](https://github.com/lmdixon23/my_dev_projects/blob/main/LICENSE).

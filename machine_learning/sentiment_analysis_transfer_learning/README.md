@@ -6,7 +6,7 @@
 
 ## Key Features
 
-- **Transfer Learning**: `TFAutoModelForSequenceClassification.from_pretrained("bert-base-uncased", num_labels=2)` — production-shape Hugging Face wiring.
+- **Transfer Learning**: `TFAutoModelForSequenceClassification.from_pretrained("bert-base-uncased", num_labels=2)` with idiomatic Hugging Face wiring throughout.
 - **Fine-Tuning**: Real training loop with `SparseCategoricalCrossentropy(from_logits=True)`, configurable epochs / batch size / max length / learning rate.
 - **Text Tokenization**: BERT subword tokenizer; persisted via `save_pretrained` for use at serve time.
 - **Multiple Data Loaders**: Stanford IMDb on-disk (`load_imdb_dir`), `tensorflow_datasets` IMDb (`load_imdb_tfds`), generic CSV (`load_csv`) — all return `tf.data.Dataset`s shaped for the Hugging Face model.
@@ -124,14 +124,4 @@ SKIP_NETWORK_TESTS=1 python -m pytest tests/
 3. **Multi-Class Sentiment Analysis**: Extend to SST-5 or custom 5-class labels (`num_labels` + dataset swap; the model factory already accepts `num_labels`).
 4. **Real-Time Sentiment Analysis**: Wrap the Flask service in a streaming endpoint for social-media monitoring use cases.
 
-## Contributing
-
-Contributions to this project are welcome. You can fork the repository, implement new features or improvements, and submit a pull request.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Contact
-
-For further inquiries or collaboration opportunities, please contact lmdixon23@gmail.com.
+Licensed under the [MIT License](https://github.com/lmdixon23/my_dev_projects/blob/main/LICENSE).

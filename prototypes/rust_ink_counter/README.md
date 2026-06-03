@@ -7,8 +7,8 @@
 ## Key Features
 
 - **Three Messages**: `get(&self) -> i32`, `increment(&mut self)`, `decrement(&mut self)`.
-- **Saturating Arithmetic**: `i32::MAX + 1 == i32::MAX` instead of panicking. The original version used unchecked `+= 1` which would have aborted the contract on overflow.
-- **Three Unit Tests**: init value, round-trip increment/decrement, saturating-arithmetic at both `i32::MAX` and `i32::MIN`.
+- **Saturating Arithmetic**: `i32::MAX + 1` stays at `i32::MAX` rather than panicking. The original used unchecked `+= 1`, which would have aborted the contract on overflow.
+- **Three Unit Tests** covering init value, a round-trip increment/decrement, and saturating arithmetic at both `i32::MAX` and `i32::MIN`.
 
 ## Architecture
 
@@ -63,9 +63,9 @@ cargo test       # 3 unit tests
 
 ## What This Project Demonstrates
 
-- **Familiarity with ink!** — the standard smart-contract framework for Substrate chains.
-- **Defensive integer arithmetic** — saturating ops instead of unchecked `+=`.
-- **Honest scoping** — labeled as a prototype, parked under `prototypes/`, not pretending to be a finished portfolio piece.
+- Basic familiarity with **ink!**, the standard smart-contract framework for Substrate chains.
+- **Defensive integer arithmetic**: saturating ops instead of unchecked `+=`.
+- Honest scoping: it's labeled a prototype, parked under `prototypes/`, and the Scope section says plainly what a real contract would need.
 
 ## Scope
 
@@ -80,14 +80,4 @@ cargo test       # 3 unit tests
 - **Access Control**: only-owner gating on `decrement` to demonstrate the access-control pattern.
 - **End-to-End Tests**: a `tests/` directory with one `#[ink_e2e::test]` to exercise deployment + RPC calls.
 
-## Contributing
-
-Contributions welcome.
-
-## License
-
-This project is licensed under the MIT License.
-
-## Contact
-
-For further inquiries: lmdixon23@gmail.com.
+Licensed under the [MIT License](https://github.com/lmdixon23/my_dev_projects/blob/main/LICENSE).

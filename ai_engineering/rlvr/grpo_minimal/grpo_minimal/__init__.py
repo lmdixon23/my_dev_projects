@@ -8,7 +8,7 @@ training loop, and producing the qualitative ranking RFT < Online RFT <
 GRPO+OS that Figure 5 reports.
 
 The KL-anchor regularizer that GRPO adds to its loss is imported from
-`operator_zoo.losses.kl_anchor_term` — that import is the load-bearing
+`operator_zoo.losses.kl_anchor_term` — that import is the real
 bridge between this project and the operator zoo. The Vieillard closed
 form in `operator_zoo.operators.KLToAnchor` is used in the tests as a
 correctness oracle for the loss.

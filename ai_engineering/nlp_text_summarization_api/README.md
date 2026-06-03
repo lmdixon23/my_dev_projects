@@ -2,7 +2,7 @@
 
 ## Overview
 
-**NLP_Text_Summarization_CLI** is a Python command-line application that calls the OpenAI Chat Completions API to summarize text. It supports async batching with a controllable concurrency limit, exponential backoff with per-key rotation on 429s, SQLite persistence of every summary + token usage + feedback, real trend analysis over stored summaries (token totals, length distributions, top non-stopword content terms), and file / stdin input modes. A tokenizer-free, network-free test suite covers the HTTP retry path via `httpx.MockTransport`.
+**NLP_Text_Summarization_CLI** is a Python command-line tool that summarizes text via the OpenAI Chat Completions API. It handles async batching with a controllable concurrency limit, exponential backoff with per-key rotation on 429s, SQLite persistence of every summary plus token usage and feedback, real trend analysis over stored summaries (token totals, length distributions, top non-stopword content terms), and file / stdin input modes. The test suite is tokenizer-free and network-free, covering the HTTP retry path via `httpx.MockTransport`.
 
 ## Key Features
 
@@ -32,7 +32,7 @@ tests/
 
 ## Example Usage
 
-After running the project, you can observe the following sequence of operations:
+A typical run looks like this:
 
 - **Input Text**: Provide text via interactive prompt, file, or stdin.
 - **API Request**: The application sends each text to the OpenAI API for summarization, throttled by the configured concurrency.
@@ -94,10 +94,10 @@ python -m unittest discover tests
 ## What This Project Demonstrates
 
 - Knowing **why `time.sleep` inside `async def` is a real bug** and how to fix it with `asyncio.sleep`.
-- **Concurrency control via `asyncio.Semaphore`** — the right primitive for "fan out but only N in flight at once".
+- **Concurrency control via `asyncio.Semaphore`**: the right primitive for "fan out but only N in flight at once".
 - A **clean key-rotation abstraction** with explicit "no key configured" error handling.
 - **Testable HTTP code**: using `httpx.MockTransport` to assert the 429 -> rotate -> retry -> success path without any real network call.
-- **Real analytical output** from stored data — token totals, length distributions, top non-stopword terms — instead of the previous `print(rows)` stub.
+- **Real analytical output** from stored data (token totals, length distributions, top non-stopword terms) instead of the previous `print(rows)` stub.
 - File + stdin input modes, so the tool composes with other CLI tools (`cat file | python main.py --input-file -`).
 
 ## Scope
@@ -120,14 +120,4 @@ python -m unittest discover tests
 - OpenAI. *Chat Completions API Reference.* https://platform.openai.com/docs/api-reference/chat
 - Liu, Y., & Lapata, M. (2019). *Text Summarization with Pretrained Encoders.* arXiv:1908.08345.
 
-## Contributing
-
-I welcome contributions from the community to enhance the features, security, and performance of this project. Feel free to fork the repository, make your changes, and submit a pull request.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Contact
-
-For further inquiries or partnership opportunities, please contact lmdixon23@gmail.com.
+Licensed under the [MIT License](https://github.com/lmdixon23/my_dev_projects/blob/main/LICENSE).

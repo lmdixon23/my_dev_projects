@@ -1,4 +1,4 @@
-"""This is the load-bearing 'bridge' test.
+"""This is the 'bridge' test.
 
 It confirms that the `from operator_zoo.losses import kl_anchor_term`
 import in `grpo_minimal/methods.py` is non-decorative: the same KL

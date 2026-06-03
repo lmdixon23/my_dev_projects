@@ -10,7 +10,7 @@
 - **Feature Engineering**: Hour conversion, per-pack average current, pack-type one-hot encoding, configurable drop-list.
 - **Random Forest Classifier**: Hyperparameters (n_estimators, max_depth) are driven from `config.yaml`, not hardcoded.
 - **Honest Train/Test Discipline**: Stratified split when class balance allows; persisted `StandardScaler` and feature-column order so the Flask API scores new rows under exactly the same contract.
-- **Production-Shaped Serving**: Flask `/predict` accepts a single record or a JSON batch, returns class predictions plus `predict_proba`; `/health` for load balancers.
+- **Serving**: Flask `/predict` accepts a single record or a JSON batch and returns class predictions plus `predict_proba`; a `/health` endpoint is included for load balancers.
 - **Smoke Pipeline**: `python -m smoke.run_smoke` synthesizes battery CSVs and runs preprocessing -> training -> evaluation end-to-end.
 
 ## Architecture
@@ -97,8 +97,8 @@ python -m smoke.run_smoke
 
 - **Training-vs-serving consistency** done right: the scaler and feature-column order are persisted, not refit per request.
 - Idiomatic **scikit-learn pipeline structure** with config-driven hyperparameters.
-- **Production-shaped Flask API**: batch-or-single input, `predict_proba`, `/health`, structured error responses.
-- Discipline around **no-side-effects-on-import** — every script can be imported without triggering an unintended pipeline run.
+- **Flask API with real operational concerns**: batch-or-single input, `predict_proba`, `/health`, and structured error responses.
+- Every script is safe to import: no side-effects fire until the relevant function is called, so nothing runs unintentionally.
 - One-command **end-to-end smoke pipeline** so reviewers can verify correctness without sourcing the real (gigabyte-scale) dataset.
 
 ## Scope
@@ -114,14 +114,4 @@ python -m smoke.run_smoke
 3. **Anomaly Detection**: Add an Isolation Forest pass before classification to catch sensor drift (also closes the Scope note that the service does not validate value ranges).
 4. **Visualization Tools**: Build a small Streamlit dashboard around the Flask predictions.
 
-## Contributing
-
-Contributions are welcome to enhance the features, performance, and accuracy of this project. Please fork the repository, make your changes, and submit a pull request.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Contact
-
-For further inquiries or partnership opportunities, please contact lmdixon23@gmail.com.
+Licensed under the [MIT License](https://github.com/lmdixon23/my_dev_projects/blob/main/LICENSE).

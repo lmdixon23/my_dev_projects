@@ -9,7 +9,7 @@
 - **TPU Acceleration**: `tf.distribute.TPUStrategy` initialization with automatic CPU/GPU fallback.
 - **Transfer Learning**: Frozen VGG16 (ImageNet weights) + custom dense head; the dataset's number of classes is detected at runtime and wired into the final softmax automatically.
 - **Custom Classification**: Per-class subfolder layout makes the project portable to any dataset (CIFAR-10, ImageNet subset, custom).
-- **Held-Out Test Set**: The test loader reads from a separate `datasets/test/` directory — not a sub-split of training data, so reported accuracy is honest.
+- **Held-Out Test Set**: The test loader reads from a separate `datasets/test/` directory (not a sub-split of training data), so reported accuracy is honest.
 - **Containerized Serving**: A working Dockerfile + Flask service with `/predict` (returns top-3 labeled predictions with confidence) and `/health`.
 - **Real Unit Tests**: 3 test files covering the data loader, model architecture, and the one-epoch training loop on a synthetic dataset.
 
@@ -100,9 +100,9 @@ python -m pytest tests/
 
 ## What This Project Demonstrates
 
-- Transfer learning done correctly (frozen backbone, runtime-detected `num_classes`).
+- Transfer learning done right: frozen backbone, `num_classes` detected at runtime and wired into the final softmax without touching source code.
 - Discipline around **train/val/test separation** — the test loader is a separate directory, not a re-use of the validation split.
-- **Production-shaped serving**: `/health` endpoint, labeled responses, a `python:3.11-slim` Dockerfile, gunicorn in the dependency tree.
+- Serving is deploy-ready: `/health` endpoint, labeled responses, a `python:3.11-slim` Dockerfile, and gunicorn in the dependency tree.
 - **Real tests** that exercise the pipeline against a generated synthetic dataset — the right pattern for ML CI.
 - One-command **end-to-end smoke pipeline** (`smoke/run_smoke.py`) — reviewers can verify the project works in under a minute without any external download.
 
@@ -120,14 +120,4 @@ python -m pytest tests/
 
 > **Implemented** — _Leakage-guard regression test_: `tests/test_data_loader.py` asserts no image (by SHA-256 content hash) appears in both train and test splits, locking in the fix documented in `src/data_loader.py` (a prior bug reused the val split as test and silently inflated accuracy). Verified: `pytest tests/test_data_loader.py` reports 4/4 passing.
 
-## Contributing
-
-Contributions are welcome to enhance the functionality, performance, and accuracy of this project. Feel free to fork the repository, make your changes, and submit a pull request.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Contact
-
-For further inquiries or collaboration opportunities, please contact lmdixon23@gmail.com.
+Licensed under the [MIT License](https://github.com/lmdixon23/my_dev_projects/blob/main/LICENSE).

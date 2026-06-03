@@ -32,14 +32,14 @@ Cargo.toml
 
 ## Example Usage
 
-After running the project, you can observe the following sequence of operations:
+The demo binary runs a full borrow-accrue-repay-liquidate cycle:
 
 - **User Registration**: Users register with an initial balance; the total-supplied pool is updated.
 - **Collateral Deposit**: Users move funds from `balance` to `collateral_locked`.
-- **Loan Request**: A loan opens iff the user has 150% collateral; collateral is locked, principal is credited to balance, the loan's interest rate is stamped from `current_rate_bps()`, and the total-borrowed pool grows.
+- **Loan Request**: A loan opens iff the user has 150% collateral. Collateral is locked, principal is credited to balance, the loan's interest rate is stamped from `current_rate_bps()`, and the total-borrowed pool grows.
 - **Time Passes**: `advance_time(ticks)` accrues simple interest on every active loan.
 - **Loan Repayment**: Borrower pays `principal + accrued_interest`; collateral is unlocked.
-- **Collateral Liquidation**: If accrued interest pushes outstanding past `collateral * 1.20`, any actor can call `liquidate`; the liquidator receives the collateral and the loan is closed.
+- **Collateral Liquidation**: If accrued interest pushes outstanding past `collateral * 1.20`, any actor can call `liquidate`. The liquidator receives the collateral and the loan is closed.
 
 ## Getting Started
 
@@ -82,7 +82,7 @@ cargo test       # 5 unit + 2 integration = 7 tests
 
 ## What This Project Demonstrates
 
-- **Money is integers**, not floats — the rewrite explicitly replaces every `f64` in the original with `u128` micro-units to avoid the canonical financial-software bug.
+- **Money is integers**, not floats. The rewrite replaces every `f64` in the original with `u128` micro-units to avoid the canonical financial-software rounding bug.
 - Time-aware accounting via a `now_tick` clock the test can advance deterministically, instead of "interest applied once per repay call".
 - A **utilization-driven rate curve** that reproduces the qualitative behavior of Aave / Compound (rate rises as the pool gets borrowed against).
 - A **liquidation primitive** any actor can call when a position goes underwater — the foundational DeFi safety mechanism.
@@ -103,14 +103,4 @@ cargo test       # 5 unit + 2 integration = 7 tests
 3. **Multi-Asset Support**: Per-asset pools with per-pair interest curves.
 4. **Improved Risk Management**: Health factor + collateral factor per asset, à la Aave V3.
 
-## Contributing
-
-I welcome contributions from the community to enhance the features, security, and performance of this project. Feel free to fork the repository, make your changes, and submit a pull request.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Contact
-
-For further inquiries or partnership opportunities, please contact lmdixon23@gmail.com.
+Licensed under the [MIT License](https://github.com/lmdixon23/my_dev_projects/blob/main/LICENSE).
