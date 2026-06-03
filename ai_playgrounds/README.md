@@ -16,12 +16,12 @@ visually-rich units, with extra depth on the under-served Russell & Norvig topic
 
 | Concept | Applet | "Aha" moment |
 |---|---|---|
-| Problem representation & search | [Pathfinding](playgrounds/search-pathfinding/) | Why A* explores fewer nodes than BFS |
+| Search & problem representation | [Pathfinding](playgrounds/search-pathfinding/) | Why A* explores fewer nodes than BFS |
 | Logical agent (AIMA Ch 7) | [Wumpus World](playgrounds/wumpus-world/) | The difference between "I haven't seen it" and "I've proved it's not there" |
 | Logic & knowledge bases | [CNF & SAT Builder](playgrounds/cnf-sat/) | Why every SAT solver in the world wants CNF as input |
 | Probability & Naïve Bayes | [Bayes classifier](playgrounds/bayes-classifier/) | Why a 99%-accurate test for a rare disease still misleads |
 | Bayesian networks (AIMA Ch 14) | [Bayes network](playgrounds/bayes-network/) | Why learning of an earthquake LOWERS your belief in a burglary |
-| KNN classifier | [K-Nearest Neighbors](playgrounds/knn-classifier/) | What `k` does to a decision boundary |
+| Supervised learning (KNN) | [K-Nearest Neighbors](playgrounds/knn-classifier/) | What `k` does to a decision boundary |
 | Evaluation, leakage, regularization | [Overfitting](playgrounds/overfitting/) | Why a perfect training fit can fail on test data |
 | Local search (AIMA Ch 4) | [Hill climbing & SA](playgrounds/hill-climbing/) | Why sometimes you have to take a worse step |
 | Neural network fundamentals | [Tiny neural net](playgrounds/neural-network/) | How layers + non-linearity carve up space |
