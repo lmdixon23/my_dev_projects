@@ -158,6 +158,8 @@
                   line-height: 1.5; }
   .size-readout b { color: var(--accent); }
   .size-readout .formula { color: var(--muted); }
+  /* shown only while the Inspect & scan disclosure is open; default stays hidden (see #sizeReadout). */
+  details.inspect-scan[open] .size-readout { display: block; }
   /* the Inspect & scan disclosure (groups hover-inspect + sliding-window scan). */
   details.inspect-scan { margin-top: 12px; }
   details.inspect-scan > summary { cursor: pointer; padding: 8px 12px; background: var(--soft);
@@ -481,7 +483,7 @@
         <span style="color:var(--muted); font-style:italic;" data-i18n="hi-empty">Hover an output cell to inspect it. (Single-conv mode.)</span>
       </div>
       <!-- mode-aware output-size readout -->
-      <div class="size-readout" id="sizeReadout" style="display:block;" aria-live="polite"></div>
+      <div class="size-readout" id="sizeReadout" aria-live="polite"></div>
     </div>
   </details>
 
