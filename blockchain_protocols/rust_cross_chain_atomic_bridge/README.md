@@ -18,6 +18,26 @@
 
 Standard Rust `lib + bin` crate. The `lib` exposes the protocol primitives; the `bin` is a demo that wires two `MockChain`s together and runs a transfer. Integration tests under `tests/` exercise the public API end-to-end.
 
+```mermaid
+sequenceDiagram
+    actor User
+    participant Src as Source chain
+    participant Br as Bridge (message boundary)
+    participant Dst as Dest chain
+
+    User->>Src: deposit native asset
+    User->>Src: Htlc::commit — lock under SHA-256(preimage) + timeout
+    Src-->>Br: MessageSent("LockObserved")
+    Br-->>Dst: relay lock proof
+    Dst->>Dst: mint wrapped asset
+    User->>Dst: reveal preimage
+    Dst-->>Br: MessageSent("PreimageRevealed")
+    Br-->>Src: relay preimage
+    Src->>Src: verify with ConstantTimeEq, release native
+    Note over Src,Dst: Bridge::total_value conserved across the swap
+    Note over User,Src: timeout, no reveal: rollback_transfer burns wrapped, refunds lock
+```
+
 ```
 src/
   lib.rs           crate root, re-exports

@@ -216,6 +216,30 @@
       <input type="checkbox" id="showTestLoss"> <span data-i18n="show-test-label">Show test loss/points</span></label>
   </div>
 
+  <!-- Engineered input features (TF-Playground style). x and y are always on;
+       toggling any of these re-initializes the network and resets training. -->
+  <div class="control-row">
+    <label data-i18n="feat-label" data-i18n-title="feat-label-title"
+           title="Extra engineered inputs fed alongside x and y. They let a small network bend or close its boundary without more hidden neurons. Toggling resets the network.">Input features:</label>
+    <span style="color:var(--muted); font-family:ui-monospace,monospace; font-size:0.85rem;" data-i18n-title="feat-xy-title"
+          title="The raw point coordinates. Always fed to the network.">x, y</span>
+    <label data-i18n-title="feat-x2-title"
+           title="Feed x² as an extra input. Lets the boundary curve along the x axis (parabola / circle).">
+      <input type="checkbox" id="fx2"> <span data-i18n="feat-x2-label">x²</span></label>
+    <label data-i18n-title="feat-y2-title"
+           title="Feed y² as an extra input. Lets the boundary curve along the y axis.">
+      <input type="checkbox" id="fy2"> <span data-i18n="feat-y2-label">y²</span></label>
+    <label data-i18n-title="feat-xy-prod-title"
+           title="Feed x·y as an extra input. A single neuron can then solve XOR (the product is positive in opposite quadrants).">
+      <input type="checkbox" id="fxy"> <span data-i18n="feat-xy-prod-label">x·y</span></label>
+    <label data-i18n-title="feat-sinx-title"
+           title="Feed sin(x) as an extra input. Adds periodic structure along the x axis.">
+      <input type="checkbox" id="fsinx"> <span data-i18n="feat-sinx-label">sin(x)</span></label>
+    <label data-i18n-title="feat-siny-title"
+           title="Feed sin(y) as an extra input. Adds periodic structure along the y axis.">
+      <input type="checkbox" id="fsiny"> <span data-i18n="feat-siny-label">sin(y)</span></label>
+  </div>
+
   <div class="canvas-pair">
     <div class="canvas-card">
       <h3 data-i18n="bv-h3">Decision boundary + training data</h3>
@@ -235,6 +259,21 @@
     <div class="stat-item"><div class="label" data-i18n="stat-acc">Train accuracy</div><div class="val" id="accV">—</div></div>
     <div class="stat-item"><div class="label" data-i18n="stat-param">Parameters</div><div class="val" id="paramV">—</div></div>
   </div>
+
+  <!-- Network graph (TF-Playground style): neurons as nodes in columns,
+       weights as edges colored by sign and scaled by magnitude. Open by default. -->
+  <details open style="margin-top:12px;">
+    <summary style="cursor:pointer; padding:8px 12px; background:var(--soft); border:1px solid var(--border); border-radius:6px; font-family:-apple-system,system-ui,sans-serif; font-size:0.88rem; color:var(--accent); font-weight:600;">
+      <span data-i18n="graph-summary">🕸 Network graph — weights as connections</span>
+    </summary>
+    <div style="margin-top:10px; padding:12px; background:var(--card); border:1px solid var(--border); border-radius:6px;">
+      <div style="color:var(--muted); font-size:0.82rem; margin-bottom:6px;" data-i18n="graph-hint">
+        Each circle is a neuron; each line is one weight. Blue = positive, red = negative; thicker / brighter = larger magnitude. Updates live as the network trains.
+      </div>
+      <canvas id="ng" width="840" height="300" role="img"
+              aria-label="Network graph: neurons as nodes, weights as colored connections."></canvas>
+    </div>
+  </details>
 
   <!-- Inside-the-network views (weight matrices + per-neuron activation heatmaps). -->
   <details style="margin-top:12px;">
@@ -373,8 +412,9 @@
 
   <div class="for-teachers">
     <h3>For teachers</h3>
-    <p><strong>Curriculum:</strong> Unit 6 — Neural Network Fundamentals. Layers and activations;
-       gradient descent; capacity vs data size; the XOR-as-non-linearity-litmus-test.</p>
+    <p><strong>Curriculum:</strong> Neural Network Fundamentals. Layers and activations;
+       gradient descent; capacity vs data size; the XOR-as-non-linearity-litmus-test.
+       Input-feature toggles (x², x·y, sin) let students see that feature engineering changes what the network can separate; the network-graph view renders the weights as connections.</p>
     <p><strong>Pre-exploration prompts:</strong></p>
     <ul>
       <li>Can you draw a single straight line that separates the XOR points? Why or why not?</li>
@@ -436,6 +476,19 @@
       'h1-title': 'Number of neurons in the first hidden layer. 0 = no hidden layer.',
       'h2-title': 'Number of neurons in the second hidden layer. 0 = no second hidden layer.',
       'lr-title': 'SGD step size. Too small = glacial; too large = unstable.',
+      // engineered input-feature toggles (TF-Playground style).
+      'feat-label': 'Input features:',
+      'feat-label-title': 'Extra engineered inputs fed alongside x and y. They let a small network bend or close its boundary without more hidden neurons. Toggling resets the network.',
+      'feat-xy-title': 'The raw point coordinates. Always fed to the network.',
+      'feat-x2-label': 'x²', 'feat-x2-title': 'Feed x² as an extra input. Lets the boundary curve along the x axis (parabola / circle).',
+      'feat-y2-label': 'y²', 'feat-y2-title': 'Feed y² as an extra input. Lets the boundary curve along the y axis.',
+      'feat-xy-prod-label': 'x·y', 'feat-xy-prod-title': 'Feed x·y as an extra input. A single neuron can then solve XOR (the product is positive in opposite quadrants).',
+      'feat-sinx-label': 'sin(x)', 'feat-sinx-title': 'Feed sin(x) as an extra input. Adds periodic structure along the x axis.',
+      'feat-siny-label': 'sin(y)', 'feat-siny-title': 'Feed sin(y) as an extra input. Adds periodic structure along the y axis.',
+      // network-graph view (neurons as nodes, weights as colored connections).
+      'graph-summary': '🕸 Network graph — weights as connections',
+      'graph-hint': 'Each circle is a neuron; each line is one weight. Blue = positive, red = negative; thicker / brighter = larger magnitude. Updates live as the network trains.',
+      'graph-out-label': 'out',
     },
     zh: {
       'title': '迷你神经网络可视化', 'back-link': '← 所有演示',
@@ -471,6 +524,19 @@
       'h1-title': '第一个隐层的神经元数量。0 = 无隐层。',
       'h2-title': '第二个隐层的神经元数量。0 = 无第二隐层。',
       'lr-title': 'SGD 步长。太小 = 缓慢;太大 = 不稳定。',
+      // 工程化输入特征开关(TF-Playground 风格)。
+      'feat-label': '输入特征:',
+      'feat-label-title': '在 x、y 之外额外喂入的工程化特征。它们让小网络无需增加隐藏神经元也能弯曲或闭合决策边界。切换会重置网络。',
+      'feat-xy-title': '原始点坐标,始终喂入网络。',
+      'feat-x2-label': 'x²', 'feat-x2-title': '把 x² 作为额外输入。让边界沿 x 轴弯曲(抛物线 / 圆)。',
+      'feat-y2-label': 'y²', 'feat-y2-title': '把 y² 作为额外输入。让边界沿 y 轴弯曲。',
+      'feat-xy-prod-label': 'x·y', 'feat-xy-prod-title': '把 x·y 作为额外输入。单个神经元即可解决异或(乘积在对角象限为正)。',
+      'feat-sinx-label': 'sin(x)', 'feat-sinx-title': '把 sin(x) 作为额外输入。沿 x 轴添加周期性结构。',
+      'feat-siny-label': 'sin(y)', 'feat-siny-title': '把 sin(y) 作为额外输入。沿 y 轴添加周期性结构。',
+      // 网络图视图(神经元为节点,权重为彩色连线)。
+      'graph-summary': '🕸 网络图——权重即连线',
+      'graph-hint': '每个圆圈是一个神经元,每条线是一个权重。蓝 = 正,红 = 负;越粗 / 越亮 = 绝对值越大。训练时实时更新。',
+      'graph-out-label': '输出',
     },
   };
   function setLang(lang) {
@@ -510,6 +576,7 @@
     setTheme(document.body.classList.contains('dark-mode') ? 'light' : 'dark');
     if (typeof drawBoundary === 'function') drawBoundary();
     if (typeof drawLoss === 'function') drawLoss();
+    if (typeof drawNetworkGraph === 'function') drawNetworkGraph();
   });
 
   // For-teachers is hidden by default (cognitive-load floor). User toggles persist.
@@ -558,6 +625,7 @@
 
   const bv = $('bv'); const bctx = bv.getContext('2d');
   const lc = $('lc'); const lctx = lc.getContext('2d');
+  const ng = $('ng'); // network-graph canvas (DPR-resized alongside bv/lc)
   function resizeCv(cv) {
     const dpr = window.devicePixelRatio || 1;
     const rect = cv.getBoundingClientRect();
@@ -610,6 +678,38 @@
     return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
   }
 
+  // ===== engineered input features (TensorFlow-Playground style) =====
+  // x and y are ALWAYS on. The five engineered features default OFF, so the
+  // default network input is exactly [x, y] — identical to the original applet.
+  // Fixed deterministic order: x, y, x², y², x·y, sin(x), sin(y). Every code
+  // path (training, forward, boundary render, neuron heatmaps) maps a raw point
+  // through featureVec() so the feature order is guaranteed consistent.
+  //
+  // Scale note: raw x,y live on ~[-1.6, 1.6]. To keep the engineered features on
+  // a comparable scale (so training stays stable and He/Xavier init still fits),
+  // squares and the product are divided by 1.6 (max |x²|, |x·y| ≈ 2.56 → ≈1.6),
+  // and sin() is left as-is (already in [-1, 1]).
+  const FEATURE_DEFS = [
+    { id: 'fx2',  fn: (x, y) => (x * x) / 1.6 },
+    { id: 'fy2',  fn: (x, y) => (y * y) / 1.6 },
+    { id: 'fxy',  fn: (x, y) => (x * y) / 1.6 },
+    { id: 'fsinx', fn: (x, y) => Math.sin(x) },
+    { id: 'fsiny', fn: (x, y) => Math.sin(y) },
+  ];
+  // active engineered features, in FEATURE_DEFS order (rebuilt from checkboxes).
+  let activeFeatures = [];
+  function refreshActiveFeatures() {
+    activeFeatures = FEATURE_DEFS.filter(f => { const el = $(f.id); return el && el.checked; });
+  }
+  // raw point (x, y) → input vector [x, y, ...active engineered features].
+  function featureVec(x, y) {
+    const v = [x, y];
+    for (const f of activeFeatures) v.push(f.fn(x, y));
+    return v;
+  }
+  // input-layer size = number of active features (2 + engineered).
+  function featureCount() { return 2 + activeFeatures.length; }
+
   let layers = [];
   // optimizer step counter (used by Adam bias correction). Reset on every
   // network rebuild (changing arch, resetting weights, switching optimizer mid-run
@@ -617,7 +717,8 @@
   let optStep = 0;
   function buildNet() {
     layers = [];
-    const sizes = [2];
+    refreshActiveFeatures();
+    const sizes = [featureCount()];
     const h1 = +$('h1').value, h2 = +$('h2').value;
     if (h1 > 0) sizes.push(h1);
     if (h2 > 0) sizes.push(h2);
@@ -663,7 +764,7 @@
     return 1;
   }
   function forward(x0, x1) {
-    let a = [x0, x1];
+    let a = featureVec(x0, x1);
     const cache = [a];
     for (const L of layers) {
       const z = new Array(L.b.length);
@@ -751,7 +852,7 @@
     return totalLoss / n;
   }
   function predict(x0, x1) {
-    let a = [x0, x1];
+    let a = featureVec(x0, x1);
     for (const L of layers) {
       const z = new Array(L.b.length);
       for (let r = 0; r < L.W.length; r++) {
@@ -865,6 +966,112 @@
     });
     root.innerHTML = html;
   }
+  // ===== network graph (TF-Playground style) =====
+  // Draws neurons as nodes in left→right columns and every weight as an edge.
+  // Reads the SAME live `layers` weights that renderWeightsView() reads — no
+  // recompute. Edge color encodes the weight's sign (blue +, red −, matching
+  // colorForWeight); edge width AND alpha encode |weight| normalized by the
+  // current max |weight| in the whole network, so edges stay legible at any scale.
+  // Node columns: [inputs] + one column per layer's output (last = single output).
+  // Handles 0, 1, or 2 hidden layers and the variable input count automatically,
+  // because the column structure is derived directly from `layers`.
+  // Human-readable labels for the input column. x,y are always first; the rest
+  // follow activeFeatures order (== FEATURE_DEFS order), matching featureVec().
+  const FEATURE_GRAPH_LABELS = { fx2: 'x²', fy2: 'y²', fxy: 'x·y', fsinx: 'sin x', fsiny: 'sin y' };
+  function inputLabels() {
+    const labels = ['x', 'y'];
+    for (const f of activeFeatures) labels.push(FEATURE_GRAPH_LABELS[f.id] || f.id);
+    return labels;
+  }
+  function drawNetworkGraph() {
+    const cv = $('ng'); if (!cv || !layers.length) return;
+    const ctx = cv.getContext('2d');
+    const rect = cv.getBoundingClientRect();
+    const W = rect.width, H = rect.height;
+    const dark = document.body.classList.contains('dark-mode');
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = dark ? '#1e293b' : 'white';
+    ctx.fillRect(0, 0, W, H);
+
+    // Column sizes: input count, then each layer's output count.
+    const colSizes = [layers[0].W[0].length];
+    for (const L of layers) colSizes.push(L.W.length);
+    const nCols = colSizes.length;
+
+    // Node geometry. Reserve side padding for the input labels and output label.
+    const padX = 60, padTop = 24, padBot = 18;
+    const innerW = Math.max(1, W - 2 * padX);
+    const colX = i => nCols === 1 ? W / 2 : padX + (i / (nCols - 1)) * innerW;
+    const maxNodes = Math.max(...colSizes);
+    // node radius shrinks if a column is crowded so circles never overlap.
+    const r = Math.max(4, Math.min(11, (H - padTop - padBot) / (2 * maxNodes + 1) - 1));
+    const nodeY = (count, j) => {
+      if (count === 1) return (padTop + (H - padBot)) / 2;
+      const top = padTop + r, bot = H - padBot - r;
+      return top + (j / (count - 1)) * (bot - top);
+    };
+
+    // Normalize against a FIXED reference scale (matches colorForWeight's 2.0
+    // clamp), NOT the per-frame max. Per-frame max-normalization made edges look
+    // frozen during training: weights grow together so each |w|/max ratio barely
+    // moves. A fixed scale lets absolute weight growth recolor/thicken edges live.
+    const maxAbs = 2;
+
+    // Edges first (so nodes draw on top). W[r][c] links input node c (col k)
+    // to output node r (col k+1) — exactly the weight-matrix orientation.
+    for (let k = 0; k < layers.length; k++) {
+      const L = layers[k];
+      const inCount = L.W[0].length, outCount = L.W.length;
+      const x0 = colX(k), x1 = colX(k + 1);
+      for (let rr = 0; rr < outCount; rr++) {
+        for (let cc = 0; cc < inCount; cc++) {
+          const w = L.W[rr][cc];
+          const t = Math.min(1, Math.abs(w) / maxAbs); // 0..1 magnitude
+          if (t < 0.02) continue; // skip ~zero weights to reduce clutter
+          ctx.strokeStyle = w >= 0
+            ? `rgba(37, 99, 235, ${0.12 + 0.78 * t})`   // blue = positive
+            : `rgba(220, 38, 38, ${0.12 + 0.78 * t})`;  // red  = negative
+          ctx.lineWidth = 0.5 + 4 * t;
+          ctx.beginPath();
+          ctx.moveTo(x0 + r, nodeY(inCount, cc));
+          ctx.lineTo(x1 - r, nodeY(outCount, rr));
+          ctx.stroke();
+        }
+      }
+    }
+
+    // Nodes.
+    const nodeFill = dark ? '#0f172a' : '#fff';
+    const nodeStroke = getCSS('--muted') || (dark ? '#94a3b8' : '#6b7280');
+    const labelColor = getCSS('--fg') || (dark ? '#e2e8f0' : '#1f2937');
+    ctx.lineWidth = 1.5;
+    const inLabels = inputLabels();
+    const outLabel = STRINGS[document.documentElement.lang] && STRINGS[document.documentElement.lang]['graph-out-label']
+      ? STRINGS[document.documentElement.lang]['graph-out-label'] : 'out';
+    for (let i = 0; i < nCols; i++) {
+      const count = colSizes[i], x = colX(i);
+      for (let j = 0; j < count; j++) {
+        const y = nodeY(count, j);
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fillStyle = nodeFill; ctx.fill();
+        ctx.strokeStyle = nodeStroke; ctx.stroke();
+      }
+      // Labels: input feature names on the left; output label on the right.
+      ctx.fillStyle = labelColor;
+      ctx.font = '11px ui-monospace, monospace';
+      ctx.textBaseline = 'middle';
+      if (i === 0) {
+        ctx.textAlign = 'right';
+        for (let j = 0; j < count; j++)
+          ctx.fillText(inLabels[j] != null ? inLabels[j] : '', x - r - 6, nodeY(count, j));
+      } else if (i === nCols - 1) {
+        ctx.textAlign = 'left';
+        ctx.fillText(outLabel, x + r + 6, nodeY(count, 0));
+      }
+    }
+    ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  }
   // Sample a hidden neuron's activation over the 2D input domain.
   // Returns a flat array of activations on a grid×grid mesh.
   function sampleNeuron(layerIdx, neuronIdx, grid) {
@@ -875,7 +1082,7 @@
         const x = xmin + (px / (grid - 1)) * (xmax - xmin);
         const y = ymax - (py / (grid - 1)) * (ymax - ymin);
         // Walk forward up to layerIdx (inclusive), return activation of neuronIdx.
-        let a = [x, y];
+        let a = featureVec(x, y);
         for (let li = 0; li <= layerIdx; li++) {
           const L = layers[li];
           const z = new Array(L.b.length);
@@ -993,7 +1200,7 @@
         $('epochV').textContent = epoch;
         $('lossV').textContent = loss.toFixed(4);
         $('accV').textContent = (accuracy() * 100).toFixed(1) + '%';
-        drawBoundary(); drawLoss(); renderWeightsView(); renderActivationsView();
+        drawBoundary(); drawLoss(); renderWeightsView(); renderActivationsView(); drawNetworkGraph();
         document.title = `(epoch ${epoch}) ${nnBaseTitle}`;
         await new Promise(r => setTimeout(r, 0));
       }
@@ -1009,7 +1216,7 @@
   $('resetBtn').addEventListener('click', () => {
     running = false; $('trainBtn').textContent = '▶ Train / pause';
     epoch = 0; lossHistory.length = 0; testLossHistory.length = 0;
-    buildNet(); drawBoundary(); drawLoss(); renderWeightsView(); renderActivationsView();
+    buildNet(); drawBoundary(); drawLoss(); renderWeightsView(); renderActivationsView(); drawNetworkGraph();
     $('epochV').textContent = 0; $('lossV').textContent = '—'; $('accV').textContent = '—';
   });
   $('hardReset').addEventListener('click', () => {
@@ -1017,30 +1224,45 @@
     $('datasetSel').value = 'moons'; $('act').value = 'relu';
     $('h1').value = 6; $('h2').value = 4; $('lr').value = 0.03;
     $('h1V').textContent = 6; $('h2V').textContent = 4; $('lrV').textContent = '0.030';
+    // reset engineered-feature toggles to default (all off → only x, y).
+    FEATURE_DEFS.forEach(f => { const el = $(f.id); if (el) el.checked = false; });
     epoch = 0; lossHistory.length = 0; testLossHistory.length = 0;
-    genData(); buildNet(); drawBoundary(); drawLoss(); renderWeightsView(); renderActivationsView();
+    genData(); buildNet(); drawBoundary(); drawLoss(); renderWeightsView(); renderActivationsView(); drawNetworkGraph();
     $('epochV').textContent = 0; $('lossV').textContent = '—'; $('accV').textContent = '—';
   });
   $('h1').addEventListener('input', () => {
     $('h1V').textContent = $('h1').value;
-    buildNet(); drawBoundary(); lossHistory.length = 0; testLossHistory.length = 0; epoch = 0;
+    buildNet(); drawBoundary(); drawNetworkGraph(); lossHistory.length = 0; testLossHistory.length = 0; epoch = 0;
   });
   $('h2').addEventListener('input', () => {
     $('h2V').textContent = $('h2').value;
-    buildNet(); drawBoundary(); lossHistory.length = 0; testLossHistory.length = 0; epoch = 0;
+    buildNet(); drawBoundary(); drawNetworkGraph(); lossHistory.length = 0; testLossHistory.length = 0; epoch = 0;
   });
   $('act').addEventListener('change', () => {
-    buildNet(); drawBoundary(); lossHistory.length = 0; testLossHistory.length = 0; epoch = 0;
+    buildNet(); drawBoundary(); drawNetworkGraph(); lossHistory.length = 0; testLossHistory.length = 0; epoch = 0;
   });
   $('lr').addEventListener('input', () => {
     $('lrV').textContent = (+$('lr').value).toFixed(3);
   });
-  $('showTestLoss').addEventListener('change', () => { drawBoundary(); drawLoss(); renderWeightsView(); renderActivationsView(); });
+  $('showTestLoss').addEventListener('change', () => { drawBoundary(); drawLoss(); renderWeightsView(); renderActivationsView(); drawNetworkGraph(); });
   $('datasetSel').addEventListener('change', () => {
-    genData(); buildNet(); drawBoundary(); lossHistory.length = 0; testLossHistory.length = 0; epoch = 0;
+    genData(); buildNet(); drawBoundary(); drawNetworkGraph(); lossHistory.length = 0; testLossHistory.length = 0; epoch = 0;
+  });
+  // Engineered-feature toggles: changing the feature set changes the input-layer
+  // size, so re-initialize the network (fresh weights) and reset training (epoch 0)
+  // — the same reset path used by Reset weights / architecture changes.
+  FEATURE_DEFS.forEach(f => {
+    const el = $(f.id);
+    if (!el) return;
+    el.addEventListener('change', () => {
+      running = false; $('trainBtn').textContent = '▶ Train / pause';
+      epoch = 0; lossHistory.length = 0; testLossHistory.length = 0;
+      buildNet(); drawBoundary(); drawLoss(); renderWeightsView(); renderActivationsView(); drawNetworkGraph();
+      $('epochV').textContent = 0; $('lossV').textContent = '—'; $('accV').textContent = '—';
+    });
   });
   window.addEventListener('resize', () => {
-    resizeCv(bv); resizeCv(lc); drawBoundary(); drawLoss(); renderWeightsView(); renderActivationsView();
+    resizeCv(bv); resizeCv(lc); resizeCv(ng); drawBoundary(); drawLoss(); renderWeightsView(); renderActivationsView(); drawNetworkGraph();
   });
 
   // URL-shareable config — dataset, activation, h1, h2, learning rate.
@@ -1060,6 +1282,14 @@
     setNum('h1', 'h1', 0, 12);
     setNum('h2', 'h2', 0, 12);
     setNum('lr', 'lr', 0.001, 0.3);
+    // engineered-feature toggles: ?feat=fx2,fxy (comma-separated active ids).
+    // Absent param leaves all toggles off (default = only x, y). Runs before the
+    // initial buildNet() below, so the input-layer size is correct on first paint.
+    const featParam = sp.get('feat');
+    if (featParam !== null) {
+      const wanted = new Set(featParam.split(',').filter(Boolean));
+      FEATURE_DEFS.forEach(f => { const el = $(f.id); if (el) el.checked = wanted.has(f.id); });
+    }
   } catch (_) {}
   document.getElementById('shareLink').addEventListener('click', async () => {
     const params = new URLSearchParams();
@@ -1068,6 +1298,9 @@
     params.set('h1', $('h1').value);
     params.set('h2', $('h2').value);
     params.set('lr', $('lr').value);
+    // active engineered features as a comma-separated list (empty string when none).
+    const activeIds = FEATURE_DEFS.filter(f => { const el = $(f.id); return el && el.checked; }).map(f => f.id);
+    params.set('feat', activeIds.join(','));
     const url = `${location.origin}${location.pathname}?${params.toString()}`;
     try {
       await navigator.clipboard.writeText(url);
@@ -1077,8 +1310,8 @@
     } catch (_) { prompt('Copy this URL:', url); }
   });
 
-  resizeCv(bv); resizeCv(lc);
-  genData(); buildNet(); drawBoundary(); drawLoss(); renderWeightsView(); renderActivationsView();
+  resizeCv(bv); resizeCv(lc); resizeCv(ng);
+  genData(); buildNet(); drawBoundary(); drawLoss(); renderWeightsView(); renderActivationsView(); drawNetworkGraph();
 
   // Lesson tour. Five canonical scenarios spanning dataset, depth, and non-linearity.
   function applyNN(dataset, activation, h1, h2, lr) {

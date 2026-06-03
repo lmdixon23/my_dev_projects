@@ -14,6 +14,22 @@
 
 ## Architecture
 
+```mermaid
+flowchart TD
+    RFT["RFT — SFT outputs, filtered; coeff = 1"] --> K
+    ORFT["Online RFT — current policy, filtered; coeff = 1"] --> K
+    GRPO["GRPO+OS — old policy; coeff = group-normalized advantage"] --> K
+    K{"Pick: data source + gradient coefficient"} --> A
+
+    subgraph loop["One shared training loop (train.py)"]
+        A["Sample G completions"] --> B["Verifier reward (0 or 1)"]
+        B --> C["Apply gradient coefficient"]
+        C --> D["Add KL anchor — GRPO+OS only (kl_anchor_term from operator_zoo)"]
+        D --> E["Update policy logits"]
+        E --> A
+    end
+```
+
 ```
 grpo_minimal/
   task.py        ArithmeticVerifierTask — categorical bandit with 0/1 verifier

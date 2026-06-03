@@ -14,20 +14,20 @@ visually-rich units, with extra depth on the under-served Russell & Norvig topic
 
 ## The twelve applets
 
-| Unit | Concept | Applet | "Aha" moment |
-|---|---|---|---|
-| U2 | Problem representation & search | [Pathfinding](playgrounds/search-pathfinding/) | Why A* explores fewer nodes than BFS |
-| U2 | Logical agent (AIMA Ch 7) | [Wumpus World](playgrounds/wumpus-world/) | The difference between "I haven't seen it" and "I've proved it's not there" |
-| U2 | Logic & knowledge bases | [CNF & SAT Builder](playgrounds/cnf-sat/) | Why every SAT solver in the world wants CNF as input |
-| U3 | Probability & Naïve Bayes | [Bayes classifier](playgrounds/bayes-classifier/) | Why a 99%-accurate test for a rare disease still misleads |
-| U3 | Bayesian networks (AIMA Ch 14) | [Bayes network](playgrounds/bayes-network/) | Why learning of an earthquake LOWERS your belief in a burglary |
-| U4 | KNN classifier | [K-Nearest Neighbors](playgrounds/knn-classifier/) | What `k` does to a decision boundary |
-| U5 | Evaluation, leakage, regularization | [Overfitting](playgrounds/overfitting/) | Why a perfect training fit can fail on test data |
-| U5 | Local search (AIMA Ch 4) | [Hill climbing & SA](playgrounds/hill-climbing/) | Why sometimes you have to take a worse step |
-| U6 | Neural network fundamentals | [Tiny neural net](playgrounds/neural-network/) | How layers + non-linearity carve up space |
-| U7 | Unsupervised learning | [K-means clustering](playgrounds/kmeans/) | What "iterating to convergence" looks like |
-| U8 | Vision with CNNs | [Convolution playground](playgrounds/convolution/) | Why a 3×3 matrix can detect edges |
-| U10 | Reinforcement learning | [Q-learning gridworld](playgrounds/q-learning-gridworld/) | How a value function emerges from random walking |
+| Concept | Applet | "Aha" moment |
+|---|---|---|
+| Problem representation & search | [Pathfinding](playgrounds/search-pathfinding/) | Why A* explores fewer nodes than BFS |
+| Logical agent (AIMA Ch 7) | [Wumpus World](playgrounds/wumpus-world/) | The difference between "I haven't seen it" and "I've proved it's not there" |
+| Logic & knowledge bases | [CNF & SAT Builder](playgrounds/cnf-sat/) | Why every SAT solver in the world wants CNF as input |
+| Probability & Naïve Bayes | [Bayes classifier](playgrounds/bayes-classifier/) | Why a 99%-accurate test for a rare disease still misleads |
+| Bayesian networks (AIMA Ch 14) | [Bayes network](playgrounds/bayes-network/) | Why learning of an earthquake LOWERS your belief in a burglary |
+| KNN classifier | [K-Nearest Neighbors](playgrounds/knn-classifier/) | What `k` does to a decision boundary |
+| Evaluation, leakage, regularization | [Overfitting](playgrounds/overfitting/) | Why a perfect training fit can fail on test data |
+| Local search (AIMA Ch 4) | [Hill climbing & SA](playgrounds/hill-climbing/) | Why sometimes you have to take a worse step |
+| Neural network fundamentals | [Tiny neural net](playgrounds/neural-network/) | How layers + non-linearity carve up space |
+| Unsupervised learning | [K-means clustering](playgrounds/kmeans/) | What "iterating to convergence" looks like |
+| Vision with CNNs | [Convolution playground](playgrounds/convolution/) | Why a 3×3 matrix can detect edges — and how a CNN *learns* one |
+| Reinforcement learning | [Q-learning gridworld](playgrounds/q-learning-gridworld/) | How a value function emerges from random walking |
 
 ## Design principles
 
@@ -69,7 +69,7 @@ Each applet has a **For teachers** section at the bottom of its page covering:
 
 ## Pedagogy: why these twelve?
 
-The 12-unit IAI curriculum has units that are inherently visual (search trees,
+The IAI curriculum has units that are inherently visual (search trees,
 decision boundaries, clusters, value functions) and units that are
 discussion-driven (ethics, society). Interactive applets pay off most where:
 
@@ -77,9 +77,9 @@ discussion-driven (ethics, society). Interactive applets pay off most where:
 2. The concept involves a **dynamic process** a play button can animate (search expansion, k-means iterations, Q-learning convergence).
 3. The concept produces an **immediate visual contradiction** to a naive expectation (overfitting curve looking great in-sample, terrible out-of-sample).
 
-Units 1, 9, 11, and 12 fail one or more of those criteria, so they get
+The remaining units are discussion-driven (ethics, society, and the like), so they get
 discussion guides instead of applets (those guides live in the IAI course repo,
-not here). U2 gets **three applets**, and U3 and U5 get **two each**, because
+not here). Search gets **three applets**, and a couple of other topics get **two each**, because
 Russell & Norvig–style content (logical agents, knowledge bases, Bayesian
 networks, local search) is under-served by existing interactive tools on the web.
 
@@ -95,9 +95,7 @@ File issues at <https://github.com/lmdixon23/my_dev_projects/issues>.
 ## Scope
 
 - **Educational accuracy ≠ research accuracy.** These are intuition-builders, not
-  reference implementations. For example, the CNN applet uses hand-picked filters
-  rather than learned ones, and the convolution demo has no backprop through the
-  kernels — it shows what convolution *does*, not how a network learns it. Each
+  reference implementations. For example, the convolution applet defaults to hand-picked filters to show what a convolution *does* — and its optional Learn-the-filter mode runs gradient descent on one 3×3 kernel toward a target, so students can also watch a filter being *learned*. Each
   applet has a "What this simplifies" note at the bottom.
 - **Browser-only compute.** All applets run in pure JavaScript with no GPU
   acceleration. Anything heavier than ~10⁴ operations per frame will stutter on
@@ -106,10 +104,9 @@ File issues at <https://github.com/lmdixon23/my_dev_projects/issues>.
 
 ## Future Enhancements
 
-Framed as teaching extensions: each item exposes a variable the current applet holds fixed. These are deliberately scoped to gaps that are *not* already built — the applets already ship rich control sets (e.g. the search demo covers BFS / DFS / A\* / Dijkstra / bidirectional / IDA\* with four heuristics and weighted terrain; the neural-net already has activation/optimizer selectors **and** per-neuron activation heatmaps; k-means already has k-means++/inertia/silhouette).
+Framed as teaching extensions: each item exposes a variable the current applet holds fixed. These are deliberately scoped to gaps that are *not* already built — the applets already ship rich control sets (e.g. the search demo covers BFS / DFS / A\* / Dijkstra / bidirectional / IDA\* with four heuristics and weighted terrain; the neural-net already has activation/optimizer selectors, per-neuron activation heatmaps, input-feature toggles, **and** a weights-as-edges network graph; k-means already has k-means++/inertia/silhouette).
 
 - **CNF & SAT — CDCL trace mode.** The applet already animates DPLL with unit propagation; the page text notes real solvers add conflict-driven clause learning and watched literals. A CDCL view would show *why* modern solvers outrun plain DPLL. (Verified absent from the code.)
-- **Convolution — one learned kernel.** Add a "learn this filter" mode that runs gradient descent on a single 3×3 kernel toward a target feature map, turning the hand-picked-filter demo into a one-step CNN-training demo (and closing the simplification flagged in Scope). (Verified absent.)
 - **k-Nearest Neighbors — regression mode.** A toggle to predict a continuous value (mean of the k neighbors) alongside classification, so students see kNN is not inherently a classifier. (Verified absent.)
 - **Pathfinding — side-by-side race.** Run two algorithms on the same maze with live nodes-expanded counters, making "A\* explores fewer nodes than BFS" a measured result rather than a sequential impression. (The existing bidirectional mode runs two frontiers of *one* algorithm, not two algorithms.)
 - **Hill climbing & SA — success-rate benchmark.** Run N random restarts per algorithm on the same problem and tabulate success rate and mean cost, turning the eight-algorithm menu into a comparison rather than a sequence of anecdotes. (Verified absent.)

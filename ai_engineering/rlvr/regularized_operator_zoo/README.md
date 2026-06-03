@@ -77,7 +77,7 @@ The `_kl` suffix on `lambda_kl` is deliberate. The series bible warns:
 | `"entropy"` | `Ω(π) = β·Σ π log π`; maximizer is softmax | Geist, Scherrer, Pietquin (2019), §3 | A1 §3, A7 |
 | `"kl_uniform"` (mellowmax) | `Ω(π) = β·KL(π ∥ U)`; same maximizer, +log\|A\| in value | Asadi & Littman (2017) | A1 §3 |
 | `"kl_anchor"` (Vieillard) | `Ω(π) = β·KL(π ∥ μ)`; maximizer is `μ·exp(q/β) / Z` | Vieillard et al. (2020) | A1 §4, A3 |
-| `"tsallis"` (sparsemax) | `Ω(π) = (β/2)(Σ π² − 1)`; maximizer is sparse | Martins & Astudillo (2016); Chen, Mahajan, Hilton (2019) | A1 §3 |
+| `"tsallis"` (sparsemax) | `Ω(π) = (β/2)(Σ π² − 1)`; maximizer is sparse | Martins & Astudillo (2016) | A1 §3 |
 | `"renyi"` | `Ω(π) = (β/2) Σ π²/μ`; solved by projected gradient | Belousov & Peters (2017) | A7 |
 
 ## The two identities, verified
@@ -159,5 +159,14 @@ python -m pytest tests/        # no network, no model download
 2. **Streamlit Demo**: Interactive sliders over `β`, the regularizer choice, and `μ`, with the simplex visualized as a 2-simplex triangle.
 3. **Tsallis-α General**: Extend the Tsallis operator beyond `α = 2` (sparsemax). Note: general `α` has **no** closed-form simplex argmax — only `α = 1` (softmax) and `α = 2` (sparsemax) do — so this reuses the iterative projected-gradient solver the Rényi operator already uses (`iters=500`), not a closed form.
 4. **JAX Backend**: For batched / vectorized use across many states.
+
+## References
+
+- Geist, M., Scherrer, B., & Pietquin, O. (2019). *A Theory of Regularized Markov Decision Processes.* ICML. arXiv:1901.11275.
+- Vieillard, N., Kozuno, T., Scherrer, B., Pietquin, O., Munos, R., & Geist, M. (2020). *Leverage the Average: an Analysis of KL Regularization in Reinforcement Learning.* NeurIPS. arXiv:2003.14089.
+- Asadi, K., & Littman, M. L. (2017). *An Alternative Softmax Operator for Reinforcement Learning.* ICML. arXiv:1612.05628.
+- Martins, A. F. T., & Astudillo, R. F. (2016). *From Softmax to Sparsemax: A Sparse Model of Attention and Multi-Label Classification.* ICML. arXiv:1602.02068.
+- Belousov, B., & Peters, J. (2017). *f-Divergence Constrained Policy Improvement.* arXiv:1801.00056.
+- Wang, W., & Carreira-Perpiñán, M. Á. (2013). *Projection onto the Probability Simplex: An Efficient Algorithm with a Simple Proof, and an Application.* arXiv:1309.1541.
 
 Licensed under the [MIT License](https://github.com/lmdixon23/my_dev_projects/blob/main/LICENSE).
