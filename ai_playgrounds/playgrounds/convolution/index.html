@@ -5,6 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Visualizing Convolutions</title>
 <meta name="description" content="Interactive visualization of how CNNs see. Draw on a 32x32 canvas, pick a 3x3 filter, watch the convolution detect edges, blur, sharpen, or emboss pixel by pixel.">
+<link rel="canonical" href="https://lmdixon23.github.io/my_dev_projects/playgrounds/convolution/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://lmdixon23.github.io/my_dev_projects/playgrounds/convolution/">
+<meta property="og:title" content="Visualizing Convolutions — AI Playgrounds">
+<meta property="og:description" content="Interactive visualization of how CNNs see. Draw on a 32x32 canvas, pick a 3x3 filter, watch the convolution detect edges, blur, sharpen, or emboss pixel by pixel.">
+<meta property="og:image" content="https://lmdixon23.github.io/my_dev_projects/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Visualizing Convolutions — AI Playgrounds">
+<meta name="twitter:description" content="Interactive visualization of how CNNs see. Draw on a 32x32 canvas, pick a 3x3 filter, watch the convolution detect edges, blur, sharpen, or emboss pixel by pixel.">
+<meta name="twitter:image" content="https://lmdixon23.github.io/my_dev_projects/og-image.png">
 <style>
   :root {
     --bg: #fefdf8; --fg: #1f2937; --muted: #6b7280; --accent: #0891b2;
@@ -12,14 +22,18 @@
   }
   * { box-sizing: border-box; }
   body { margin: 0; font-family: 'Georgia', serif; background: var(--bg); color: var(--fg); line-height: 1.6; }
-  .page-header { background: var(--card); border-bottom: 1px solid var(--border);
-                  padding: 16px 24px; display: flex; align-items: center; justify-content: space-between;
-                  flex-wrap: wrap; gap: 12px; }
+  .page-header { background: var(--card); border-bottom: 1px solid var(--border); padding: 12px 24px; }
+  .header-utility { display: flex; align-items: center; justify-content: space-between;
+                    gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+  .header-prefs { display: flex; align-items: center; gap: 8px; }
+  .header-main { display: flex; align-items: center; justify-content: space-between;
+                 gap: 12px; flex-wrap: wrap; }
+  .header-actions { display: flex; align-items: center; gap: 8px;
+                    font-family: -apple-system, system-ui, sans-serif; font-size: 0.85rem; }
+  .header-actions .header-reset { margin-left: 12px; }
   .page-header h1 { margin: 0; font-size: 1.5rem; }
   .page-header .back { color: var(--accent); text-decoration: none; font-size: 0.9rem;
                        font-family: -apple-system, system-ui, sans-serif; }
-  .header-tools { display: flex; gap: 8px; align-items: center;
-                   font-family: -apple-system, system-ui, sans-serif; font-size: 0.85rem; }
   .lang-switch { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
   .lang-switch button { padding: 4px 10px; background: white; color: var(--muted);
                           border: none; cursor: pointer; font: inherit; font-size: 0.78rem; }
@@ -238,23 +252,29 @@
 -->
 
 <header class="page-header">
-  <h1 data-i18n="title">Visualizing Convolutions</h1>
-  <div class="header-tools">
-    <button class="header-png" id="shareLink"
-            title="Copy a URL that re-opens this layer mode / image / kernel choice in another browser.">🔗 Share</button>
-    <button class="header-png" id="embedLink"
-            title="Copy an <iframe> snippet for embedding in an LMS. Strips header/essay so only the interactive area shows.">📎 Embed</button>
-    <button class="header-png" id="exportPng"
-            title="Download the convolution output as a PNG.">📷 PNG</button>
-    <button class="header-theme" id="themeToggle" aria-label="Toggle dark or light theme"
-            title="Toggle dark / light theme (saved across all playgrounds).">🌙</button>
-    <button class="header-reset" id="hardReset" data-i18n="reset-all"
-            title="Reset to default: cross input, Sobel-X edge kernel, abs ON, ReLU OFF.">↺ Reset all</button>
-    <div class="lang-switch" title="Switch interface language">
-      <button data-lang="en" class="active">EN</button>
-      <button data-lang="zh">中文</button>
+  <div class="header-utility">
+    <a class="back" href="../../" data-i18n="back-link">← Back to all playgrounds</a>
+    <div class="header-prefs">
+      <button class="header-theme" id="themeToggle" aria-label="Toggle dark or light theme"
+              title="Toggle dark / light theme (saved across all playgrounds).">🌙</button>
+      <div class="lang-switch" title="Switch interface language">
+        <button data-lang="en" class="active">EN</button>
+        <button data-lang="zh">中文</button>
+      </div>
     </div>
-    <a class="back" href="../../" data-i18n="back-link">← All playgrounds</a>
+  </div>
+  <div class="header-main">
+    <h1 data-i18n="title">Visualizing Convolutions</h1>
+    <div class="header-actions">
+      <button class="header-png" id="shareLink"
+              title="Copy a URL that re-opens this layer mode / image / kernel choice in another browser.">🔗 Share</button>
+      <button class="header-png" id="embedLink"
+              title="Copy an <iframe> snippet for embedding in an LMS. Strips header/essay so only the interactive area shows.">📎 Embed</button>
+      <button class="header-png" id="exportPng"
+              title="Download the convolution output as a PNG.">📷 PNG</button>
+      <button class="header-reset" id="hardReset" data-i18n="reset-all"
+              title="Reset to default: cross input, Sobel-X edge kernel, abs ON, ReLU OFF.">↺ Reset all</button>
+    </div>
   </div>
 </header>
 
@@ -721,7 +741,8 @@
   // ===== i18n strings =====
   const STRINGS = {
     en: {
-      'title': 'Visualizing Convolutions', 'back-link': '← All playgrounds',
+      'title': 'Visualizing Convolutions', 'back-link': '← Back to all playgrounds',
+      'footer-top': '↑ Back to top', 'footer-builtby': 'Built by', 'footer-course': 'Made for the 2025–26 Intro to AI course, Haidian Kaiwen Academy', 'footer-source': 'View source', 'footer-issue': 'Report an issue',
       'reset-all': '↺ Reset all', 'input-label': 'Input:',
       'kernel-label': 'Kernel preset:', 'layer-label': 'Layer mode:',
       'tldr-strong': 'The big idea',
@@ -812,7 +833,8 @@
       'lvt-note-close': 'Learner weights are converging on the target.',
     },
     zh: {
-      'title': '卷积可视化', 'back-link': '← 所有演示',
+      'title': '卷积可视化', 'back-link': '← 返回所有演示',
+      'footer-top': '↑ 返回顶部', 'footer-builtby': '作者', 'footer-course': '为海淀凯文学校 2025–26《人工智能导论》课程制作', 'footer-source': '查看源代码', 'footer-issue': '反馈问题',
       'reset-all': '↺ 全部重置', 'input-label': '输入:',
       'kernel-label': '卷积核预设:', 'layer-label': '层模式:',
       'tldr-strong': '核心思想',
@@ -2318,5 +2340,10 @@
   });
 })();
 </script>
+  <footer class="site-footer" style="margin-top:36px; border-top:1px solid var(--border,#e5e7eb); padding:20px 24px; text-align:center; color:var(--muted,#6b7280); font-size:0.82rem; line-height:1.7;">
+    <p style="margin:0 0 6px;"><a href="#top" data-i18n="footer-top" style="color:var(--accent,#0891b2); text-decoration:none;">↑ Back to top</a></p>
+    <p style="margin:0;"><span data-i18n="footer-builtby">Built by</span> Logan Dixon · <span data-i18n="footer-course">Made for the 2025–26 Intro to AI course, Haidian Kaiwen Academy</span></p>
+    <p style="margin:6px 0 0;"><a href="https://github.com/lmdixon23/my_dev_projects/tree/main/ai_playgrounds" data-i18n="footer-source" style="color:var(--accent,#0891b2);">View source</a> · <a href="https://github.com/lmdixon23/my_dev_projects/blob/main/LICENSE" style="color:var(--accent,#0891b2);">MIT</a> · <a href="https://github.com/lmdixon23/my_dev_projects/issues" data-i18n="footer-issue" style="color:var(--accent,#0891b2);">Report an issue</a> · © 2026 Logan Dixon</p>
+  </footer>
 </body>
 </html>

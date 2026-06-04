@@ -5,6 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Visualizing Bayes' Rule</title>
 <meta name="description" content="Interactive visualization of Bayes' rule. Slide the prior and the test accuracy to see how a '99% accurate' test for a rare disease can still be wrong most of the time.">
+<link rel="canonical" href="https://lmdixon23.github.io/my_dev_projects/playgrounds/bayes-classifier/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://lmdixon23.github.io/my_dev_projects/playgrounds/bayes-classifier/">
+<meta property="og:title" content="Visualizing Bayes' Rule — AI Playgrounds">
+<meta property="og:description" content="Interactive visualization of Bayes' rule. Slide the prior and the test accuracy to see how a '99% accurate' test for a rare disease can still be wrong most of the time.">
+<meta property="og:image" content="https://lmdixon23.github.io/my_dev_projects/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Visualizing Bayes' Rule — AI Playgrounds">
+<meta name="twitter:description" content="Interactive visualization of Bayes' rule. Slide the prior and the test accuracy to see how a '99% accurate' test for a rare disease can still be wrong most of the time.">
+<meta name="twitter:image" content="https://lmdixon23.github.io/my_dev_projects/og-image.png">
 <style>
   :root {
     --bg: #fefdf8; --fg: #1f2937; --muted: #6b7280; --accent: #7c3aed;
@@ -177,7 +187,7 @@
       <button data-lang="en" class="active">EN</button>
       <button data-lang="zh">中文</button>
     </div>
-    <a class="back" href="../../" data-i18n="back-link">← All playgrounds</a>
+    <a class="back" href="../../" data-i18n="back-link">← Back to all playgrounds</a>
   </div>
 </header>
 
@@ -466,7 +476,8 @@
   // ===== bilingual + reduced motion + hard reset =====
   const STRINGS = {
     en: {
-      'title': "Visualizing Bayes' Rule", 'back-link': '← All playgrounds',
+      'title': "Visualizing Bayes' Rule", 'back-link': '← Back to all playgrounds',
+      'footer-top': '↑ Back to top', 'footer-builtby': 'Built by', 'footer-course': 'Made for the 2025–26 Intro to AI course, Haidian Kaiwen Academy', 'footer-source': 'View source', 'footer-issue': 'Report an issue',
       'reset-all': '↺ Reset all', 'scenario-label': 'Scenario:',
       'tldr-strong': 'The big idea',
       'tldr-body': 'A "99% accurate" test for a 1%-rare disease is wrong most of the time when it says positive. Bayes\' rule is just counting groups of people.',
@@ -503,7 +514,8 @@
       'pop-slider-title': 'Larger population = smoother visualization. Same math regardless.',
     },
     zh: {
-      'title': '贝叶斯规则可视化', 'back-link': '← 所有演示',
+      'title': '贝叶斯规则可视化', 'back-link': '← 返回所有演示',
+      'footer-top': '↑ 返回顶部', 'footer-builtby': '作者', 'footer-course': '为海淀凯文学校 2025–26《人工智能导论》课程制作', 'footer-source': '查看源代码', 'footer-issue': '反馈问题',
       'reset-all': '↺ 全部重置', 'scenario-label': '场景:',
       'tldr-strong': '核心思想',
       'tldr-body': '对一种发病率为 1% 的疾病做"准确率 99%"的检测,阳性结果大部分时候反而是错的。贝叶斯规则不过是在数人群。',
@@ -1047,5 +1059,10 @@
   });
 })();
 </script>
+  <footer class="site-footer" style="margin-top:36px; border-top:1px solid var(--border,#e5e7eb); padding:20px 24px; text-align:center; color:var(--muted,#6b7280); font-size:0.82rem; line-height:1.7;">
+    <p style="margin:0 0 6px;"><a href="#top" data-i18n="footer-top" style="color:var(--accent,#0891b2); text-decoration:none;">↑ Back to top</a></p>
+    <p style="margin:0;"><span data-i18n="footer-builtby">Built by</span> Logan Dixon · <span data-i18n="footer-course">Made for the 2025–26 Intro to AI course, Haidian Kaiwen Academy</span></p>
+    <p style="margin:6px 0 0;"><a href="https://github.com/lmdixon23/my_dev_projects/tree/main/ai_playgrounds" data-i18n="footer-source" style="color:var(--accent,#0891b2);">View source</a> · <a href="https://github.com/lmdixon23/my_dev_projects/blob/main/LICENSE" style="color:var(--accent,#0891b2);">MIT</a> · <a href="https://github.com/lmdixon23/my_dev_projects/issues" data-i18n="footer-issue" style="color:var(--accent,#0891b2);">Report an issue</a> · © 2026 Logan Dixon</p>
+  </footer>
 </body>
 </html>

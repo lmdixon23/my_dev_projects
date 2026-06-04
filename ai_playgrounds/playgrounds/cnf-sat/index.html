@@ -5,6 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Visualizing CNF & SAT</title>
 <meta name="description" content="Type propositional logic. Watch it get rewritten into CNF step-by-step. Brute-force SAT enumerates every assignment and shows all satisfying models.">
+<link rel="canonical" href="https://lmdixon23.github.io/my_dev_projects/playgrounds/cnf-sat/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://lmdixon23.github.io/my_dev_projects/playgrounds/cnf-sat/">
+<meta property="og:title" content="Visualizing CNF & SAT — AI Playgrounds">
+<meta property="og:description" content="Type propositional logic. Watch it get rewritten into CNF step-by-step. Brute-force SAT enumerates every assignment and shows all satisfying models.">
+<meta property="og:image" content="https://lmdixon23.github.io/my_dev_projects/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Visualizing CNF & SAT — AI Playgrounds">
+<meta name="twitter:description" content="Type propositional logic. Watch it get rewritten into CNF step-by-step. Brute-force SAT enumerates every assignment and shows all satisfying models.">
+<meta name="twitter:image" content="https://lmdixon23.github.io/my_dev_projects/og-image.png">
 <style>
   :root {
     --bg: #fefdf8; --fg: #1f2937; --muted: #6b7280; --accent: #9333ea;
@@ -163,7 +173,7 @@
       <button data-lang="en" class="active">EN</button>
       <button data-lang="zh">中文</button>
     </div>
-    <a class="back" href="../../" data-i18n="back-link">← All playgrounds</a>
+    <a class="back" href="../../" data-i18n="back-link">← Back to all playgrounds</a>
   </div>
 </header>
 
@@ -398,7 +408,8 @@ P</textarea>
   // ===== i18n strings =====
   const STRINGS = {
     en: {
-      'title': "Visualizing CNF & SAT", 'back-link': '← All playgrounds',
+      'title': "Visualizing CNF & SAT", 'back-link': '← Back to all playgrounds',
+      'footer-top': '↑ Back to top', 'footer-builtby': 'Built by', 'footer-course': 'Made for the 2025–26 Intro to AI course, Haidian Kaiwen Academy', 'footer-source': 'View source', 'footer-issue': 'Report an issue',
       'reset-all': '↺ Reset all', 'convert-btn': '▶ Convert + check SAT',
       'tldr-strong': 'The big idea',
       'tldr-body': 'Every SAT solver in the world wants Conjunctive Normal Form. Watch ↔ → ¬ get distributed away in five mechanical steps, then brute-force-enumerate every satisfying assignment.',
@@ -436,7 +447,8 @@ P</textarea>
       'ex-demorgan-title': "De Morgan's law as a tautology — every row is a model.",
     },
     zh: {
-      'title': '合取范式与可满足性可视化', 'back-link': '← 所有演示',
+      'title': '合取范式与可满足性可视化', 'back-link': '← 返回所有演示',
+      'footer-top': '↑ 返回顶部', 'footer-builtby': '作者', 'footer-course': '为海淀凯文学校 2025–26《人工智能导论》课程制作', 'footer-source': '查看源代码', 'footer-issue': '反馈问题',
       'reset-all': '↺ 全部重置', 'convert-btn': '▶ 转换 + 检查可满足性',
       'tldr-strong': '核心思想',
       'tldr-body': '世界上每一个 SAT 求解器都需要合取范式作为输入。看 ↔ → ¬ 如何在五个机械的步骤里被消除,然后暴力枚举所有满足赋值。',
@@ -1205,5 +1217,10 @@ P</textarea>
   });
 })();
 </script>
+  <footer class="site-footer" style="margin-top:36px; border-top:1px solid var(--border,#e5e7eb); padding:20px 24px; text-align:center; color:var(--muted,#6b7280); font-size:0.82rem; line-height:1.7;">
+    <p style="margin:0 0 6px;"><a href="#top" data-i18n="footer-top" style="color:var(--accent,#0891b2); text-decoration:none;">↑ Back to top</a></p>
+    <p style="margin:0;"><span data-i18n="footer-builtby">Built by</span> Logan Dixon · <span data-i18n="footer-course">Made for the 2025–26 Intro to AI course, Haidian Kaiwen Academy</span></p>
+    <p style="margin:6px 0 0;"><a href="https://github.com/lmdixon23/my_dev_projects/tree/main/ai_playgrounds" data-i18n="footer-source" style="color:var(--accent,#0891b2);">View source</a> · <a href="https://github.com/lmdixon23/my_dev_projects/blob/main/LICENSE" style="color:var(--accent,#0891b2);">MIT</a> · <a href="https://github.com/lmdixon23/my_dev_projects/issues" data-i18n="footer-issue" style="color:var(--accent,#0891b2);">Report an issue</a> · © 2026 Logan Dixon</p>
+  </footer>
 </body>
 </html>

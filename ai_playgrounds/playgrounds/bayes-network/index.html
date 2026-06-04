@@ -5,6 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Visualizing a Bayesian Network</title>
 <meta name="description" content="The classic Russell & Norvig burglar-earthquake-alarm Bayesian network. Edit CPTs, clamp variables as evidence, compare exact inference to Gibbs sampling, watch 'explaining away' live.">
+<link rel="canonical" href="https://lmdixon23.github.io/my_dev_projects/playgrounds/bayes-network/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://lmdixon23.github.io/my_dev_projects/playgrounds/bayes-network/">
+<meta property="og:title" content="Visualizing a Bayesian Network — AI Playgrounds">
+<meta property="og:description" content="The classic Russell & Norvig burglar-earthquake-alarm Bayesian network. Edit CPTs, clamp variables as evidence, compare exact inference to Gibbs sampling, watch 'explaining away' live.">
+<meta property="og:image" content="https://lmdixon23.github.io/my_dev_projects/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Visualizing a Bayesian Network — AI Playgrounds">
+<meta name="twitter:description" content="The classic Russell & Norvig burglar-earthquake-alarm Bayesian network. Edit CPTs, clamp variables as evidence, compare exact inference to Gibbs sampling, watch 'explaining away' live.">
+<meta name="twitter:image" content="https://lmdixon23.github.io/my_dev_projects/og-image.png">
 <style>
   :root {
     --bg: #fefdf8; --fg: #1f2937; --muted: #6b7280; --accent: #0d9488;
@@ -208,7 +218,7 @@
       <button data-lang="en" class="active">EN</button>
       <button data-lang="zh">中文</button>
     </div>
-    <a class="back" href="../../" data-i18n="back-link">← All playgrounds</a>
+    <a class="back" href="../../" data-i18n="back-link">← Back to all playgrounds</a>
   </div>
 </header>
 
@@ -461,7 +471,8 @@
   // ===== bilingual + reduced motion + hard reset =====
   const STRINGS = {
     en: {
-      'title': 'Visualizing a Bayesian Network', 'back-link': '← All playgrounds',
+      'title': 'Visualizing a Bayesian Network', 'back-link': '← Back to all playgrounds',
+      'footer-top': '↑ Back to top', 'footer-builtby': 'Built by', 'footer-course': 'Made for the 2025–26 Intro to AI course, Haidian Kaiwen Academy', 'footer-source': 'View source', 'footer-issue': 'Report an issue',
       'reset-all': '↺ Reset all', 'method-label': 'Inference:',
       'evidence-label': 'Evidence — click T / F / ? per variable',
       'posterior-label': 'Posterior — P(variable = TRUE | evidence)',
@@ -503,7 +514,8 @@
       'scen-eq-title': "The 'explaining away' scenario: John, Mary, AND we learn there was an earthquake.",
     },
     zh: {
-      'title': '贝叶斯网络可视化', 'back-link': '← 所有演示',
+      'title': '贝叶斯网络可视化', 'back-link': '← 返回所有演示',
+      'footer-top': '↑ 返回顶部', 'footer-builtby': '作者', 'footer-course': '为海淀凯文学校 2025–26《人工智能导论》课程制作', 'footer-source': '查看源代码', 'footer-issue': '反馈问题',
       'reset-all': '↺ 全部重置', 'method-label': '推理:',
       'evidence-label': '证据 — 每个变量点击 T / F / ?',
       'posterior-label': '后验概率 — P(变量 = TRUE | 证据)',
@@ -1001,6 +1013,16 @@
     return `M${x1},${y1} L${x2},${y2}`;
   }
   function drawNet() {
+    // D3-CDN guard: if D3 failed to load (e.g. CDN blocked / offline), skip ONLY the
+    // graph drawing and show a fallback message. CPT editing, exact inference, and the
+    // probability numbers below do not depend on D3 and keep working.
+    if (typeof d3 === 'undefined') {
+      const el = document.getElementById('netSvg');
+      if (el) {
+        el.innerHTML = '<text x="160" y="130" text-anchor="middle" fill="#475569" font-size="13" font-family="system-ui, sans-serif"><tspan x="160" dy="0">Network graph needs D3 (blocked here).</tspan><tspan x="160" dy="20">The inference and probabilities below still work.</tspan><tspan x="160" dy="34">网络图需要 D3(此处被拦截)。</tspan><tspan x="160" dy="20">下方的推理与概率仍可正常使用。</tspan></text>';
+      }
+      return;
+    }
     const svg = d3.select('#netSvg');
     const R = 26;
 
@@ -1431,5 +1453,10 @@
   });
 })();
 </script>
+  <footer class="site-footer" style="margin-top:36px; border-top:1px solid var(--border,#e5e7eb); padding:20px 24px; text-align:center; color:var(--muted,#6b7280); font-size:0.82rem; line-height:1.7;">
+    <p style="margin:0 0 6px;"><a href="#top" data-i18n="footer-top" style="color:var(--accent,#0891b2); text-decoration:none;">↑ Back to top</a></p>
+    <p style="margin:0;"><span data-i18n="footer-builtby">Built by</span> Logan Dixon · <span data-i18n="footer-course">Made for the 2025–26 Intro to AI course, Haidian Kaiwen Academy</span></p>
+    <p style="margin:6px 0 0;"><a href="https://github.com/lmdixon23/my_dev_projects/tree/main/ai_playgrounds" data-i18n="footer-source" style="color:var(--accent,#0891b2);">View source</a> · <a href="https://github.com/lmdixon23/my_dev_projects/blob/main/LICENSE" style="color:var(--accent,#0891b2);">MIT</a> · <a href="https://github.com/lmdixon23/my_dev_projects/issues" data-i18n="footer-issue" style="color:var(--accent,#0891b2);">Report an issue</a> · © 2026 Logan Dixon</p>
+  </footer>
 </body>
 </html>
