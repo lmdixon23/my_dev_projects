@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI Playgrounds — Interactive Intro-to-AI</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230284c7'/%3E%3Cpath d='M13 10l9 6-9 6z' fill='%23ffffff'/%3E%3C/svg%3E">
 <meta name="description" content="Twelve single-file interactive visualizations of core AI concepts: pathfinding, Bayes rule, KNN, overfitting, neural nets, k-means, convolutions, Q-learning, Wumpus World, hill climbing, CNF/SAT, Bayesian networks. Free for any classroom.">
 <link rel="canonical" href="https://lmdixon23.github.io/my_dev_projects/">
 <meta property="og:type" content="website">
@@ -41,7 +42,7 @@
   * { box-sizing: border-box; }
   body {
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', Arial, sans-serif;
     background: var(--bg);
     color: var(--fg);
     line-height: 1.55;
@@ -69,7 +70,7 @@
   }
   /* Theme + language controls float in the top-right of the header. */
   .header-controls { position: absolute; top: 20px; right: 24px; display: flex; align-items: center; gap: 10px; }
-  .lang-switch { display: inline-flex; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; }
+  .lang-switch { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
   .lang-switch button { padding: 7px 12px; background: var(--card); color: var(--fg); border: none; cursor: pointer; font: inherit; font-size: 0.8rem; transition: background 0.15s; }
   .lang-switch button:hover { background: var(--soft, #f1f5f9); }
   .lang-switch button.active { background: var(--accent); color: #fff; font-weight: 600; }
@@ -77,7 +78,7 @@
     background: var(--card);
     color: var(--fg);
     border: 1px solid var(--border);
-    border-radius: 999px;
+    border-radius: 6px;
     padding: 8px 14px;
     font-size: 1rem;
     cursor: pointer;
@@ -164,13 +165,13 @@
 <body>
 <header>
   <div class="header-controls">
+    <button class="theme-toggle" id="themeToggle"
+            aria-label="Toggle dark or light theme"
+            title="Toggle dark / light theme (saved across all playgrounds).">🌙</button>
     <div class="lang-switch" title="Switch interface language / 切换界面语言">
       <button data-lang="en" class="active">EN</button>
       <button data-lang="zh">中文</button>
     </div>
-    <button class="theme-toggle" id="themeToggle"
-            aria-label="Toggle dark or light theme"
-            title="Toggle dark / light theme (saved across all playgrounds).">🌙</button>
   </div>
   <h1 data-i18n="h1">AI Playgrounds</h1>
   <p data-i18n="tagline">Twelve interactive visualizations of the core ideas in any
@@ -266,12 +267,12 @@
 
   </div>
 
-  <div class="meta">
+  <footer class="meta">
     <p class="to-top"><a href="#top" data-i18n="to-top">↑ Back to top</a></p>
     <p data-i18n="built-for">Built for the 2025–2026 Intro to AI course at Haidian Kaiwen Academy.</p>
     <p data-i18n="mit">MIT licensed — fork, remix, and use in your classroom.</p>
     <p><span data-i18n="source-label">Source:</span> <a href="https://github.com/lmdixon23/my_dev_projects/tree/main/ai_playgrounds">github.com/lmdixon23/my_dev_projects</a> · <a href="https://github.com/lmdixon23/my_dev_projects/issues" data-i18n="report-issue">Report an issue</a></p>
-  </div>
+  </footer>
 </main>
 
 <script>
@@ -367,23 +368,23 @@
         "u-2": "逻辑智能体",
         "t-2": "Wumpus 世界",
         "d-2": "经典的 Russell & Norvig 环境。观看逻辑智能体根据感知推断安全格——世界视图与智能体的知识地图并排显示。",
-        "a-2": "→ "我没看到它"与"我已证明它不在那里"之间的区别",
+        "a-2": "→ “我没看到它”与“我已证明它不在那里”之间的区别",
         "u-3": "逻辑与知识库",
         "t-3": "CNF 与 SAT 构建器",
         "d-3": "输入命题语句,一步步观看它们被改写为 CNF。暴力求解 SAT 并显示每一个可满足的模型。",
         "a-3": "→ 为什么世界上每个 SAT 求解器都想要 CNF 作为输入",
         "u-4": "概率",
         "t-4": "贝叶斯定理演练场",
-        "d-4": "调整先验,调整准确率,看看一项"99% 准确"的检测如何改变对罕见疾病的判断。",
+        "d-4": "调整先验,调整准确率,看看一项“99% 准确”的检测如何改变对罕见疾病的判断。",
         "a-4": "→ 为什么关于概率的直觉通常是错的",
         "u-5": "贝叶斯网络",
         "t-5": "贝叶斯网络",
-        "d-5": "R&N 的"入室盗窃-地震"网络。可编辑 CPT、精确推理、吉布斯采样。实时观察"解释消除"效应。",
+        "d-5": "R&N 的“入室盗窃-地震”网络。可编辑 CPT、精确推理、吉布斯采样。实时观察“解释消除”效应。",
         "a-5": "→ 为什么得知发生了地震反而会降低你对入室盗窃的相信程度",
         "u-6": "监督学习",
         "t-6": "K 近邻",
         "d-6": "点击添加任一类别的训练点。改变 k 时观看决策边界自动重绘。",
-        "a-6": "→ "k"究竟如何影响模型",
+        "a-6": "→ “k”究竟如何影响模型",
         "u-7": "评估",
         "t-7": "过拟合探索器",
         "d-7": "拟合 1 到 20 次的多项式。观看训练误差下降而测试误差飙升。",
@@ -399,11 +400,11 @@
         "u-10": "无监督学习",
         "t-10": "K-均值聚类",
         "d-10": "放置点,设定 k,然后逐步执行分配与更新。整个算法尽在一屏。",
-        "a-10": "→ "迭代至收敛"是什么样子",
+        "a-10": "→ “迭代至收敛”是什么样子",
         "u-11": "视觉",
         "t-11": "卷积演练场",
         "d-11": "在画布上绘制,选择一个 3×3 滤波器,看它检测边缘、模糊或锐化——然后观看一个随机滤波器通过梯度下降自我学习。",
-        "a-11": "→ 为什么一个小矩阵能"看见"特征",
+        "a-11": "→ 为什么一个小矩阵能“看见”特征",
         "u-12": "强化学习",
         "t-12": "Q-学习网格世界",
         "d-12": "智能体通过试错学习找到目标。观看它在游玩中将 Q 值逐渐填满整个网格。",
@@ -430,10 +431,7 @@
     document.querySelectorAll('.lang-switch button').forEach(b => b.addEventListener('click', () => applyLang(b.dataset.lang)));
   })();
 </script>
-  <!--
-    Privacy-friendly analytics (optional, off by default): GoatCounter is free + cookieless.
-    1) sign up at https://www.goatcounter.com  2) replace YOURCODE  3) uncomment the line below.
-    <script data-goatcounter="https://YOURCODE.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
-  -->
+  <!-- Privacy-friendly analytics — GoatCounter, cookieless. -->
+  <script data-goatcounter="https://lmdixon23.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>

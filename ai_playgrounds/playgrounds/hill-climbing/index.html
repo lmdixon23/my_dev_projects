@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Visualizing Hill Climbing & Simulated Annealing</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230284c7'/%3E%3Cpath d='M13 10l9 6-9 6z' fill='%23ffffff'/%3E%3C/svg%3E">
 <meta name="description" content="Six local-search algorithms (simple, steepest, stochastic, first-choice, random-restart, simulated annealing) racing on TSP, N-queens, or a 2D landscape.">
 <link rel="canonical" href="https://lmdixon23.github.io/my_dev_projects/playgrounds/hill-climbing/">
 <meta property="og:type" content="website">
@@ -22,15 +23,15 @@
     --good: #16a34a; --bad: #dc2626; --neutral: #2563eb;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; font-family: 'Georgia', serif; background: var(--bg); color: var(--fg); line-height: 1.6; }
-  .page-header { background: var(--card); border-bottom: 1px solid var(--border);
-                  padding: 16px 24px; display: flex; align-items: center; justify-content: space-between;
-                  flex-wrap: wrap; gap: 12px; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", Arial, sans-serif; background: var(--bg); color: var(--fg); line-height: 1.6; }
+  .page-header { background: var(--card); border-bottom: 1px solid var(--border); padding: 12px 24px; }
+  .header-utility { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+  .header-prefs { display: flex; align-items: center; gap: 8px; }
+  .header-main { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .header-actions { display: flex; align-items: center; gap: 8px; font-family: -apple-system, system-ui, sans-serif; font-size: 0.85rem; }
+  .header-actions .header-reset { margin-left: 12px; }
   .page-header h1 { margin: 0; font-size: 1.5rem; }
-  .page-header .back { color: var(--accent); text-decoration: none; font-size: 0.9rem;
-                       font-family: -apple-system, system-ui, sans-serif; }
-  .header-tools { display: flex; gap: 8px; align-items: center;
-                   font-family: -apple-system, system-ui, sans-serif; font-size: 0.85rem; }
+  .page-header .back { color: var(--accent); text-decoration: none; font-size: 0.9rem; font-family: -apple-system, system-ui, sans-serif; }
   .lang-switch { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
   .lang-switch button { padding: 4px 10px; background: white; color: var(--muted);
                           border: none; cursor: pointer; font: inherit; font-size: 0.78rem; }
@@ -39,16 +40,14 @@
                     border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
                     font: inherit; font-size: 0.82rem; }
   .header-reset:hover { background: var(--soft); }
-  .tldr { position: fixed; top: 80px; right: 24px; max-width: 250px;
+  .tldr { max-width: 820px; margin: 16px auto 0;
            background: var(--accent); color: white;
            border-radius: 8px; padding: 14px 16px; font-size: 0.88rem; font-weight: 500;
-           font-family: -apple-system, system-ui, sans-serif; line-height: 1.45;
-           z-index: 50; box-shadow: 0 6px 20px rgba(0,0,0,0.18); }
+           font-family: -apple-system, system-ui, sans-serif; line-height: 1.45; }
   .tldr strong { color: rgba(255,255,255,0.85); font-size: 0.72rem; letter-spacing: 0.08em;
                   text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 6px; }
-  @media (max-width: 1100px) { .tldr { display: none; } }
   .interactive { background: var(--card); padding: 24px; border-bottom: 1px solid var(--border); }
-  .interactive-inner { max-width: 880px; margin: 0 auto;
+  .interactive-inner { max-width: 1280px; margin: 0 auto;
                          font-family: -apple-system, system-ui, sans-serif; }
   .control-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
                   margin-bottom: 12px; font-size: 0.88rem; }
@@ -67,12 +66,18 @@
   .algo-help { font-size: 0.82rem; color: var(--muted); font-style: italic;
                 background: var(--soft); padding: 8px 12px; border-radius: 6px;
                 margin-bottom: 14px; }
-  .canvas-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .bento { display: grid; grid-template-columns: minmax(300px, 360px) minmax(0, 1fr); gap: 16px; align-items: start; margin-bottom: 14px; }
+  .bento-side, .bento-main { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  .bento-cell { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; min-width: 0; }
+  .bento-cell > :first-child { margin-top: 0 !important; }
+  @media (max-width: 860px) { .bento { grid-template-columns: 1fr; gap: 12px; } }
+  .tp-scrub { min-width: 0; }
+  .canvas-pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-bottom: 14px; }
   .canvas-card { background: white; border: 1px solid var(--border);
                    border-radius: 8px; padding: 10px; }
   .canvas-card h3 { margin: 0 0 6px; font-size: 0.85rem; color: var(--accent);
                       text-transform: uppercase; letter-spacing: 0.05em; }
-  canvas { display: block; width: 100%; height: 280px; background: white; border-radius: 4px; }
+  canvas { display: block; width: 100%; max-width: 420px; height: auto; aspect-ratio: 420 / 280; background: white; border-radius: 4px; }
   .stats-strip { display: flex; gap: 24px; justify-content: center;
                    font-family: -apple-system, system-ui, sans-serif; font-size: 0.85rem;
                    margin-top: 12px; flex-wrap: wrap; }
@@ -102,6 +107,18 @@
   .essay .for-teachers h3 { font-family: -apple-system, system-ui, sans-serif;
                               color: var(--accent); font-size: 0.9rem;
                               text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0; }
+  /* ===== Unified transport bar (shared playback controls across stepped applets) ===== */
+  .transport { display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+               padding: 8px 10px; margin: 10px 0; border: 1px solid var(--border);
+               border-radius: 8px; background: var(--soft); }
+  .tp-btn { font: inherit; font-size: 0.9rem; cursor: pointer; border: 1px solid var(--border);
+            background: var(--card); color: var(--fg); border-radius: 6px; padding: 6px 12px; min-width: 40px; line-height: 1; }
+  .tp-btn:hover { background: var(--soft); }
+  .tp-speed { display: flex; align-items: center; gap: 6px; font-size: 0.82rem; color: var(--muted); }
+  .tp-speed input { accent-color: var(--accent); }
+  .tp-count { margin-left: auto; font-family: ui-monospace, monospace; font-size: 0.82rem;
+              color: var(--muted); font-variant-numeric: tabular-nums; min-width: 128px; text-align: right; }
+  .tp-btn:disabled { opacity: 0.45; cursor: default; }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { transition: none !important; animation: none !important; }
   }
@@ -129,18 +146,8 @@
                   font-size: 0.85rem; font-family: inherit; }
   .header-png:hover { background: var(--soft); }
   body.dark-mode .header-png { background: var(--card); color: var(--fg); }
-  input[type="range"] { height: 28px; cursor: pointer; }
-  input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none; appearance: none;
-    width: 24px; height: 24px; border-radius: 50%; cursor: pointer;
-    background: var(--accent); border: 2px solid white;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-  }
-  input[type="range"]::-moz-range-thumb {
-    width: 24px; height: 24px; border-radius: 50%; cursor: pointer;
-    background: var(--accent); border: 2px solid white;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-  }
+  /* ===== Slider styling — native themed control via accent-color (consistent across browsers) ===== */
+  input[type="range"] { accent-color: var(--accent); height: 28px; cursor: pointer; }
   /* embed mode. Strip chrome so the applet fits cleanly in an LMS iframe. */
   body.embed-mode .page-header,
   body.embed-mode aside.tldr,
@@ -152,25 +159,31 @@
 <body>
 
 <header class="page-header">
-  <h1 data-i18n="title">Visualizing Hill Climbing &amp; Simulated Annealing</h1>
-  <div class="header-tools">
-    <button class="header-png" id="shareLink"
-            title="Copy a URL that re-opens this problem / algorithm / temperature / cooling in another browser.">🔗 Share</button>
-    <button class="header-png" id="embedLink"
-            title="Copy an <iframe> snippet for embedding in an LMS. Strips header/essay so only the interactive area shows.">📎 Embed</button>
-    <button class="header-png" id="csvExport"
-            title="Download cost history (per iteration) + algorithm + problem + final state as CSV.">📊 CSV</button>
-    <button class="header-png" id="exportPng"
-            title="Download the current state visualization as a PNG.">📷 PNG</button>
-    <button class="header-theme" id="themeToggle" aria-label="Toggle dark or light theme"
-            title="Toggle dark / light theme (saved across all playgrounds).">🌙</button>
-    <button class="header-reset" id="hardReset" data-i18n="reset-all"
-            title="Reset everything to defaults: TSP, steepest-ascent, T₀=10, cooling=0.995.">↺ Reset all</button>
-    <div class="lang-switch" title="Switch interface language">
-      <button data-lang="en" class="active">EN</button>
-      <button data-lang="zh">中文</button>
-    </div>
+  <div class="header-utility">
     <a class="back" href="../../" data-i18n="back-link">← Back to all playgrounds</a>
+    <div class="header-prefs">
+      <button class="header-theme" id="themeToggle" aria-label="Toggle dark or light theme"
+              title="Toggle dark / light theme (saved across all playgrounds).">🌙</button>
+      <div class="lang-switch" title="Switch interface language">
+        <button data-lang="en" class="active">EN</button>
+        <button data-lang="zh">中文</button>
+      </div>
+    </div>
+  </div>
+  <div class="header-main">
+    <h1 data-i18n="title">Visualizing Hill Climbing &amp; Simulated Annealing</h1>
+    <div class="header-actions">
+      <button class="header-png" id="shareLink"
+              title="Copy a URL that re-opens this problem / algorithm / temperature / cooling in another browser.">🔗 Share</button>
+      <button class="header-png" id="embedLink"
+              title="Copy an <iframe> snippet for embedding in an LMS. Strips header/essay so only the interactive area shows.">📎 Embed</button>
+      <button class="header-png" id="csvExport"
+              title="Download cost history (per iteration) + algorithm + problem + final state as CSV.">📊 CSV</button>
+      <button class="header-png" id="exportPng"
+              title="Download the current state visualization as a PNG.">📷 PNG</button>
+      <button class="header-reset" id="hardReset" data-i18n="reset-all"
+              title="Reset everything to defaults: TSP, steepest-ascent, T₀=10, cooling=0.995.">↺ Reset all</button>
+    </div>
   </div>
 </header>
 
@@ -182,138 +195,158 @@
 <section class="interactive">
 <div class="interactive-inner">
 
-  <div class="control-row">
-    <label data-i18n="prob-label">Problem:</label>
-    <select id="probSel" data-i18n-title="prob-sel-title" title="The optimization target. Each problem has its own neighbor function.">
-      <option value="tsp" selected data-i18n="opt-tsp">Traveling Salesman (12 cities)</option>
-      <option value="queens" data-i18n="opt-queens">N-Queens (n=8, minimize attacks)</option>
-      <option value="landscape" data-i18n="opt-landscape">2D function landscape (5 minima)</option>
-    </select>
-    <label data-i18n="algo-label">Algorithm:</label>
-    <select id="algoSel" data-i18n-title="algo-sel-title" title="Which local-search variant to run.">
-      <option value="simple" data-i18n="opt-simple">Simple HC (first improvement)</option>
-      <option value="steepest" selected data-i18n="opt-steepest">Steepest-ascent HC</option>
-      <option value="stochastic" data-i18n="opt-stochastic">Stochastic HC</option>
-      <option value="firstchoice" data-i18n="opt-firstchoice">First-choice HC</option>
-      <option value="restart" data-i18n="opt-restart">Random-restart HC</option>
-      <option value="sa" data-i18n="opt-sa">Simulated Annealing</option>
-      <option value="tabu" data-i18n="opt-tabu">Tabu Search</option>
-      <option value="ga" data-i18n="opt-ga">Genetic Algorithm</option>
-    </select>
-    <span id="gaControls" style="display:none; margin-left:8px;">
-      <label data-i18n="ga-pop-label" data-i18n-title="ga-pop-title"
-             title="Population size. Larger populations explore more diversity per generation but slow each generation down. Each 'step' here = one generation (evaluate → select → crossover → mutate).">Pop:</label>
-      <input id="gaPop" type="range" min="10" max="100" step="5" value="30" style="width:80px; vertical-align:middle;">
-      <span id="gaPopV" style="font-family:ui-monospace,monospace; color:var(--accent); font-weight:700;">30</span>
-      <label data-i18n="ga-mut-label" data-i18n-title="ga-mut-title" style="margin-left:6px;"
-             title="Mutation rate per gene. Too low = premature convergence; too high = random search.">Mut:</label>
-      <input id="gaMut" type="range" min="0.01" max="0.5" step="0.01" value="0.10" style="width:80px; vertical-align:middle;">
-      <span id="gaMutV" style="font-family:ui-monospace,monospace; color:var(--accent); font-weight:700;">0.10</span>
-    </span>
-  </div>
+  <div class="bento">
+    <!-- bento-side: controls + transport + stats -->
+    <div class="bento-side">
+      <div class="bento-cell">
+        <!-- control-row: problem + algorithm selects -->
+        <div class="control-row">
+          <label data-i18n="prob-label">Problem:</label>
+          <select id="probSel" data-i18n-title="prob-sel-title" title="The optimization target. Each problem has its own neighbor function.">
+            <option value="tsp" selected data-i18n="opt-tsp">Traveling Salesman (12 cities)</option>
+            <option value="queens" data-i18n="opt-queens">N-Queens (n=8, minimize attacks)</option>
+            <option value="landscape" data-i18n="opt-landscape">2D function landscape (5 minima)</option>
+          </select>
+          <label data-i18n="algo-label">Algorithm:</label>
+          <select id="algoSel" data-i18n-title="algo-sel-title" title="Which local-search variant to run.">
+            <option value="simple" data-i18n="opt-simple">Simple HC (first improvement)</option>
+            <option value="steepest" selected data-i18n="opt-steepest">Steepest-ascent HC</option>
+            <option value="stochastic" data-i18n="opt-stochastic">Stochastic HC</option>
+            <option value="firstchoice" data-i18n="opt-firstchoice">First-choice HC</option>
+            <option value="restart" data-i18n="opt-restart">Random-restart HC</option>
+            <option value="sa" data-i18n="opt-sa">Simulated Annealing</option>
+            <option value="tabu" data-i18n="opt-tabu">Tabu Search</option>
+            <option value="ga" data-i18n="opt-ga">Genetic Algorithm</option>
+          </select>
+          <span id="gaControls" style="display:none; margin-left:8px;">
+            <label data-i18n="ga-pop-label" data-i18n-title="ga-pop-title"
+                   title="Population size. Larger populations explore more diversity per generation but slow each generation down. Each 'step' here = one generation (evaluate → select → crossover → mutate).">Pop:</label>
+            <input id="gaPop" type="range" min="10" max="100" step="5" value="30" style="width:80px; vertical-align:middle;">
+            <span id="gaPopV" style="font-family:ui-monospace,monospace; color:var(--accent); font-weight:700;">30</span>
+            <label data-i18n="ga-mut-label" data-i18n-title="ga-mut-title" style="margin-left:6px;"
+                   title="Mutation rate per gene. Too low = premature convergence; too high = random search.">Mut:</label>
+            <input id="gaMut" type="range" min="0.01" max="0.5" step="0.01" value="0.10" style="width:80px; vertical-align:middle;">
+            <span id="gaMutV" style="font-family:ui-monospace,monospace; color:var(--accent); font-weight:700;">0.10</span>
+          </span>
+        </div>
 
-  <div class="algo-help" id="algoHelp">Steepest-ascent: examine all neighbors, take the best improving one. Stops at any local optimum.</div>
+        <div class="algo-help" id="algoHelp">Steepest-ascent: examine all neighbors, take the best improving one. Stops at any local optimum.</div>
 
-  <div class="control-row">
-    <span class="slider-block">
-      <label data-i18n="t0-label" data-i18n-title="t0-title" title="Initial temperature for simulated annealing. Higher = more willing to accept bad moves early.">T₀ (SA)</label>
-      <input id="t0" type="range" min="0.1" max="50" step="0.1" value="10" aria-label="Initial temperature (T-zero) for simulated annealing">
-      <span class="val" id="t0V">10.0</span>
-    </span>
-    <span class="slider-block">
-      <label data-i18n="cool-label" data-i18n-title="cool-title" title="Per-step multiplicative cooling factor. 0.999 = slow cool, 0.95 = fast cool.">Cooling</label>
-      <input id="cool" type="range" min="0.9" max="0.999" step="0.001" value="0.995" aria-label="Cooling rate for simulated annealing">
-      <span class="val" id="coolV">0.995</span>
-    </span>
-    <span class="slider-block">
-      <label data-i18n="speed-label" data-i18n-title="speed-title" title="Visualization speed. Higher = faster (and skips frames at the top).">Speed</label>
-      <input id="speed" type="range" min="0" max="100" value="50" aria-label="Animation speed">
-    </span>
-    <button class="step-btn" id="stepBtn" data-i18n="step-btn"
-            title="Run one step of the chosen algorithm.">Step</button>
-    <button class="step-btn primary" id="runBtn" data-i18n="run-btn"
-            title="Run continuously. Click again to pause.">▶ Run / pause</button>
-    <button class="step-btn" id="restartBtn" data-i18n="restart-btn"
-            title="Restart from a fresh random state. Keeps problem and algorithm.">Restart</button>
-  </div>
+        <!-- control-row: SA sliders -->
+        <div class="control-row">
+          <span class="slider-block">
+            <label data-i18n="t0-label" data-i18n-title="t0-title" title="Initial temperature for simulated annealing. Higher = more willing to accept bad moves early.">T₀ (SA)</label>
+            <input id="t0" type="range" min="0.1" max="50" step="0.1" value="10" aria-label="Initial temperature (T-zero) for simulated annealing">
+            <span class="val" id="t0V">10.0</span>
+          </span>
+          <span class="slider-block">
+            <label data-i18n="cool-label" data-i18n-title="cool-title" title="Per-step multiplicative cooling factor. 0.999 = slow cool, 0.95 = fast cool.">Cooling</label>
+            <input id="cool" type="range" min="0.9" max="0.999" step="0.001" value="0.995" aria-label="Cooling rate for simulated annealing">
+            <span class="val" id="coolV">0.995</span>
+          </span>
+          <!-- Speed / Step / Run / Restart relocated to the unified transport bar below. -->
+        </div>
 
-  <div class="canvas-pair">
-    <div class="canvas-card">
-      <h3 data-i18n="state-h3">Current state</h3>
-      <canvas id="stateCv" width="420" height="280" role="img"
-              aria-label="Current state of the optimization problem."></canvas>
-    </div>
-    <div class="canvas-card">
-      <h3 data-i18n="cost-h3">Cost over iterations</h3>
-      <canvas id="costCv" width="420" height="280" role="img"
-              aria-label="Cost over iterations chart."></canvas>
-    </div>
-  </div>
+        <!-- Unified transport bar (shared playback controls; Speed/Step/Run/Restart relocated here). -->
+        <div class="transport" id="transport" role="group" aria-label="Playback controls">
+          <button class="tp-btn" id="restartBtn" data-i18n-title="restart-title"
+                  title="Restart from a fresh random state. Keeps problem and algorithm.">↺</button>
+          <button class="tp-btn" id="backBtn" data-i18n-title="back-title"
+                  title="Step one iteration backward through the run.">◀❘</button>
+          <button class="tp-btn" id="runBtn" data-i18n="run-btn" aria-pressed="false"
+                  title="Run continuously. Click again to pause.">▶ Run / pause</button>
+          <button class="tp-btn" id="stepBtn" data-i18n="step-btn"
+                  title="Run one step of the chosen algorithm.">❘▶ Step</button>
+          <label class="tp-speed"><span data-i18n="speed-label">Speed</span>
+            <input id="speed" type="range" min="0" max="100" value="50" aria-label="Animation speed"
+                   data-i18n-title="speed-title" title="Visualization speed. Higher = faster (and skips frames at the top)."></label>
+          <span class="tp-scrub" id="hcScrubGroup" style="display:inline-flex; visibility:hidden; align-items:center; gap:8px; flex:1 1 220px; min-width:150px;">
+            <span style="color:var(--accent); font-weight:600; font-size:0.82rem;" title="History">⏪</span>
+            <input type="range" id="replaySlider" min="0" max="0" value="0" step="1"
+                   aria-label="Scrub through past iterations" style="flex:1; min-width:110px;">
+            <label style="color:var(--muted); display:flex; align-items:center; gap:4px; font-size:0.8rem;"><span>iter</span>
+              <input type="number" id="hcJump" min="0" aria-label="Jump to iteration" style="width:64px; padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;"></label>
+            <span id="replayLabel" style="display:none"></span>
+            <button class="tp-btn" id="replayResume" style="padding:4px 10px; font-size:0.8rem;" disabled data-i18n="return-live">Jump to latest</button>
+          </span>
+          <span class="tp-count" id="tpCount" data-i18n="tp-idle">idle</span>
+        </div>
 
-  <div class="stats-strip">
-    <div class="stat-item"><div class="label" data-i18n="stat-iter">Iteration</div><div class="val" id="iterV">0</div></div>
-    <div class="stat-item"><div class="label" data-i18n="stat-cost">Current cost</div><div class="val" id="costV">—</div></div>
-    <div class="stat-item"><div class="label" data-i18n="stat-best">Best ever</div><div class="val" id="bestV">—</div></div>
-    <div class="stat-item"><div class="label" data-i18n="stat-temp">Temperature</div><div class="val" id="tempV">—</div></div>
-    <div class="stat-item"><div class="label" data-i18n="stat-ar">SA accept/reject</div><div class="val" id="acceptV">0/0</div></div>
-  </div>
+        <!-- Stats strip (always-visible readout) -->
+        <div class="stats-strip">
+          <div class="stat-item"><div class="label" data-i18n="stat-iter">Iteration</div><div class="val" id="iterV">0</div></div>
+          <div class="stat-item"><div class="label" data-i18n="stat-cost">Current cost</div><div class="val" id="costV">—</div></div>
+          <div class="stat-item"><div class="label" data-i18n="stat-best">Best ever</div><div class="val" id="bestV">—</div></div>
+          <div class="stat-item"><div class="label" data-i18n="stat-temp">Temperature</div><div class="val" id="tempV">—</div></div>
+          <div class="stat-item"><div class="label" data-i18n="stat-ar">SA accept/reject</div><div class="val" id="acceptV">0/0</div></div>
+        </div>
+      </div><!-- /.bento-cell (controls + transport + stats) -->
+    </div><!-- /.bento-side -->
 
-  <!-- Replay timeline scrubber — drag to inspect state at past iterations. -->
-  <div id="replayStrip" style="margin-top:8px; padding:8px 12px; background:var(--soft); border:1px solid var(--border); border-radius:8px; display:none;">
-    <div style="display:flex; align-items:center; gap:10px; font-size:0.85rem;">
-      <span style="color:var(--accent); font-weight:600;">⏪ Replay</span>
-      <input type="range" id="replaySlider" min="0" max="0" value="0" step="1"
-             aria-label="Scrub through past iterations" style="flex:1;">
-      <span id="replayLabel" style="font-family:ui-monospace,monospace; color:var(--muted); min-width:90px; text-align:right;">live</span>
-      <button class="step-btn" id="replayResume" style="padding:4px 10px; font-size:0.8rem; display:none;">Return to live</button>
-    </div>
-  </div>
+    <!-- bento-main: canvas pair + worksheet + lesson tour -->
+    <div class="bento-main">
+      <div class="bento-cell">
+        <div class="canvas-pair">
+          <div class="canvas-card">
+            <h3 data-i18n="state-h3">Current state</h3>
+            <canvas id="stateCv" width="420" height="280" role="img"
+                    aria-label="Current state of the optimization problem."></canvas>
+          </div>
+          <div class="canvas-card">
+            <h3 data-i18n="cost-h3">Cost over iterations</h3>
+            <canvas id="costCv" width="420" height="280" role="img"
+                    aria-label="Cost over iterations chart."></canvas>
+          </div>
+        </div>
+      </div><!-- /.bento-cell (canvas pair) -->
+    </div><!-- /.bento-main -->
+  </div><!-- /.bento -->
 
   <!-- Worksheet/lab mode. 3 questions per applet with instant check. -->
-  <details class="worksheet" style="margin-top:8px;">
-    <summary style="cursor:pointer; padding:8px 12px; background:var(--soft); border:1px solid var(--border); border-radius:6px; font-family:-apple-system,system-ui,sans-serif; font-size:0.88rem; color:var(--accent); font-weight:600;">
-      <span data-i18n="ws-summary">📝 Worksheet (3 questions)</span>
-    </summary>
-    <div style="margin-top:8px; padding:12px 14px; background:var(--card); border:1px solid var(--border); border-radius:6px; font-size:0.88rem; line-height:1.5;">
-      <div class="ws-q" id="ws1">
-        <p style="margin:0 0 4px;"><strong>Q1.</strong> TSP, steepest-ascent HC. Run to convergence several times from different restarts. Does it always find the SAME (global-optimum) solution?</p>
-        <input id="ws1ans" type="text" placeholder="yes / no" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
-        <button class="step-btn" id="ws1btn">Check</button>
-        <span id="ws1fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
-      </div>
-      <div class="ws-q" id="ws2" style="margin-top:10px;">
-        <p style="margin:0 0 4px;"><strong>Q2.</strong> Same TSP. Switch to random-restart HC. After several minutes, "best ever" cost is:</p>
-        <input id="ws2ans" type="text" placeholder="better / worse / same" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
-        <button class="step-btn" id="ws2btn">Check</button>
-        <span id="ws2fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
-      </div>
-      <div class="ws-q" id="ws3" style="margin-top:10px;">
-        <p style="margin:0 0 4px;"><strong>Q3.</strong> Simulated annealing. As temperature T cools toward zero, the algorithm behavior becomes:</p>
-        <input id="ws3ans" type="text" placeholder="more random / greedier / unchanged" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
-        <button class="step-btn" id="ws3btn">Check</button>
-        <span id="ws3fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
-      </div>
-    </div>
-  </details>
+  <details class="worksheet">
+          <summary style="cursor:pointer; padding:8px 12px; background:var(--soft); border:1px solid var(--border); border-radius:6px; font-family:-apple-system,system-ui,sans-serif; font-size:0.88rem; color:var(--accent); font-weight:600;">
+            <span data-i18n="ws-summary">📝 Worksheet (3 questions)</span>
+          </summary>
+          <div style="margin-top:8px; padding:12px 14px; background:var(--card); border:1px solid var(--border); border-radius:6px; font-size:0.88rem; line-height:1.5;">
+            <div class="ws-q" id="ws1">
+              <p style="margin:0 0 4px;"><strong>Q1.</strong> TSP, steepest-ascent HC. Run to convergence several times from different restarts. Does it always find the SAME (global-optimum) solution?</p>
+              <input id="ws1ans" type="text" placeholder="yes / no" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+              <button class="step-btn" id="ws1btn">Check</button>
+              <span id="ws1fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
+            </div>
+            <div class="ws-q" id="ws2" style="margin-top:10px;">
+              <p style="margin:0 0 4px;"><strong>Q2.</strong> Same TSP. Switch to random-restart HC. After several minutes, "best ever" cost is:</p>
+              <input id="ws2ans" type="text" placeholder="better / worse / same" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+              <button class="step-btn" id="ws2btn">Check</button>
+              <span id="ws2fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
+            </div>
+            <div class="ws-q" id="ws3" style="margin-top:10px;">
+              <p style="margin:0 0 4px;"><strong>Q3.</strong> Simulated annealing. As temperature T cools toward zero, the algorithm behavior becomes:</p>
+              <input id="ws3ans" type="text" placeholder="more random / greedier / unchanged" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+              <button class="step-btn" id="ws3btn">Check</button>
+              <span id="ws3fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
+            </div>
+          </div>
+        </details>
 
   <!-- Lesson tour. Ordered scenarios that step students through the key ideas. -->
-  <details class="lesson-tour" style="margin-top:12px;">
-    <summary style="cursor:pointer; padding:8px 12px; background:var(--soft); border:1px solid var(--border); border-radius:6px; font-family:-apple-system,system-ui,sans-serif; font-size:0.88rem; color:var(--accent); font-weight:600;">
-      <span data-i18n="tour-summary">📚 Lesson tour (5 steps)</span>
-    </summary>
-    <div style="margin-top:8px; padding:12px 14px; background:var(--card); border:1px solid var(--border); border-radius:6px;">
-      <div style="display:flex; align-items:baseline; gap:10px; margin-bottom:6px;">
-        <strong style="color:var(--accent);">Step <span id="tourPos">1/5</span>:</strong>
-        <strong id="tourName" style="font-family:-apple-system,system-ui,sans-serif;">—</strong>
-      </div>
-      <p id="tourDesc" style="margin:0 0 8px; color:var(--fg); font-size:0.88rem; line-height:1.5;">—</p>
-      <div style="display:flex; gap:8px; align-items:center;">
-        <button class="step-btn secondary" id="tourPrev" data-i18n="tour-prev">← Prev</button>
-        <button class="step-btn" id="tourApply" data-i18n="tour-apply">▶ Apply this scenario</button>
-        <button class="step-btn secondary" id="tourNext" data-i18n="tour-next">Next →</button>
-      </div>
-    </div>
-  </details>
+  <details class="lesson-tour">
+          <summary style="cursor:pointer; padding:8px 12px; background:var(--soft); border:1px solid var(--border); border-radius:6px; font-family:-apple-system,system-ui,sans-serif; font-size:0.88rem; color:var(--accent); font-weight:600;">
+            <span data-i18n="tour-summary">📚 Lesson tour (5 steps)</span>
+          </summary>
+          <div style="margin-top:8px; padding:12px 14px; background:var(--card); border:1px solid var(--border); border-radius:6px;">
+            <div style="display:flex; align-items:baseline; gap:10px; margin-bottom:6px;">
+              <strong style="color:var(--accent);">Step <span id="tourPos">1/5</span>:</strong>
+              <strong id="tourName" style="font-family:-apple-system,system-ui,sans-serif;">—</strong>
+            </div>
+            <p id="tourDesc" style="margin:0 0 8px; color:var(--fg); font-size:0.88rem; line-height:1.5;">—</p>
+            <div style="display:flex; gap:8px; align-items:center;">
+              <button class="step-btn secondary" id="tourPrev" data-i18n="tour-prev">← Prev</button>
+              <button class="step-btn" id="tourApply" data-i18n="tour-apply">▶ Apply this scenario</button>
+              <button class="step-btn secondary" id="tourNext" data-i18n="tour-next">Next →</button>
+            </div>
+          </div>
+        </details>
 
   <div class="jump-anchor"><a href="#essay" class="jump-link" data-i18n="jump-link">↓ Read the explanation</a></div>
 </div>
@@ -432,9 +465,13 @@
     en: {
       'title': 'Visualizing Hill Climbing & Simulated Annealing',
       'back-link': '← Back to all playgrounds', 'reset-all': '↺ Reset all',
-      'footer-top': '↑ Back to top', 'footer-builtby': 'Built by', 'footer-course': 'Made for the 2025–26 Intro to AI course, Haidian Kaiwen Academy', 'footer-source': 'View source', 'footer-issue': 'Report an issue',
+      'footer-top': '↑ Back to top', 'footer-builtby': 'Built by', 'footer-course': 'Made for the 2025–2026 Intro to AI course, Haidian Kaiwen Academy', 'footer-source': 'View source', 'footer-issue': 'Report an issue',
       'prob-label': 'Problem:', 'algo-label': 'Algorithm:',
-      'step-btn': 'Step', 'run-btn': '▶ Run / pause', 'restart-btn': 'Restart',
+      'step-btn': '❘▶ Step', 'run-btn': '▶ Run / pause', 'restart-btn': 'Restart',
+      'restart-title': 'Restart from a fresh random state. Keeps problem and algorithm.',
+      'back-title': 'Step one iteration backward through the run.',
+      'tp-idle': 'idle',
+      'return-live': 'Jump to latest',
       'tldr-strong': 'The big idea',
       'tldr-body': 'Six local-search algorithms on three classic problems. Greedy methods get stuck in local optima; simulated annealing escapes by sometimes accepting worse moves.',
       'opt-tsp': 'Traveling Salesman (12 cities)',
@@ -469,9 +506,13 @@
     zh: {
       'title': '爬山算法与模拟退火可视化',
       'back-link': '← 返回所有演示', 'reset-all': '↺ 全部重置',
-      'footer-top': '↑ 返回顶部', 'footer-builtby': '作者', 'footer-course': '为海淀凯文学校 2025–26《人工智能导论》课程制作', 'footer-source': '查看源代码', 'footer-issue': '反馈问题',
+      'footer-top': '↑ 返回顶部', 'footer-builtby': '作者', 'footer-course': '为海淀凯文学校 2025–2026《人工智能导论》课程制作', 'footer-source': '查看源代码', 'footer-issue': '反馈问题',
       'prob-label': '问题:', 'algo-label': '算法:',
-      'step-btn': '单步', 'run-btn': '▶ 运行/暂停', 'restart-btn': '重启',
+      'step-btn': '❘▶ 单步', 'run-btn': '▶ 运行/暂停', 'restart-btn': '重启',
+      'restart-title': '从一个全新的随机状态重启。保留问题与算法。',
+      'back-title': '在运行中后退一步。',
+      'tp-idle': '空闲',
+      'return-live': '跳到最新',
       'tldr-strong': '核心思想',
       'tldr-body': '三个经典问题上的六种局部搜索算法。贪心方法会陷入局部最优;模拟退火通过有时接受更差的移动来逃出。',
       'opt-tsp': '旅行商问题(12 个城市)',
@@ -517,18 +558,18 @@
     });
     document.querySelectorAll('.lang-switch button').forEach(b =>
       b.classList.toggle('active', b.dataset.lang === lang));
-    try { localStorage.setItem('hc-lang', lang); } catch (_) {}
+    try { localStorage.setItem('lang', lang); } catch (_) {}
   }
   document.querySelectorAll('.lang-switch button').forEach(b =>
     b.addEventListener('click', () => setLang(b.dataset.lang)));
   let initialLang = 'en';
-  try { initialLang = localStorage.getItem('hc-lang') || 'en'; } catch (_) {}
+  try { initialLang = localStorage.getItem('lang') || 'en'; } catch (_) {}
   setLang(initialLang);
 
   function setTheme(t) {
     document.body.classList.toggle('dark-mode', t === 'dark');
     const btn = document.getElementById('themeToggle');
-    if (btn) btn.textContent = t === 'dark' ? '☀' : '🌙';
+    if (btn) btn.textContent = t === 'dark' ? '☀️' : '🌙';
     try { localStorage.setItem('theme', t); } catch (_) {}
   }
   let initialTheme = 'light';
@@ -1054,10 +1095,10 @@
   let replayIdx = -1; // current scrubber index into trajectory[], read by drawCost.
   function updateReplaySlider() {
     const slider = document.getElementById('replaySlider');
-    const strip = document.getElementById('replayStrip');
+    const g = document.getElementById('hcScrubGroup');
     if (!slider || trajectory.length === 0) return;
-    if (trajectory.length < 2) { strip.style.display = 'none'; return; }
-    strip.style.display = '';
+    if (trajectory.length < 2) { if (g) g.style.visibility = 'hidden'; return; }
+    if (g) g.style.visibility = 'visible';
     slider.max = trajectory.length - 1;
     if (!replayMode) {
       slider.value = trajectory.length - 1;
@@ -1081,6 +1122,7 @@
     }
     drawCost();
     $('iterV').textContent = iter;
+    if (!replayMode) { const tc = $('tpCount'); if (tc) tc.textContent = iter > 0 ? `iter ${iter}` : 'idle'; }
     $('costV').textContent = prob.cost(state).toFixed(2);
     $('bestV').textContent = bestCost.toFixed(2);
     $('tempV').textContent = $('algoSel').value === 'sa' ? T.toFixed(3) : '—';
@@ -1172,13 +1214,42 @@
     }
     document.title = hcBaseTitle;
   }
-  $('stepBtn').addEventListener('click', () => { step(); render(); });
+  $('stepBtn').addEventListener('click', () => {
+    if (replayMode) {
+      // While scrubbed back, ❘▶ walks forward through the trajectory; resume live once caught up.
+      if (replayIdx < trajectory.length - 1) { replayStep(1); return; }
+      $('replayResume').click(); return;
+    }
+    step(); render();
+  });
   $('runBtn').addEventListener('click', () => {
     running = !running;
     $('runBtn').textContent = running ? '⏸ Pause' : '▶ Run / pause';
+    document.getElementById('runBtn').setAttribute('aria-pressed', running ? 'true' : 'false');
     if (running) loop();
   });
   $('restartBtn').addEventListener('click', () => { reset(); });
+  // ===== Unified transport bar: universal step-back =====
+  function replayStep(delta) {
+    if (running) return;
+    if (trajectory.length === 0) return;
+    const s = $('replaySlider');
+    let idx = parseInt(s.value, 10);
+    if (Number.isNaN(idx)) idx = trajectory.length - 1;
+    idx = Math.max(0, Math.min(trajectory.length - 1, idx + delta));
+    s.value = idx;
+    s.dispatchEvent(new Event('input'));   // reuse the existing replay-restore handler
+  }
+  $('backBtn').addEventListener('click', () => replayStep(-1));
+  window.__hillAcceptanceTest = function () {
+    const sp = $('speed');
+    const r = { transportBar: !!$('transport'), backBtn: !!$('backBtn'),
+                restartBtn: !!$('restartBtn'), speedInBar: !!(sp && sp.closest('#transport')),
+                trajectoryLen: trajectory.length };
+    const pass = r.transportBar && r.backBtn && r.restartBtn && r.speedInBar;
+    console.log('[hill-climbing] CONTROLS ACCEPTANCE TEST ' + (pass ? 'passed' : 'FAILED'), r);
+    return Object.assign({ pass }, r);
+  };
   $('probSel').addEventListener('change', () => { reset(); });
   // Click the landscape canvas to set the initial state. Lets students
   // deliberately start in a bad basin (vs the random reset) to see local-optimum
@@ -1215,7 +1286,7 @@
     $('t0').value = 10; $('cool').value = 0.995; $('speed').value = 50;
     $('algoHelp').textContent = HELP['steepest'];
     liveState = null; replayMode = false;
-    document.getElementById('replayResume').style.display = 'none';
+    document.getElementById('replayResume').disabled = true;
     reset();
   });
   // Replay scrubber wiring.
@@ -1225,10 +1296,11 @@
     if (!replayMode) {
       liveState = state;
       replayMode = true;
-      document.getElementById('replayResume').style.display = '';
+      document.getElementById('replayResume').disabled = false;
     }
     replayIdx = idx;
     document.getElementById('replayLabel').textContent = `iter ${iter - trajectory.length + 1 + idx}`;
+    { const tc = $('tpCount'); if (tc) tc.textContent = `replay ${idx + 1}/${trajectory.length}`; }
     state = trajectory[idx];
     render();
   });
@@ -1236,8 +1308,9 @@
     if (!replayMode || liveState == null) return;
     state = liveState; liveState = null; replayMode = false;
     replayIdx = -1;
-    document.getElementById('replayResume').style.display = 'none';
+    document.getElementById('replayResume').disabled = true;
     document.getElementById('replayLabel').textContent = 'live';
+    { const tc = $('tpCount'); if (tc) tc.textContent = 'live'; }
     document.getElementById('replaySlider').value = trajectory.length - 1;
     render();
   });
@@ -1374,6 +1447,19 @@
       fb.style.color = ok ? '#16a34a' : '#dc2626';
     });
   });
+
+  // Numeric jump-to-iteration input.
+  document.getElementById('hcJump').addEventListener('change', () => {
+    const s = document.getElementById('replaySlider');
+    if (!s) return;
+    let v = parseInt(document.getElementById('hcJump').value, 10);
+    if (Number.isNaN(v)) return;
+    v = Math.max(0, Math.min(parseInt(s.max, 10), v));
+    s.value = v;
+    s.dispatchEvent(new Event('input'));
+  });
+
+  window.__hcScrubTest = function(){ const g=document.getElementById('hcScrubGroup'); const inBar = !!(g && g.closest('#transport')); const r={scrubInBar:inBar, jump:!!document.getElementById('hcJump'), slider:!!document.getElementById('replaySlider')}; const pass=r.scrubInBar&&r.jump&&r.slider; console.log('[hill-climbing] SCRUB-IN-BAR '+(pass?'passed':'FAILED'), r); return Object.assign({pass},r); };
 })();
 </script>
 <!-- Embed mode handler (shared pattern across all 12 applets). -->
@@ -1400,8 +1486,10 @@
 </script>
   <footer class="site-footer" style="margin-top:36px; border-top:1px solid var(--border,#e5e7eb); padding:20px 24px; text-align:center; color:var(--muted,#6b7280); font-size:0.82rem; line-height:1.7;">
     <p style="margin:0 0 6px;"><a href="#top" data-i18n="footer-top" style="color:var(--accent,#0891b2); text-decoration:none;">↑ Back to top</a></p>
-    <p style="margin:0;"><span data-i18n="footer-builtby">Built by</span> Logan Dixon · <span data-i18n="footer-course">Made for the 2025–26 Intro to AI course, Haidian Kaiwen Academy</span></p>
+    <p style="margin:0;"><span data-i18n="footer-builtby">Built by</span> Logan Dixon · <span data-i18n="footer-course">Made for the 2025–2026 Intro to AI course, Haidian Kaiwen Academy</span></p>
     <p style="margin:6px 0 0;"><a href="https://github.com/lmdixon23/my_dev_projects/tree/main/ai_playgrounds" data-i18n="footer-source" style="color:var(--accent,#0891b2);">View source</a> · <a href="https://github.com/lmdixon23/my_dev_projects/blob/main/LICENSE" style="color:var(--accent,#0891b2);">MIT</a> · <a href="https://github.com/lmdixon23/my_dev_projects/issues" data-i18n="footer-issue" style="color:var(--accent,#0891b2);">Report an issue</a> · © 2026 Logan Dixon</p>
   </footer>
+  <!-- Privacy-friendly analytics — GoatCounter, cookieless. -->
+  <script data-goatcounter="https://lmdixon23.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>

@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Visualizing a Bayesian Network</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230284c7'/%3E%3Cpath d='M13 10l9 6-9 6z' fill='%23ffffff'/%3E%3C/svg%3E">
 <meta name="description" content="The classic Russell & Norvig burglar-earthquake-alarm Bayesian network. Edit CPTs, clamp variables as evidence, compare exact inference to Gibbs sampling, watch 'explaining away' live.">
 <link rel="canonical" href="https://lmdixon23.github.io/my_dev_projects/playgrounds/bayes-network/">
 <meta property="og:type" content="website">
@@ -22,15 +23,15 @@
     --true: #16a34a; --false: #dc2626; --unset: #94a3b8;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; font-family: 'Georgia', serif; background: var(--bg); color: var(--fg); line-height: 1.6; }
-  .page-header { background: var(--card); border-bottom: 1px solid var(--border);
-                  padding: 16px 24px; display: flex; align-items: center; justify-content: space-between;
-                  flex-wrap: wrap; gap: 12px; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", Arial, sans-serif; background: var(--bg); color: var(--fg); line-height: 1.6; }
+  .page-header { background: var(--card); border-bottom: 1px solid var(--border); padding: 12px 24px; }
+  .header-utility { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+  .header-prefs { display: flex; align-items: center; gap: 8px; }
+  .header-main { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .header-actions { display: flex; align-items: center; gap: 8px; font-family: -apple-system, system-ui, sans-serif; font-size: 0.85rem; }
+  .header-actions .header-reset { margin-left: 12px; }
   .page-header h1 { margin: 0; font-size: 1.5rem; }
-  .page-header .back { color: var(--accent); text-decoration: none; font-size: 0.9rem;
-                       font-family: -apple-system, system-ui, sans-serif; }
-  .header-tools { display: flex; gap: 8px; align-items: center;
-                   font-family: -apple-system, system-ui, sans-serif; font-size: 0.85rem; }
+  .page-header .back { color: var(--accent); text-decoration: none; font-size: 0.9rem; font-family: -apple-system, system-ui, sans-serif; }
   .lang-switch { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
   .lang-switch button { padding: 4px 10px; background: white; color: var(--muted);
                           border: none; cursor: pointer; font: inherit; font-size: 0.78rem; }
@@ -39,14 +40,12 @@
                     border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
                     font: inherit; font-size: 0.82rem; }
   .header-reset:hover { background: var(--soft); }
-  .tldr { position: fixed; top: 80px; right: 24px; max-width: 250px;
+  .tldr { max-width: 820px; margin: 16px auto 0;
            background: var(--accent); color: white;
            border-radius: 8px; padding: 14px 16px; font-size: 0.88rem; font-weight: 500;
-           font-family: -apple-system, system-ui, sans-serif; line-height: 1.45;
-           z-index: 50; box-shadow: 0 6px 20px rgba(0,0,0,0.18); }
+           font-family: -apple-system, system-ui, sans-serif; line-height: 1.45; }
   .tldr strong { color: rgba(255,255,255,0.85); font-size: 0.72rem; letter-spacing: 0.08em;
                   text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 6px; }
-  @media (max-width: 1100px) { .tldr { display: none; } }
   .interactive { background: var(--card); padding: 24px; border-bottom: 1px solid var(--border); }
   .interactive-inner { max-width: 880px; margin: 0 auto;
                          font-family: -apple-system, system-ui, sans-serif; }
@@ -89,7 +88,7 @@
               color: var(--accent); font-size: 0.85rem; }
   .cpt table { width: 100%; border-collapse: collapse; }
   .cpt td { padding: 3px 4px; }
-  .cpt input { width: 70px; padding: 2px 4px; background: white; color: var(--fg);
+  .cpt input { width: 70px; padding: 2px 4px; background: var(--card); color: var(--fg);
                  border: 1px solid var(--border); border-radius: 3px; font: inherit; font-family: monospace; }
 
   .evidence-section { background: var(--soft); border: 1px solid var(--border);
@@ -179,18 +178,8 @@
                   font-size: 0.85rem; font-family: inherit; }
   .header-png:hover { background: var(--soft); }
   body.dark-mode .header-png { background: var(--card); color: var(--fg); }
-  input[type="range"] { height: 28px; cursor: pointer; }
-  input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none; appearance: none;
-    width: 24px; height: 24px; border-radius: 50%; cursor: pointer;
-    background: var(--accent); border: 2px solid white;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-  }
-  input[type="range"]::-moz-range-thumb {
-    width: 24px; height: 24px; border-radius: 50%; cursor: pointer;
-    background: var(--accent); border: 2px solid white;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-  }
+  /* ===== Slider styling — native themed control via accent-color (consistent across browsers) ===== */
+  input[type="range"] { accent-color: var(--accent); height: 28px; cursor: pointer; }
   /* embed mode. Strip chrome so the applet fits cleanly in an LMS iframe. */
   body.embed-mode .page-header,
   body.embed-mode aside.tldr,
@@ -202,23 +191,29 @@
 <body>
 
 <header class="page-header">
-  <h1 data-i18n="title">Visualizing a Bayesian Network</h1>
-  <div class="header-tools">
-    <button class="header-png" id="shareLink"
-            title="Copy a URL that re-opens this evidence assignment + inference method in another browser.">🔗 Share</button>
-    <button class="header-png" id="embedLink"
-            title="Copy an <iframe> snippet for embedding in an LMS. Strips header/essay so only the interactive area shows.">📎 Embed</button>
-    <button class="header-png" id="exportPng"
-            title="Download the network diagram as a PNG.">📷 PNG</button>
-    <button class="header-theme" id="themeToggle" aria-label="Toggle dark or light theme"
-            title="Toggle dark / light theme (saved across all playgrounds).">🌙</button>
-    <button class="header-reset" id="hardReset" data-i18n="reset-all"
-            title="Reset CPTs to AIMA defaults and clear all evidence.">↺ Reset all</button>
-    <div class="lang-switch" title="Switch interface language">
-      <button data-lang="en" class="active">EN</button>
-      <button data-lang="zh">中文</button>
-    </div>
+  <div class="header-utility">
     <a class="back" href="../../" data-i18n="back-link">← Back to all playgrounds</a>
+    <div class="header-prefs">
+      <button class="header-theme" id="themeToggle" aria-label="Toggle dark or light theme"
+              title="Toggle dark / light theme (saved across all playgrounds).">🌙</button>
+      <div class="lang-switch" title="Switch interface language">
+        <button data-lang="en" class="active">EN</button>
+        <button data-lang="zh">中文</button>
+      </div>
+    </div>
+  </div>
+  <div class="header-main">
+    <h1 data-i18n="title">Visualizing a Bayesian Network</h1>
+    <div class="header-actions">
+      <button class="header-png" id="shareLink"
+              title="Copy a URL that re-opens this evidence assignment + inference method in another browser.">🔗 Share</button>
+      <button class="header-png" id="embedLink"
+              title="Copy an <iframe> snippet for embedding in an LMS. Strips header/essay so only the interactive area shows.">📎 Embed</button>
+      <button class="header-png" id="exportPng"
+              title="Download the network diagram as a PNG.">📷 PNG</button>
+      <button class="header-reset" id="hardReset" data-i18n="reset-all"
+              title="Reset CPTs to AIMA defaults and clear all evidence.">↺ Reset all</button>
+    </div>
   </div>
 </header>
 
@@ -472,7 +467,7 @@
   const STRINGS = {
     en: {
       'title': 'Visualizing a Bayesian Network', 'back-link': '← Back to all playgrounds',
-      'footer-top': '↑ Back to top', 'footer-builtby': 'Built by', 'footer-course': 'Made for the 2025–26 Intro to AI course, Haidian Kaiwen Academy', 'footer-source': 'View source', 'footer-issue': 'Report an issue',
+      'footer-top': '↑ Back to top', 'footer-builtby': 'Built by', 'footer-course': 'Made for the 2025–2026 Intro to AI course, Haidian Kaiwen Academy', 'footer-source': 'View source', 'footer-issue': 'Report an issue',
       'reset-all': '↺ Reset all', 'method-label': 'Inference:',
       'evidence-label': 'Evidence — click T / F / ? per variable',
       'posterior-label': 'Posterior — P(variable = TRUE | evidence)',
@@ -515,7 +510,7 @@
     },
     zh: {
       'title': '贝叶斯网络可视化', 'back-link': '← 返回所有演示',
-      'footer-top': '↑ 返回顶部', 'footer-builtby': '作者', 'footer-course': '为海淀凯文学校 2025–26《人工智能导论》课程制作', 'footer-source': '查看源代码', 'footer-issue': '反馈问题',
+      'footer-top': '↑ 返回顶部', 'footer-builtby': '作者', 'footer-course': '为海淀凯文学校 2025–2026《人工智能导论》课程制作', 'footer-source': '查看源代码', 'footer-issue': '反馈问题',
       'reset-all': '↺ 全部重置', 'method-label': '推理:',
       'evidence-label': '证据 — 每个变量点击 T / F / ?',
       'posterior-label': '后验概率 — P(变量 = TRUE | 证据)',
@@ -570,18 +565,18 @@
     });
     document.querySelectorAll('.lang-switch button').forEach(b =>
       b.classList.toggle('active', b.dataset.lang === lang));
-    try { localStorage.setItem('bnet-lang', lang); } catch (_) {}
+    try { localStorage.setItem('lang', lang); } catch (_) {}
   }
   document.querySelectorAll('.lang-switch button').forEach(b =>
     b.addEventListener('click', () => setLang(b.dataset.lang)));
   let initialLang = 'en';
-  try { initialLang = localStorage.getItem('bnet-lang') || 'en'; } catch (_) {}
+  try { initialLang = localStorage.getItem('lang') || 'en'; } catch (_) {}
   setLang(initialLang);
 
   function setTheme(t) {
     document.body.classList.toggle('dark-mode', t === 'dark');
     const btn = document.getElementById('themeToggle');
-    if (btn) btn.textContent = t === 'dark' ? '☀' : '🌙';
+    if (btn) btn.textContent = t === 'dark' ? '☀️' : '🌙';
     try { localStorage.setItem('theme', t); } catch (_) {}
   }
   let initialTheme = 'light';
@@ -1455,8 +1450,10 @@
 </script>
   <footer class="site-footer" style="margin-top:36px; border-top:1px solid var(--border,#e5e7eb); padding:20px 24px; text-align:center; color:var(--muted,#6b7280); font-size:0.82rem; line-height:1.7;">
     <p style="margin:0 0 6px;"><a href="#top" data-i18n="footer-top" style="color:var(--accent,#0891b2); text-decoration:none;">↑ Back to top</a></p>
-    <p style="margin:0;"><span data-i18n="footer-builtby">Built by</span> Logan Dixon · <span data-i18n="footer-course">Made for the 2025–26 Intro to AI course, Haidian Kaiwen Academy</span></p>
+    <p style="margin:0;"><span data-i18n="footer-builtby">Built by</span> Logan Dixon · <span data-i18n="footer-course">Made for the 2025–2026 Intro to AI course, Haidian Kaiwen Academy</span></p>
     <p style="margin:6px 0 0;"><a href="https://github.com/lmdixon23/my_dev_projects/tree/main/ai_playgrounds" data-i18n="footer-source" style="color:var(--accent,#0891b2);">View source</a> · <a href="https://github.com/lmdixon23/my_dev_projects/blob/main/LICENSE" style="color:var(--accent,#0891b2);">MIT</a> · <a href="https://github.com/lmdixon23/my_dev_projects/issues" data-i18n="footer-issue" style="color:var(--accent,#0891b2);">Report an issue</a> · © 2026 Logan Dixon</p>
   </footer>
+  <!-- Privacy-friendly analytics — GoatCounter, cookieless. -->
+  <script data-goatcounter="https://lmdixon23.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>

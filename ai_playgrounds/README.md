@@ -38,7 +38,7 @@ Every applet follows the same template so students who use one know how to use t
 3. **Tooltips on every control.** Hovering a slider explains what it does and which units cover it.
 4. **Reset is one click.** Students can experiment without fear.
 5. **No build step.** Every applet is a single `index.html` with inline `<script>` and `<style>`. Open in a browser, done.
-6. **Mostly offline.** Eleven of the twelve applets are fully self-contained and work with no network. The one exception is the Bayesian-network applet, which loads D3 from cdnjs at runtime (`bayes-network/index.html`) and will not render its graph if that CDN is blocked — inlining D3 or adding a `typeof d3` guard is tracked in Future Enhancements.
+6. **Self-contained, minimal dependencies.** Every applet is a single file with no build step. The only outbound calls are a privacy-friendly, cookieless pageview ping (GoatCounter) and — for the Bayesian-network applet only — D3 from cdnjs; if D3 is blocked, that applet now degrades to a short fallback message and its inference and probabilities keep working (`typeof d3` guard in `bayes-network/index.html`).
 
 ## Deploying
 
@@ -104,10 +104,9 @@ File issues at <https://github.com/lmdixon23/my_dev_projects/issues>.
 
 ## Future Enhancements
 
-Framed as teaching extensions: each item exposes a variable the current applet holds fixed. These are deliberately scoped to gaps that are *not* already built — the applets already ship rich control sets (e.g. the search demo covers BFS / DFS / A\* / Dijkstra / bidirectional / IDA\* with four heuristics and weighted terrain; the neural-net already has activation/optimizer selectors, per-neuron activation heatmaps, input-feature toggles, **and** a weights-as-edges network graph; k-means already has k-means++/inertia/silhouette).
+Framed as teaching extensions: each item exposes a variable the current applet holds fixed. These are deliberately scoped to gaps that are *not* already built — the applets already ship rich control sets (e.g. the search demo covers BFS / DFS / A\* / Dijkstra / bidirectional / IDA\* with four heuristics, weighted terrain, selectable wall / maze layouts (a recursive-division maze generator plus a random-walls generator), and a side-by-side two-algorithm race with live node-expansion counters; the neural-net already has activation/optimizer selectors, per-neuron activation heatmaps, input-feature toggles, **and** a weights-as-edges network graph; k-means already has k-means++/inertia/silhouette).
 
 - **CNF & SAT — CDCL trace mode.** The applet already animates DPLL with unit propagation; the page text notes real solvers add conflict-driven clause learning and watched literals. A CDCL view would show *why* modern solvers outrun plain DPLL. (Verified absent from the code.)
 - **k-Nearest Neighbors — regression mode.** A toggle to predict a continuous value (mean of the k neighbors) alongside classification, so students see kNN is not inherently a classifier. (Verified absent.)
-- **Pathfinding — side-by-side race.** Run two algorithms on the same maze with live nodes-expanded counters, making "A\* explores fewer nodes than BFS" a measured result rather than a sequential impression. (The existing bidirectional mode runs two frontiers of *one* algorithm, not two algorithms.)
 - **Hill climbing & SA — success-rate benchmark.** Run N random restarts per algorithm on the same problem and tabulate success rate and mean cost, turning the eight-algorithm menu into a comparison rather than a sequence of anecdotes. (Verified absent.)
-- **Bayes-network — remove the D3 CDN dependency.** Inline D3 or add a `typeof d3` guard so the one non-offline applet matches the others' offline guarantee.
+- **Bayes-network — inline D3.** A `typeof d3` guard now shows a fallback message if the CDN is blocked (inference and probabilities still work); fully inlining D3 would remove the last CDN dependency.

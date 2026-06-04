@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Visualizing Pathfinding — BFS, DFS, A*</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230284c7'/%3E%3Cpath d='M13 10l9 6-9 6z' fill='%23ffffff'/%3E%3C/svg%3E">
 <meta name="description" content="Interactive visualization of search algorithms on a grid. Draw walls, move the start and goal, and watch BFS, DFS, A*, and Dijkstra explore.">
 <link rel="canonical" href="https://lmdixon23.github.io/my_dev_projects/playgrounds/search-pathfinding/">
 <meta property="og:type" content="website">
@@ -25,21 +26,21 @@
     --mud: #d6a76a; --water: #7dd3fc;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; font-family: 'Georgia', serif; background: var(--bg); color: var(--fg); line-height: 1.6; }
-  .page-header { background: var(--card); border-bottom: 1px solid var(--border);
-                  padding: 16px 24px; display: flex; align-items: center; justify-content: space-between;
-                  flex-wrap: wrap; gap: 12px; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", Arial, sans-serif; background: var(--bg); color: var(--fg); line-height: 1.6; }
+  .page-header { background: var(--card); border-bottom: 1px solid var(--border); padding: 12px 24px; }
+  .header-utility { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+  .header-prefs { display: flex; align-items: center; gap: 8px; }
+  .header-main { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .header-actions { display: flex; align-items: center; gap: 8px; font-family: -apple-system, system-ui, sans-serif; font-size: 0.85rem; }
+  .header-actions .header-reset { margin-left: 12px; }
   .page-header h1 { margin: 0; font-size: 1.5rem; }
-  .page-header .back { color: var(--accent); text-decoration: none; font-size: 0.9rem;
-                       font-family: -apple-system, system-ui, sans-serif; }
-  .tldr { position: fixed; top: 80px; right: 24px; max-width: 250px;
+  .page-header .back { color: var(--accent); text-decoration: none; font-size: 0.9rem; font-family: -apple-system, system-ui, sans-serif; }
+  .tldr { max-width: 820px; margin: 16px auto 0;
            background: var(--accent); color: white;
            border-radius: 8px; padding: 14px 16px; font-size: 0.88rem; font-weight: 500;
-           font-family: -apple-system, system-ui, sans-serif; line-height: 1.45;
-           z-index: 50; box-shadow: 0 6px 20px rgba(0,0,0,0.18); }
+           font-family: -apple-system, system-ui, sans-serif; line-height: 1.45; }
   .tldr strong { color: rgba(255,255,255,0.85); font-size: 0.72rem; letter-spacing: 0.08em;
                   text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 6px; }
-  @media (max-width: 1100px) { .tldr { display: none; } }
   .jump-link { display: inline-block; margin-top: 14px;
                 padding: 6px 14px; border: 1px solid var(--border); border-radius: 999px;
                 background: white; color: var(--accent); text-decoration: none;
@@ -98,8 +99,6 @@
                               color: var(--accent); font-size: 0.9rem;
                               text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0; }
   /* === header tools + reduced motion === */
-  .header-tools { display: flex; gap: 8px; align-items: center;
-                   font-family: -apple-system, system-ui, sans-serif; font-size: 0.85rem; }
   .lang-switch { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
   .lang-switch button { padding: 4px 10px; background: white; color: var(--muted);
                           border: none; cursor: pointer; font: inherit; font-size: 0.78rem; }
@@ -108,6 +107,21 @@
                     border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
                     font: inherit; font-size: 0.82rem; }
   .header-reset:hover { background: var(--soft); }
+  /* ===== Unified transport bar (shared playback controls across stepped applets) ===== */
+  .transport { display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+               padding: 8px 10px; margin: 10px 0; border: 1px solid var(--border);
+               border-radius: 8px; background: var(--soft); }
+  .tp-btn { font: inherit; font-size: 0.9rem; cursor: pointer; border: 1px solid var(--border);
+            background: var(--card); color: var(--fg); border-radius: 6px; padding: 6px 12px; min-width: 40px; line-height: 1; }
+  .tp-btn:hover { background: var(--soft); }
+  .tp-speed { display: flex; align-items: center; gap: 6px; font-size: 0.82rem; color: var(--muted); }
+  .tp-speed input { accent-color: var(--accent); }
+  .tp-count { margin-left: auto; font-family: ui-monospace, monospace; font-size: 0.82rem;
+              color: var(--muted); font-variant-numeric: tabular-nums; min-width: 128px; text-align: right; }
+  .tp-btn:disabled { opacity: 0.45; cursor: default; }
+  /* Scrollable list/table region — show everything in a fixed height instead of truncating with "N more not shown". */
+  .list-scroll { overflow: auto; }
+  .list-scroll thead th { position: sticky; top: 0; background: var(--soft); z-index: 1; }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { transition: none !important; animation: none !important; }
   }
@@ -133,18 +147,8 @@
                   font-size: 0.85rem; font-family: inherit; }
   .header-png:hover { background: var(--soft); }
   body.dark-mode .header-png { background: var(--card); color: var(--fg); }
-  input[type="range"] { height: 28px; cursor: pointer; }
-  input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none; appearance: none;
-    width: 24px; height: 24px; border-radius: 50%; cursor: pointer;
-    background: var(--accent); border: 2px solid white;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-  }
-  input[type="range"]::-moz-range-thumb {
-    width: 24px; height: 24px; border-radius: 50%; cursor: pointer;
-    background: var(--accent); border: 2px solid white;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-  }
+  /* ===== Slider styling — native themed control via accent-color (consistent across browsers) ===== */
+  input[type="range"] { accent-color: var(--accent); height: 28px; cursor: pointer; }
   /* embed mode. Strip chrome so the applet fits cleanly in an LMS iframe. */
   body.embed-mode .page-header,
   body.embed-mode aside.tldr,
@@ -156,25 +160,31 @@
 <body>
 
 <header class="page-header">
-  <h1 data-i18n="title">Visualizing Pathfinding</h1>
-  <div class="header-tools">
-    <button class="header-png" id="shareLink"
-            title="Copy a URL that re-opens this algorithm choice in another browser.">🔗 Share</button>
-    <button class="header-png" id="embedLink"
-            title="Copy an <iframe> snippet for embedding in an LMS. Strips header/essay so only the interactive area shows.">📎 Embed</button>
-    <button class="header-png" id="csvExport"
-            title="Download grid + search results (path coordinates, nodes visited, frontier snapshot) as CSV.">📊 CSV</button>
-    <button class="header-png" id="exportPng"
-            title="Download the current grid + search trace as a PNG.">📷 PNG</button>
-    <button class="header-theme" id="themeToggle" aria-label="Toggle dark or light theme"
-            title="Toggle dark / light theme (saved across all playgrounds).">🌙</button>
-    <button class="header-reset" id="hardReset" data-i18n="reset-all"
-            title="Reset everything to defaults: empty grid, A*, default start and goal positions.">↺ Reset all</button>
-    <div class="lang-switch" title="Switch interface language">
-      <button data-lang="en" class="active">EN</button>
-      <button data-lang="zh">中文</button>
-    </div>
+  <div class="header-utility">
     <a class="back" href="../../" data-i18n="back-link">← Back to all playgrounds</a>
+    <div class="header-prefs">
+      <button class="header-theme" id="themeToggle" aria-label="Toggle dark or light theme"
+              title="Toggle dark / light theme (saved across all playgrounds).">🌙</button>
+      <div class="lang-switch" title="Switch interface language">
+        <button data-lang="en" class="active">EN</button>
+        <button data-lang="zh">中文</button>
+      </div>
+    </div>
+  </div>
+  <div class="header-main">
+    <h1 data-i18n="title">Visualizing Pathfinding</h1>
+    <div class="header-actions">
+      <button class="header-png" id="shareLink"
+              title="Copy a URL that re-opens this algorithm choice in another browser.">🔗 Share</button>
+      <button class="header-png" id="embedLink"
+              title="Copy an <iframe> snippet for embedding in an LMS. Strips header/essay so only the interactive area shows.">📎 Embed</button>
+      <button class="header-png" id="csvExport"
+              title="Download grid + search results (path coordinates, nodes visited, frontier snapshot) as CSV.">📊 CSV</button>
+      <button class="header-png" id="exportPng"
+              title="Download the current grid + search trace as a PNG.">📷 PNG</button>
+      <button class="header-reset" id="hardReset" data-i18n="reset-all"
+              title="Reset everything to defaults: empty grid, A*, default start and goal positions.">↺ Reset all</button>
+    </div>
   </div>
 </header>
 
@@ -212,19 +222,13 @@
       <option value="manhattan15" data-i18n="h-overestimate">1.5× Manhattan (INadmissible)</option>
       <option value="zero" data-i18n="h-zero">Zero (= Dijkstra)</option>
     </select>
-    <label data-i18n="speed-label">Speed:</label>
-    <input id="speedSlider" type="range" min="0" max="100" value="50" aria-label="Animation speed"
-           data-i18n-title="speed-title"
-           title="How quickly the search visualization advances. Slower = easier to follow the frontier expansion. Adjustable live during a run.">
-    <button class="step-btn" id="runBtn" data-i18n="run-btn"
-            data-i18n-title="run-title"
-            title="Run the selected algorithm from start to goal. Becomes Pause while running.">▶ Run search</button>
-    <button class="step-btn" id="stepBtn" data-i18n="step-btn"
-            data-i18n-title="step-title"
-            title="Expand one frontier node. Lets the class discuss each expansion before the next.">⏯ Step</button>
+    <!-- Speed / Run / Step relocated to the unified transport bar above the canvas. -->
     <button class="step-btn secondary" id="mazeBtn" data-i18n="maze-btn"
             data-i18n-title="maze-title"
-            title="Generate a random wall pattern (~28% wall density). Great for comparing algorithms.">Random maze</button>
+            title="Generate a random wall pattern (~28% wall density). Great for comparing algorithms.">Random walls</button>
+    <button class="step-btn secondary" id="trueMazeBtn" data-i18n="truemaze-btn"
+            data-i18n-title="truemaze-title"
+            title="Generate a recursive-division maze with a wall border. Iconic, and great for seeing BFS flood vs. DFS snake — though one path between cells flattens the optimality differences the obstacle layout shows.">Maze</button>
     <button class="step-btn secondary" id="clearBtn" data-i18n="clear-btn"
             data-i18n-title="clear-title"
             title="Remove all walls. Keeps start and goal where they are.">Clear walls</button>
@@ -250,18 +254,34 @@
 
   <p class="hint" id="algoHelp">A* uses an estimate of remaining distance to focus the search.</p>
 
+  <!-- Unified transport bar (shared playback controls; Speed/Run/Step relocated here). -->
+  <div class="transport" id="transport" role="group" aria-label="Playback controls">
+    <button class="tp-btn" id="restartBtn" data-i18n-title="restart-title"
+            title="Restart the search from the beginning (keeps walls, start, and goal).">↺</button>
+    <button class="tp-btn" id="backBtn" data-i18n-title="back-title"
+            title="Step one expansion backward through the search.">◀❘</button>
+    <button class="tp-btn" id="runBtn" data-i18n="run-btn" data-i18n-title="run-title" aria-pressed="false"
+            title="Run the selected algorithm from start to goal. Becomes Pause while running.">▶ Run search</button>
+    <button class="tp-btn" id="stepBtn" data-i18n="step-btn" data-i18n-title="step-title"
+            title="Expand one frontier node. Lets the class discuss each expansion before the next.">❘▶ Step</button>
+    <label class="tp-speed"><span data-i18n="speed-label">Speed:</span>
+      <input id="speedSlider" type="range" min="0" max="100" value="50" aria-label="Animation speed"
+             data-i18n-title="speed-title"
+             title="How quickly the search visualization advances. Slower = easier to follow the frontier expansion. Adjustable live during a run."></label>
+    <span class="tp-scrub" id="pfScrubGroup" style="display:inline-flex; visibility:hidden; align-items:center; gap:8px; flex:1 1 220px; min-width:150px;">
+      <span style="color:var(--accent); font-weight:600; font-size:0.82rem;" title="History">⏪</span>
+      <input type="range" id="replaySlider" min="0" max="0" value="0" step="1"
+             aria-label="Scrub through search history" style="flex:1; min-width:110px;">
+      <span id="replayCount" style="display:none;"></span>
+      <label style="color:var(--muted); display:flex; align-items:center; gap:4px; font-size:0.8rem;"><span>step</span>
+        <input type="number" id="pfJump" min="0" aria-label="Jump to step" style="width:64px; padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;"></label>
+      <button class="tp-btn" id="pfLive" style="padding:4px 10px; font-size:0.8rem;" disabled data-i18n="return-live">Jump to latest</button>
+    </span>
+    <span class="tp-count" id="tpCount" data-i18n="tp-idle">idle</span>
+  </div>
+
   <canvas id="grid" width="700" height="500" role="img"
           aria-label="Grid pathfinding visualization. Click to add walls, drag start or goal."></canvas>
-
-  <!-- Replay scrubber — drag to inspect search state at any past step. -->
-  <div id="replayStrip" style="margin-top:8px; padding:8px 12px; background:var(--soft); border:1px solid var(--border); border-radius:8px; display:none;">
-    <div style="display:flex; align-items:center; gap:10px; font-size:0.85rem;">
-      <span style="color:var(--accent); font-weight:600;" data-i18n="replay-label">⏪ Replay</span>
-      <input type="range" id="replaySlider" min="0" max="0" value="0" step="1"
-             aria-label="Scrub through search history" style="flex:1;">
-      <span id="replayCount" style="font-family:ui-monospace,monospace; color:var(--muted); min-width:90px; text-align:right;">live</span>
-    </div>
-  </div>
 
   <div class="stats-strip">
     <div class="stat-item"><div class="label" data-i18n="stat-visited">Nodes visited</div><div class="val" id="nVis">0</div></div>
@@ -286,7 +306,7 @@
       <span data-i18n="frontier-summary">📋 Open frontier (data structure contents)</span>
       <span id="frontierCount" style="color:var(--muted); font-weight:400; margin-left:6px;"></span>
     </summary>
-    <div style="overflow-x:auto; margin-top:6px;">
+    <div class="list-scroll" style="max-height:230px; margin-top:6px;">
       <table id="frontierTable" style="border-collapse:collapse; font-family:ui-monospace,monospace; font-size:0.85rem; width:100%; min-width:340px;">
         <thead>
           <tr style="background:var(--soft);">
@@ -348,6 +368,40 @@
         <button class="step-btn" id="tourApply" data-i18n="tour-apply">▶ Apply this scenario</button>
         <button class="step-btn secondary" id="tourNext" data-i18n="tour-next">Next →</button>
       </div>
+    </div>
+  </details>
+
+  <!-- Race mode: two algorithms search the SAME maze, side by side. -->
+  <details id="raceDetails" style="margin-top:14px;">
+    <summary style="cursor:pointer; padding:8px 12px; background:var(--soft); border:1px solid var(--border); border-radius:6px; font-family:-apple-system,system-ui,sans-serif; font-size:0.9rem; color:var(--accent); font-weight:600;">
+      <span data-i18n="race-summary">🏁 Race two algorithms on the same maze</span>
+    </summary>
+    <div style="margin-top:10px; padding:14px; background:var(--card); border:1px solid var(--border); border-radius:8px;">
+      <p style="color:var(--muted); font-size:0.85rem; margin:0 0 12px;" data-i18n="race-intro">Both algorithms search the maze you built above, one node-expansion per tick. Watch how many cells each opens before reaching the goal — that's why "A* explores fewer nodes than BFS" is a measured result, not a slogan.</p>
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:12px; font-family:-apple-system,system-ui,sans-serif; font-size:0.85rem;">
+        <label><span data-i18n="race-left">Left</span>
+          <select id="raceAlgoA" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+            <option value="astar" selected>A*</option><option value="bfs">BFS</option><option value="dijkstra">Dijkstra</option><option value="greedy">Greedy best-first</option><option value="dfs">DFS</option>
+          </select></label>
+        <span style="color:var(--muted); font-weight:600;" data-i18n="race-vs">vs</span>
+        <label><span data-i18n="race-right">Right</span>
+          <select id="raceAlgoB" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+            <option value="astar">A*</option><option value="bfs" selected>BFS</option><option value="dijkstra">Dijkstra</option><option value="greedy">Greedy best-first</option><option value="dfs">DFS</option>
+          </select></label>
+        <button class="tp-btn" id="raceBtn" data-i18n="race-btn">▶ Race</button>
+        <button class="tp-btn" id="raceReset" data-i18n="race-reset">↺ Reset</button>
+      </div>
+      <div style="display:flex; gap:14px; flex-wrap:wrap; justify-content:center;">
+        <div style="text-align:center;">
+          <div style="font-size:0.82rem; margin-bottom:4px; font-family:ui-monospace,monospace;"><b id="raceLabelA" style="color:var(--accent);">A*</b> · <span data-i18n="race-nodes">nodes</span> <b id="raceNA">0</b> <span id="raceStatA" style="color:var(--muted);"></span></div>
+          <canvas id="raceCvA" width="320" height="224" style="border:1px solid var(--border); border-radius:6px; background:var(--card); max-width:100%;"></canvas>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:0.82rem; margin-bottom:4px; font-family:ui-monospace,monospace;"><b id="raceLabelB" style="color:var(--accent);">BFS</b> · <span data-i18n="race-nodes">nodes</span> <b id="raceNB">0</b> <span id="raceStatB" style="color:var(--muted);"></span></div>
+          <canvas id="raceCvB" width="320" height="224" style="border:1px solid var(--border); border-radius:6px; background:var(--card); max-width:100%;"></canvas>
+        </div>
+      </div>
+      <div id="raceResult" style="margin-top:12px; text-align:center; font-size:0.92rem; font-weight:600; min-height:1.4em;"></div>
     </div>
   </details>
 
@@ -463,11 +517,19 @@
   const STRINGS = {
     en: {
       'title': 'Visualizing Pathfinding', 'back-link': '← Back to all playgrounds',
-      'footer-top': '↑ Back to top', 'footer-builtby': 'Built by', 'footer-course': 'Made for the 2025–26 Intro to AI course, Haidian Kaiwen Academy', 'footer-source': 'View source', 'footer-issue': 'Report an issue',
+      'footer-top': '↑ Back to top', 'footer-builtby': 'Built by', 'footer-course': 'Made for the 2025–2026 Intro to AI course, Haidian Kaiwen Academy', 'footer-source': 'View source', 'footer-issue': 'Report an issue',
       'reset-all': '↺ Reset all',
       'algo-label': 'Algorithm:', 'speed-label': 'Speed:',
       'run-btn': '▶ Run search', 'pause-btn': '⏸ Pause search', 'resume-btn': '▶ Resume',
-      'step-btn': '⏯ Step', 'maze-btn': 'Random maze',
+      'step-btn': '❘▶ Step', 'maze-btn': 'Random walls', 'truemaze-btn': 'Maze',
+      'restart-title': 'Restart the search from the beginning (keeps walls, start, and goal).',
+      'back-title': 'Step one expansion backward through the search.',
+      'tp-idle': 'idle',
+      'return-live': 'Jump to latest',
+      'race-summary': '🏁 Race two algorithms on the same maze',
+      'race-intro': 'Both algorithms search the maze you built above, one node-expansion per tick. Watch how many cells each opens before reaching the goal — that is why "A* explores fewer nodes than BFS" is a measured result, not a slogan.',
+      'race-left': 'Left', 'race-right': 'Right', 'race-vs': 'vs',
+      'race-btn': '▶ Race', 'race-reset': '↺ Reset', 'race-nodes': 'nodes',
       'clear-btn': 'Clear walls', 'reset-btn': 'Reset',
       'size-label': 'Grid size:',
       'size-small': 'Small (20 × 14)', 'size-medium': 'Medium (35 × 25)', 'size-large': 'Large (50 × 35)',
@@ -512,16 +574,25 @@
       'run-title': 'Run the selected algorithm from start to goal. Becomes Pause while running.',
       'step-title': 'Expand one frontier node. Lets the class discuss each expansion before the next.',
       'maze-title': 'Generate a random wall pattern (~28% wall density). Great for comparing algorithms.',
+      'truemaze-title': 'Generate a recursive-division maze with a wall border. Iconic, and great for BFS-flood vs DFS-snake — but one path between cells flattens the optimality differences the obstacle layout shows.',
       'clear-title': 'Remove all walls. Keeps start and goal where they are.',
       'reset-title': 'Clear walls AND return start/goal to their default positions.',
     },
     zh: {
       'title': '路径搜索可视化', 'back-link': '← 返回所有演示',
-      'footer-top': '↑ 返回顶部', 'footer-builtby': '作者', 'footer-course': '为海淀凯文学校 2025–26《人工智能导论》课程制作', 'footer-source': '查看源代码', 'footer-issue': '反馈问题',
+      'footer-top': '↑ 返回顶部', 'footer-builtby': '作者', 'footer-course': '为海淀凯文学校 2025–2026《人工智能导论》课程制作', 'footer-source': '查看源代码', 'footer-issue': '反馈问题',
       'reset-all': '↺ 全部重置',
       'algo-label': '算法:', 'speed-label': '速度:',
       'run-btn': '▶ 运行搜索', 'pause-btn': '⏸ 暂停搜索', 'resume-btn': '▶ 继续',
-      'step-btn': '⏯ 单步', 'maze-btn': '随机迷宫',
+      'step-btn': '❘▶ 单步', 'maze-btn': '随机墙壁', 'truemaze-btn': '迷宫',
+      'restart-title': '从头重新开始搜索(保留墙、起点和终点)。',
+      'back-title': '在搜索中后退一步。',
+      'tp-idle': '空闲',
+      'return-live': '跳到最新',
+      'race-summary': '🏁 让两个算法在同一迷宫上赛跑',
+      'race-intro': '两个算法都在你上面搭好的迷宫里搜索,每帧各扩展一个节点。看看各自到达终点前打开了多少格子——这正是为什么"A* 比 BFS 探索更少节点"是可测量的结果,而不是口号。',
+      'race-left': '左', 'race-right': '右', 'race-vs': '对',
+      'race-btn': '▶ 开始赛跑', 'race-reset': '↺ 重置', 'race-nodes': '节点',
       'clear-btn': '清除墙壁', 'reset-btn': '重置',
       'size-label': '网格尺寸:',
       'size-small': '小 (20 × 14)', 'size-medium': '中 (35 × 25)', 'size-large': '大 (50 × 35)',
@@ -566,6 +637,7 @@
       'run-title': '运行所选算法,从起点到终点。运行时变为"暂停"。',
       'step-title': '展开一个边界节点。让课堂在下一步之前讨论这次展开。',
       'maze-title': '生成随机墙壁(约 28% 墙密度)。很适合比较不同算法。',
+      'truemaze-title': '生成递归分割迷宫(带边界墙)。经典样式,适合观察 BFS 泛洪与 DFS 蜿蜒的差异——但单元格之间只有一条路径,会削弱障碍布局所展示的最优性差异。',
       'clear-title': '清除所有墙壁。起点和终点保持原位。',
       'reset-title': '清除墙壁并把起点/终点恢复到默认位置。',
     },
@@ -584,7 +656,7 @@
     });
     document.querySelectorAll('.lang-switch button').forEach(b =>
       b.classList.toggle('active', b.dataset.lang === lang));
-    try { localStorage.setItem('pf-lang', lang); } catch (_) {}
+    try { localStorage.setItem('lang', lang); } catch (_) {}
     // Re-apply the run-button label since some of its labels are language-dependent.
     // try/catch because refreshRunBtn reads `running` (a let), and during initial setLang
     // we're in the temporal dead zone for that binding — the catch swallows that one
@@ -594,13 +666,13 @@
   document.querySelectorAll('.lang-switch button').forEach(b =>
     b.addEventListener('click', () => setLang(b.dataset.lang)));
   let initialLang = 'en';
-  try { initialLang = localStorage.getItem('pf-lang') || 'en'; } catch (_) {}
+  try { initialLang = localStorage.getItem('lang') || 'en'; } catch (_) {}
   setLang(initialLang);
 
   function setTheme(t) {
     document.body.classList.toggle('dark-mode', t === 'dark');
     const btn = document.getElementById('themeToggle');
-    if (btn) btn.textContent = t === 'dark' ? '☀' : '🌙';
+    if (btn) btn.textContent = t === 'dark' ? '☀️' : '🌙';
     try { localStorage.setItem('theme', t); } catch (_) {}
   }
   let initialTheme = 'light';
@@ -1040,10 +1112,11 @@
     // Drop any paused step generator — its state is stale once we reset.
     if (typeof stepGen !== 'undefined') stepGen = null;
     paused = false;
-    document.getElementById('replayStrip').style.display = 'none';
+    { const g = document.getElementById('pfScrubGroup'); if (g) g.style.visibility = 'hidden'; const lv = document.getElementById('pfLive'); if (lv) lv.disabled = true; }
     document.getElementById('replaySlider').value = 0;
     document.getElementById('replaySlider').max = 0;
     document.getElementById('replayCount').textContent = 'live';
+    { const tc = document.getElementById('tpCount'); if (tc) tc.textContent = 'idle'; }
     refreshRunBtn();
     renderFrontierTable();
   }
@@ -1061,8 +1134,9 @@
     if (!replayMode) {
       s.value = history.length - 1;
       document.getElementById('replayCount').textContent = `step ${history.length}`;
+      { const tc = document.getElementById('tpCount'); if (tc) tc.textContent = `step ${history.length}`; }
     }
-    if (history.length > 1) document.getElementById('replayStrip').style.display = '';
+    if (history.length > 1) { const g = document.getElementById('pfScrubGroup'); if (g) g.style.visibility = 'visible'; }
   }
   // Render the live frontier-inspection table from current frontierData.
   function renderFrontierTable() {
@@ -1074,11 +1148,8 @@
       tbody.innerHTML = '<tr><td colspan="5" style="padding:8px 12px; color:var(--muted); font-style:italic;">(empty)</td></tr>';
       return;
     }
-    // Cap at 12 visible rows for readability.
-    const cap = 12;
-    const slice = entries.slice(0, cap);
     let html = '';
-    for (const e of slice) {
+    for (const e of entries) {
       html += '<tr>';
       html += `<td style="padding:3px 8px; border-bottom:1px solid var(--border);">(${e.r}, ${e.c})</td>`;
       html += `<td style="padding:3px 8px; border-bottom:1px solid var(--border); text-align:right;">${e.g}</td>`;
@@ -1087,15 +1158,13 @@
       html += `<td style="padding:3px 8px; border-bottom:1px solid var(--border); color:var(--muted);">${e.note}</td>`;
       html += '</tr>';
     }
-    if (entries.length > cap) {
-      html += `<tr><td colspan="5" style="padding:6px 8px; color:var(--muted); font-style:italic; text-align:center;">… ${entries.length - cap} more not shown</td></tr>`;
-    }
     tbody.innerHTML = html;
   }
   function refreshRunBtn() {
     const btn = document.getElementById('runBtn');
     const lang = document.documentElement.lang || 'en';
     const T = (STRINGS[lang] && STRINGS[lang]) || STRINGS.en;
+    btn.setAttribute('aria-pressed', running ? 'true' : 'false');
     if (running) btn.textContent = T['pause-btn'] || '⏸ Pause search';
     else if (stepGen !== null) btn.textContent = T['resume-btn'] || '▶ Resume';
     else btn.textContent = T['run-btn'] || '▶ Run search';
@@ -1176,7 +1245,13 @@
   // each expansion before clicking again.
   document.getElementById('stepBtn').addEventListener('click', () => {
     if (running) return; // Run is in progress; Step is for paused mode only.
-    if (replayMode) { replayMode = false; document.getElementById('replayCount').textContent = 'live'; }
+    if (replayMode) {
+      // While scrubbed back, ❘▶ walks forward through history; only resume the live search once caught up.
+      const s = document.getElementById('replaySlider');
+      if (parseInt(s.value, 10) < history.length - 1) { replayStep(1); return; }
+      replayMode = false; document.getElementById('replayCount').textContent = 'live';
+      { const tc = document.getElementById('tpCount'); if (tc) tc.textContent = 'live'; }
+    }
     if (stepGen === null) { clearSearch(); stepGen = newGen(); }
     const {value, done} = stepGen.next();
     document.getElementById('nVis').textContent = visited.size;
@@ -1199,6 +1274,7 @@
     const snap = history[Math.min(idx, history.length - 1)];
     if (!snap) return;
     replayMode = true;
+    { const lv = document.getElementById('pfLive'); if (lv) lv.disabled = (idx === history.length - 1); }
     // Apply snapshot to live state — non-destructive (drawing only).
     visited = new Set(snap.visited);
     frontier = new Set(snap.frontier);
@@ -1207,9 +1283,56 @@
     document.getElementById('nVis').textContent = snap.nVis;
     document.getElementById('replayCount').textContent =
       idx === history.length - 1 ? 'live' : `step ${idx + 1} of ${history.length}`;
+    { const tc = document.getElementById('tpCount'); if (tc) tc.textContent =
+        idx === history.length - 1 ? 'live' : `step ${idx + 1} of ${history.length}`; }
     draw();
     renderFrontierTable();
   });
+
+  // ===== Unified transport bar: universal step-back + restart =====
+  function replayStep(delta) {
+    if (running) return;                 // can't scrub while a live search is animating
+    if (history.length === 0) return;
+    const s = document.getElementById('replaySlider');
+    let idx = parseInt(s.value, 10);
+    if (Number.isNaN(idx)) idx = history.length - 1;
+    idx = Math.max(0, Math.min(history.length - 1, idx + delta));
+    s.value = idx;
+    s.dispatchEvent(new Event('input'));  // reuse the existing replay-restore handler
+  }
+  document.getElementById('backBtn').addEventListener('click', () => replayStep(-1));
+  document.getElementById('restartBtn').addEventListener('click', () => {
+    clearSearch(); draw(); renderFrontierTable();
+  });
+  // Numeric jump box — clamp to [0, max], set slider, fire input event.
+  document.getElementById('pfJump').addEventListener('change', () => {
+    const s = document.getElementById('replaySlider');
+    let v = parseInt(document.getElementById('pfJump').value, 10);
+    if (Number.isNaN(v)) v = parseInt(s.value, 10);
+    v = Math.max(0, Math.min(parseInt(s.max, 10) || 0, v));
+    s.value = v;
+    s.dispatchEvent(new Event('input'));
+  });
+  // "Return to live" button — scrub to the newest snapshot.
+  document.getElementById('pfLive').addEventListener('click', () => {
+    const s = document.getElementById('replaySlider');
+    s.value = s.max;
+    s.dispatchEvent(new Event('input'));
+  });
+  // Scrub-in-bar acceptance test.
+  window.__pfScrubTest = function(){ const g=document.getElementById('pfScrubGroup'); const inBar=!!(g&&g.closest('#transport')); const r={scrubInBar:inBar, jump:!!document.getElementById('pfJump'), slider:!!document.getElementById('replaySlider')}; const pass=r.scrubInBar&&r.jump&&r.slider; console.log('[pathfinding] SCRUB-IN-BAR '+(pass?'passed':'FAILED'), r); return Object.assign({pass},r); };
+  // Console acceptance test (mirrors the convolution/cnf-sat applets' pattern).
+  window.__pathAcceptanceTest = function () {
+    const sp = document.getElementById('speedSlider');
+    const r = { transportBar: !!document.getElementById('transport'),
+                backBtn: !!document.getElementById('backBtn'),
+                restartBtn: !!document.getElementById('restartBtn'),
+                speedInBar: !!(sp && sp.closest('#transport')),
+                historyLen: history.length };
+    const pass = r.transportBar && r.backBtn && r.restartBtn && r.speedInBar;
+    console.log('[pathfinding] CONTROLS ACCEPTANCE TEST ' + (pass ? 'passed' : 'FAILED'), r);
+    return Object.assign({ pass }, r);
+  };
 
   document.getElementById('clearBtn').addEventListener('click', () => {
     for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++)
@@ -1266,6 +1389,74 @@
     for (let r = by0; r <= by1; r++) addWall(r, bx);
     clearSearch(); draw();
   }
+  // True recursive-division maze: a bordered, connected "perfect" maze (one path
+  // between any two open cells). Iconic and good for BFS-flood vs DFS-snake, but
+  // that single path flattens the optimality differences the obstacle layout shows.
+  function loadMaze() {
+    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+      if (grid[r][c] !== START && grid[r][c] !== GOAL) grid[r][c] = EMPTY;
+    }
+    const addWall = (r, c) => { if (inBounds(r, c) && grid[r][c] === EMPTY) grid[r][c] = WALL; };
+    for (let r = 0; r < ROWS; r++) { addWall(r, 0); addWall(r, COLS - 1); }
+    for (let c = 0; c < COLS; c++) { addWall(0, c); addWall(ROWS - 1, c); }
+    const ri = (lo, hi) => lo + Math.floor(Math.random() * (hi - lo + 1));
+    const divide = (top, left, bottom, right) => {
+      const h = bottom - top + 1, w = right - left + 1;
+      if (h < 3 && w < 3) return;
+      const horizontal = w < h ? true : (h < w ? false : Math.random() < 0.5);
+      if (horizontal && h >= 3) {
+        const wr = ri(top + 1, bottom - 1), gap = ri(left, right);
+        for (let c = left; c <= right; c++) if (c !== gap) addWall(wr, c);
+        divide(top, left, wr - 1, right);
+        divide(wr + 1, left, bottom, right);
+      } else if (w >= 3) {
+        const wc = ri(left + 1, right - 1), gap = ri(top, bottom);
+        for (let r = top; r <= bottom; r++) if (r !== gap) addWall(r, wc);
+        divide(top, left, bottom, wc - 1);
+        divide(top, wc + 1, bottom, right);
+      }
+    };
+    divide(1, 1, ROWS - 2, COLS - 2);
+    // Guarantee a solvable maze by VERIFYING, not trusting the generator. BFS from start
+    // over open cells; if the goal isn't reachable (recursive division can seal a region
+    // when a gap is re-blocked at a wall junction), carve the shortest route to it open.
+    // Barriers are 1 cell thick, so this breaches only a cell or two. Solvable by
+    // construction, never a re-roll.
+    const DIRS = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+    const seen = new Set([key(start.r, start.c)]);
+    const q = [[start.r, start.c]];
+    let reached = false;
+    for (let i = 0; i < q.length && !reached; i++) {
+      const [r, c] = q[i];
+      if (r === goal.r && c === goal.c) { reached = true; break; }
+      for (const [dr, dc] of DIRS) {
+        const nr = r + dr, nc = c + dc;
+        if (inBounds(nr, nc) && grid[nr][nc] !== WALL && !seen.has(key(nr, nc))) {
+          seen.add(key(nr, nc)); q.push([nr, nc]);
+        }
+      }
+    }
+    if (!reached) {
+      // BFS across ALL cells (walls passable) for a start→goal route, then open its walls.
+      const prev = new Map([[key(start.r, start.c), -1]]);
+      const q2 = [[start.r, start.c]];
+      for (let i = 0; i < q2.length; i++) {
+        const [r, c] = q2[i];
+        if (r === goal.r && c === goal.c) break;
+        for (const [dr, dc] of DIRS) {
+          const nr = r + dr, nc = c + dc, nk = key(nr, nc);
+          if (inBounds(nr, nc) && !prev.has(nk)) { prev.set(nk, key(r, c)); q2.push([nr, nc]); }
+        }
+      }
+      let k = key(goal.r, goal.c);
+      while (k !== -1 && k !== undefined) {
+        const r = Math.floor(k / COLS), c = k % COLS;
+        if (grid[r][c] === WALL) grid[r][c] = EMPTY;
+        k = prev.get(k);
+      }
+    }
+    clearSearch(); draw();
+  }
   // Rebuild the grid for a new size preset. Re-applies the demo maze afterward.
   function applySize(name) {
     const preset = SIZE_PRESETS[name] || SIZE_PRESETS.small;
@@ -1283,6 +1474,7 @@
         grid[r][c] = Math.random() < 0.28 ? WALL : EMPTY;
     clearSearch(); draw();
   });
+  document.getElementById('trueMazeBtn').addEventListener('click', loadMaze);
 
   // hard reset (header button) — algorithm + grid back to default (small + demo maze).
   document.getElementById('hardReset').addEventListener('click', () => {
@@ -1456,6 +1648,149 @@
       fb.style.color = ok ? '#16a34a' : '#dc2626';
     });
   });
+
+  // ===== Race mode: two algorithms search the SAME maze in lockstep =====
+  // Self-contained instrumented search — does NOT touch the main search globals,
+  // so two can run side by side. Reuses grid/start/goal/key/cellCost/inBounds/getCSS
+  // by closure over the main script scope.
+  (function () {
+    const G = id => document.getElementById(id);
+    const cvA = G('raceCvA'); if (!cvA) return;
+    const cvB = G('raceCvB');
+    const actx = cvA.getContext('2d'), bctx = cvB.getContext('2d');
+    const NB = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+    let runA = null, runB = null, raceTimer = null, racing = false;
+    const pass2 = (r, c) => inBounds(r, c) && grid[r][c] !== WALL;
+    const hMan = (r, c) => Math.abs(r - goal.r) + Math.abs(c - goal.c);
+
+    function makeSearch(type) {
+      const s = { type, visited: new Set(), inFront: new Set(), came: new Map(),
+                  gs: new Map(), frontier: [], expanded: 0, done: false, found: false, path: null };
+      const sk = key(start.r, start.c);
+      s.gs.set(sk, 0); s.frontier.push({ r: start.r, c: start.c }); s.inFront.add(sk);
+      function popNode() {
+        if (type === 'bfs') return s.frontier.shift();
+        if (type === 'dfs') return s.frontier.pop();
+        let bi = 0, bv = Infinity;
+        for (let i = 0; i < s.frontier.length; i++) {
+          const n = s.frontier[i], nk = key(n.r, n.c), gv = s.gs.get(nk) || 0;
+          const v = type === 'dijkstra' ? gv : type === 'greedy' ? hMan(n.r, n.c) : gv + hMan(n.r, n.c);
+          if (v < bv) { bv = v; bi = i; }
+        }
+        return s.frontier.splice(bi, 1)[0];
+      }
+      s.step = function () {
+        if (s.done) return;
+        if (!s.frontier.length) { s.done = true; s.found = false; return; }
+        const cur = popNode(), ck = key(cur.r, cur.c);
+        s.inFront.delete(ck);
+        if (s.visited.has(ck)) return;                 // stale priority-queue entry
+        s.visited.add(ck); s.expanded++;
+        if (cur.r === goal.r && cur.c === goal.c) {
+          s.done = true; s.found = true;
+          const path = []; let k = ck;
+          while (k !== undefined) { path.push([Math.floor(k / COLS), k % COLS]); k = s.came.get(k); }
+          s.path = path.reverse(); return;
+        }
+        for (const [dr, dc] of NB) {
+          const nr = cur.r + dr, nc = cur.c + dc;
+          if (!pass2(nr, nc) || s.visited.has(key(nr, nc))) continue;
+          const nk = key(nr, nc);
+          const ng = (s.gs.get(ck) || 0) + ((type === 'bfs' || type === 'dfs') ? 1 : cellCost(nr, nc));
+          if (type === 'bfs' || type === 'dfs') {
+            if (s.inFront.has(nk)) continue;
+            s.came.set(nk, ck); s.gs.set(nk, ng);
+            s.frontier.push({ r: nr, c: nc }); s.inFront.add(nk);
+          } else if (!s.gs.has(nk) || ng < s.gs.get(nk)) {
+            s.gs.set(nk, ng); s.came.set(nk, ck);
+            s.frontier.push({ r: nr, c: nc }); s.inFront.add(nk);
+          }
+        }
+      };
+      return s;
+    }
+
+    function draw(ctx, cv, s) {
+      const W = cv.width, H = cv.height, cw = W / COLS, ch = H / ROWS;
+      const cBg = getCSS('--card') || '#ffffff', cV = getCSS('--visited') || '#dbeafe',
+            cF = getCSS('--frontier') || '#f59e0b', cWa = getCSS('--wall') || '#334155',
+            cS = getCSS('--start') || '#16a34a', cG = getCSS('--goal') || '#dc2626';
+      ctx.fillStyle = cBg; ctx.fillRect(0, 0, W, H);
+      for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+        const k = key(r, c); let f = null;
+        if (grid[r][c] === WALL) f = cWa;
+        else if (s.visited.has(k)) f = cV;
+        if (s.inFront.has(k)) f = cF;
+        if (f) { ctx.fillStyle = f; ctx.fillRect(c * cw, r * ch, cw + 0.7, ch + 0.7); }
+      }
+      if (s.path) {
+        ctx.strokeStyle = '#15803d'; ctx.lineWidth = Math.max(2, cw * 0.34);
+        ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.beginPath();
+        s.path.forEach(([r, c], i) => { const px = c * cw + cw / 2, py = r * ch + ch / 2; i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); });
+        ctx.stroke();
+      }
+      ctx.fillStyle = cS; ctx.fillRect(start.c * cw, start.r * ch, cw, ch);
+      ctx.fillStyle = cG; ctx.fillRect(goal.c * cw, goal.r * ch, cw, ch);
+    }
+
+    function refreshStats() {
+      G('raceNA').textContent = runA ? runA.expanded : 0;
+      G('raceNB').textContent = runB ? runB.expanded : 0;
+      const tag = s => !s ? '' : s.done ? (s.found ? '✓ ' + (s.path.length - 1) + ' steps' : '✗ no path') : '…';
+      G('raceStatA').textContent = tag(runA); G('raceStatB').textContent = tag(runB);
+    }
+    function showResult() {
+      if (!runA || !runB) return;
+      const a = runA.expanded, b = runB.expanded;
+      const la = G('raceAlgoA').selectedOptions[0].textContent, lb = G('raceAlgoB').selectedOptions[0].textContent;
+      let msg;
+      if (!runA.found && !runB.found) msg = 'Neither reached the goal — the start is walled off from it.';
+      else if (a === b) msg = `${la} and ${lb} each expanded ${a} nodes.`;
+      else {
+        const lo = Math.min(a, b), hi = Math.max(a, b), few = a < b ? la : lb, mo = a < b ? lb : la, ratio = hi / lo;
+        msg = `${few} expanded ${lo} nodes vs ${mo}'s ${hi} — ${few} explored ${ratio.toFixed(ratio >= 10 ? 0 : 1)}× fewer.`;
+      }
+      G('raceResult').textContent = msg;
+      G('raceResult').style.color = getCSS('--accent') || '#9333ea';
+    }
+    function frame() {
+      if (!racing) return;
+      if (!runA.done) runA.step();
+      if (!runB.done) runB.step();
+      draw(actx, cvA, runA); draw(bctx, cvB, runB); refreshStats();
+      if (runA.done && runB.done) { racing = false; G('raceBtn').textContent = '▶ Race'; showResult(); return; }
+      const sp = +((G('speedSlider') || {}).value || 50);
+      raceTimer = setTimeout(frame, Math.max(8, 80 - sp * 0.7));
+    }
+    function resetRace() {
+      racing = false; if (raceTimer) clearTimeout(raceTimer);
+      runA = makeSearch(G('raceAlgoA').value); runB = makeSearch(G('raceAlgoB').value);
+      G('raceLabelA').textContent = G('raceAlgoA').selectedOptions[0].textContent;
+      G('raceLabelB').textContent = G('raceAlgoB').selectedOptions[0].textContent;
+      G('raceResult').textContent = ''; G('raceBtn').textContent = '▶ Race';
+      draw(actx, cvA, runA); draw(bctx, cvB, runB); refreshStats();
+    }
+    G('raceBtn').addEventListener('click', () => {
+      if (racing) { racing = false; if (raceTimer) clearTimeout(raceTimer); G('raceBtn').textContent = '▶ Race'; return; }
+      if (!runA || (runA.done && runB.done)) resetRace();
+      racing = true; G('raceBtn').textContent = '⏸ Pause'; frame();
+    });
+    G('raceReset').addEventListener('click', resetRace);
+    G('raceAlgoA').addEventListener('change', resetRace);
+    G('raceAlgoB').addEventListener('change', resetRace);
+    const det = G('raceDetails');
+    if (det) det.addEventListener('toggle', () => { if (det.open) resetRace(); });
+    resetRace();
+
+    window.__raceTest = function () {
+      const t = makeSearch('astar'); let n = 0;
+      while (!t.done && n < 200000) { t.step(); n++; }
+      const r = { canvases: !!(cvA && cvB), astarFound: t.found, astarExpanded: t.expanded };
+      const pass = r.canvases && t.expanded > 0;
+      console.log('[pathfinding] RACE-MODE ' + (pass ? 'passed' : 'FAILED'), r);
+      return Object.assign({ pass }, r);
+    };
+  })();
 })();
 </script>
 <!-- Embed mode handler (shared pattern across all 12 applets). -->
@@ -1482,8 +1817,10 @@
 </script>
   <footer class="site-footer" style="margin-top:36px; border-top:1px solid var(--border,#e5e7eb); padding:20px 24px; text-align:center; color:var(--muted,#6b7280); font-size:0.82rem; line-height:1.7;">
     <p style="margin:0 0 6px;"><a href="#top" data-i18n="footer-top" style="color:var(--accent,#0891b2); text-decoration:none;">↑ Back to top</a></p>
-    <p style="margin:0;"><span data-i18n="footer-builtby">Built by</span> Logan Dixon · <span data-i18n="footer-course">Made for the 2025–26 Intro to AI course, Haidian Kaiwen Academy</span></p>
+    <p style="margin:0;"><span data-i18n="footer-builtby">Built by</span> Logan Dixon · <span data-i18n="footer-course">Made for the 2025–2026 Intro to AI course, Haidian Kaiwen Academy</span></p>
     <p style="margin:6px 0 0;"><a href="https://github.com/lmdixon23/my_dev_projects/tree/main/ai_playgrounds" data-i18n="footer-source" style="color:var(--accent,#0891b2);">View source</a> · <a href="https://github.com/lmdixon23/my_dev_projects/blob/main/LICENSE" style="color:var(--accent,#0891b2);">MIT</a> · <a href="https://github.com/lmdixon23/my_dev_projects/issues" data-i18n="footer-issue" style="color:var(--accent,#0891b2);">Report an issue</a> · © 2026 Logan Dixon</p>
   </footer>
+  <!-- Privacy-friendly analytics — GoatCounter, cookieless. -->
+  <script data-goatcounter="https://lmdixon23.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>

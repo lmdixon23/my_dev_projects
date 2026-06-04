@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Visualizing Wumpus World</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230284c7'/%3E%3Cpath d='M13 10l9 6-9 6z' fill='%23ffffff'/%3E%3C/svg%3E">
 <meta name="description" content="A logical agent in Russell & Norvig's Wumpus World. Watch the agent's knowledge map fill in side-by-side with the hidden ground truth as it explores by inference.">
 <link rel="canonical" href="https://lmdixon23.github.io/my_dev_projects/playgrounds/wumpus-world/">
 <meta property="og:type" content="website">
@@ -26,15 +27,15 @@
     --unknown: #94a3b8; --unknown-bg: #f1f5f9;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; font-family: 'Georgia', serif; background: var(--bg); color: var(--fg); line-height: 1.6; }
-  .page-header { background: var(--card); border-bottom: 1px solid var(--border);
-                  padding: 16px 24px; display: flex; align-items: center; justify-content: space-between;
-                  flex-wrap: wrap; gap: 12px; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", Arial, sans-serif; background: var(--bg); color: var(--fg); line-height: 1.6; }
+  .page-header { background: var(--card); border-bottom: 1px solid var(--border); padding: 12px 24px; }
+  .header-utility { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+  .header-prefs { display: flex; align-items: center; gap: 8px; }
+  .header-main { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .header-actions { display: flex; align-items: center; gap: 8px; font-family: -apple-system, system-ui, sans-serif; font-size: 0.85rem; }
+  .header-actions .header-reset { margin-left: 12px; }
   .page-header h1 { margin: 0; font-size: 1.5rem; }
-  .page-header .back { color: var(--accent); text-decoration: none; font-size: 0.9rem;
-                       font-family: -apple-system, system-ui, sans-serif; }
-  .header-tools { display: flex; gap: 8px; align-items: center;
-                   font-family: -apple-system, system-ui, sans-serif; font-size: 0.85rem; }
+  .page-header .back { color: var(--accent); text-decoration: none; font-size: 0.9rem; font-family: -apple-system, system-ui, sans-serif; }
   .lang-switch { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
   .lang-switch button { padding: 4px 10px; background: white; color: var(--muted);
                           border: none; cursor: pointer; font: inherit; font-size: 0.78rem; }
@@ -43,17 +44,24 @@
                     border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
                     font: inherit; font-size: 0.82rem; }
   .header-reset:hover { background: var(--soft); }
-  .tldr { position: fixed; top: 80px; right: 24px; max-width: 250px;
+  .tldr { max-width: 820px; margin: 16px auto 0;
            background: var(--accent); color: white;
            border-radius: 8px; padding: 14px 16px; font-size: 0.88rem; font-weight: 500;
-           font-family: -apple-system, system-ui, sans-serif; line-height: 1.45;
-           z-index: 50; box-shadow: 0 6px 20px rgba(0,0,0,0.18); }
+           font-family: -apple-system, system-ui, sans-serif; line-height: 1.45; }
   .tldr strong { color: rgba(255,255,255,0.85); font-size: 0.72rem; letter-spacing: 0.08em;
                   text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 6px; }
-  @media (max-width: 1100px) { .tldr { display: none; } }
   .interactive { background: var(--card); padding: 24px; border-bottom: 1px solid var(--border); }
-  .interactive-inner { max-width: 920px; margin: 0 auto;
+  .interactive-inner { max-width: 1280px; margin: 0 auto;
                          font-family: -apple-system, system-ui, sans-serif; }
+  .bento { display: grid; grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+           grid-template-areas: "controls maps" "analysis maps"; gap: 16px; align-items: start; margin-bottom: 14px; }
+  .bento > .cell-controls { grid-area: controls; }
+  .bento > .cell-maps     { grid-area: maps; }
+  .bento > .cell-analysis { grid-area: analysis; }
+  .bento-cell { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; min-width: 0; }
+  .bento-cell > :first-child { margin-top: 0 !important; }
+  @media (max-width: 860px) { .bento { grid-template-columns: 1fr; grid-template-areas: "controls" "maps" "analysis"; gap: 12px; } }
+  .tp-scrub { min-width: 0; }
   .control-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
                   margin-bottom: 14px; font-size: 0.88rem; }
   .control-row label { color: var(--muted); }
@@ -62,7 +70,7 @@
                             font: inherit; font-size: 0.85rem; }
   .control-row .step-btn.primary { background: var(--accent); color: white;
                                       border-color: var(--accent); font-weight: 600; }
-  .canvas-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .canvas-pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-bottom: 14px; }
   .canvas-card { background: white; border: 1px solid var(--border);
                    border-radius: 8px; padding: 10px; text-align: center; }
   .canvas-card h3 { margin: 0 0 6px; font-size: 0.85rem; color: var(--accent);
@@ -70,6 +78,7 @@
   .canvas-card p.sub { color: var(--muted); font-size: 0.78rem; margin: 4px 0 0; font-style: italic; }
   canvas { display: block; margin: 0 auto; background: white;
             border: 1px solid var(--border); border-radius: 4px; }
+  #worldCv, #kbCv { width: 100%; max-width: 400px; height: auto; aspect-ratio: 400 / 400; }
   .legend-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 0.82rem;
                    max-width: 380px; margin: 0 auto 14px; }
   .legend-grid .sw { display: inline-block; width: 12px; height: 12px;
@@ -117,6 +126,18 @@
   .essay .for-teachers h3 { font-family: -apple-system, system-ui, sans-serif;
                               color: var(--accent); font-size: 0.9rem;
                               text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0; }
+  /* ===== Unified transport bar (shared playback controls across stepped applets) ===== */
+  .transport { display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+               padding: 8px 10px; margin: 10px 0; border: 1px solid var(--border);
+               border-radius: 8px; background: var(--soft); }
+  .tp-btn { font: inherit; font-size: 0.9rem; cursor: pointer; border: 1px solid var(--border);
+            background: var(--card); color: var(--fg); border-radius: 6px; padding: 6px 12px; min-width: 40px; line-height: 1; }
+  .tp-btn:hover { background: var(--soft); }
+  .tp-speed { display: flex; align-items: center; gap: 6px; font-size: 0.82rem; color: var(--muted); }
+  .tp-speed input { accent-color: var(--accent); }
+  .tp-count { margin-left: auto; font-family: ui-monospace, monospace; font-size: 0.82rem;
+              color: var(--muted); font-variant-numeric: tabular-nums; min-width: 128px; text-align: right; }
+  .tp-btn:disabled { opacity: 0.45; cursor: default; }  /* reserve layout space; signal unavailable instead of vanishing */
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { transition: none !important; animation: none !important; }
   }
@@ -154,23 +175,29 @@
 <body>
 
 <header class="page-header">
-  <h1 data-i18n="title">Visualizing Wumpus World</h1>
-  <div class="header-tools">
-    <button class="header-png" id="shareLink"
-            title="Copy a URL that re-opens this strategy + world seed in another browser.">🔗 Share</button>
-    <button class="header-png" id="embedLink"
-            title="Copy an <iframe> snippet for embedding in an LMS. Strips header/essay so only the interactive area shows.">📎 Embed</button>
-    <button class="header-png" id="exportPng"
-            title="Download the world view as a PNG.">📷 PNG</button>
-    <button class="header-theme" id="themeToggle" aria-label="Toggle dark or light theme"
-            title="Toggle dark / light theme (saved across all playgrounds).">🌙</button>
-    <button class="header-reset" id="hardReset" data-i18n="reset-all"
-            title="Generate a new random world, clear the log, reset score.">↺ New world</button>
-    <div class="lang-switch" title="Switch interface language">
-      <button data-lang="en" class="active">EN</button>
-      <button data-lang="zh">中文</button>
-    </div>
+  <div class="header-utility">
     <a class="back" href="../../" data-i18n="back-link">← Back to all playgrounds</a>
+    <div class="header-prefs">
+      <button class="header-theme" id="themeToggle" aria-label="Toggle dark or light theme"
+              title="Toggle dark / light theme (saved across all playgrounds).">🌙</button>
+      <div class="lang-switch" title="Switch interface language">
+        <button data-lang="en" class="active">EN</button>
+        <button data-lang="zh">中文</button>
+      </div>
+    </div>
+  </div>
+  <div class="header-main">
+    <h1 data-i18n="title">Visualizing Wumpus World</h1>
+    <div class="header-actions">
+      <button class="header-png" id="shareLink"
+              title="Copy a URL that re-opens this strategy + world seed in another browser.">🔗 Share</button>
+      <button class="header-png" id="embedLink"
+              title="Copy an <iframe> snippet for embedding in an LMS. Strips header/essay so only the interactive area shows.">📎 Embed</button>
+      <button class="header-png" id="exportPng"
+              title="Download the world view as a PNG.">📷 PNG</button>
+      <button class="header-reset" id="hardReset" data-i18n="reset-all"
+              title="Generate a new random world, clear the log, reset score.">↺ New world</button>
+    </div>
   </div>
 </header>
 
@@ -182,104 +209,114 @@
 <section class="interactive">
 <div class="interactive-inner">
 
-  <div class="control-row">
-    <label data-i18n="strategy-label">Agent strategy:</label>
-    <select id="strategySel"
-            title="Pure logic = current default (stop when stuck). AIMA hybrid = textbook agent (shoot + gamble + climb home). Probabilistic = Ch 13.6 (rank gambles by pit probability).">
-      <option value="logic" selected data-i18n="strat-logic">Pure logic (stop when stuck)</option>
-      <option value="hybrid" data-i18n="strat-hybrid">AIMA hybrid (shoot + gamble + climb home)</option>
-      <option value="prob" data-i18n="strat-prob">Probabilistic (lowest pit-probability)</option>
-    </select>
-  </div>
-  <div class="control-row">
-    <button class="step-btn primary" id="stepBtn" data-i18n="step-btn"
-            data-i18n-title="step-title"
-            title="Run one action by the agent.">▶ One action</button>
-    <button class="step-btn" id="playBtn" data-i18n="play-btn"
-            data-i18n-title="play-title"
-            title="Auto-play continuously at the current speed. Click again to pause.">▶▶ Play / pause</button>
-    <label data-i18n="speed-label" style="margin-left:8px;">Speed:</label>
-    <input id="speedSlider" type="range" min="0" max="100" value="40"
-           aria-label="Auto-play speed"
-           data-i18n-title="speed-title"
-           title="Higher = faster. Adjustable while running."
-           style="vertical-align:middle;">
-    <label data-i18n-title="reveal-title"
-           title="Reveal what's actually in every cell. Off by default so students see only what the agent knows." style="margin-left:8px;">
-      <input type="checkbox" id="revealChk"> <span data-i18n="reveal-label">Reveal hidden world (teacher view)</span>
-    </label>
-    <label data-i18n-title="edit-title"
-           title="Edit mode: click cells to cycle empty → pit → wumpus → gold. Use this to set up specific worksheet problems. The agent's run is reset." style="margin-left:8px;">
-      <input type="checkbox" id="editChk"> <span data-i18n="edit-label">Edit world (teacher mode)</span>
-    </label>
-  </div>
+<div class="bento">
+  <div class="bento-cell cell-controls">
+      <div class="control-row">
+        <label data-i18n="strategy-label">Agent strategy:</label>
+        <select id="strategySel"
+                title="Pure logic = current default (stop when stuck). AIMA hybrid = textbook agent (shoot + gamble + climb home). Probabilistic = Ch 13.6 (rank gambles by pit probability).">
+          <option value="logic" selected data-i18n="strat-logic">Pure logic (stop when stuck)</option>
+          <option value="hybrid" data-i18n="strat-hybrid">AIMA hybrid (shoot + gamble + climb home)</option>
+          <option value="prob" data-i18n="strat-prob">Probabilistic (lowest pit-probability)</option>
+        </select>
+      </div>
+      <div class="control-row">
+        <!-- Step / Play / Speed relocated to the unified transport bar below. -->
+        <label data-i18n-title="reveal-title"
+               title="Reveal what's actually in every cell. Off by default so students see only what the agent knows." style="margin-left:8px;">
+          <input type="checkbox" id="revealChk"> <span data-i18n="reveal-label">Reveal hidden world (teacher view)</span>
+        </label>
+        <label data-i18n-title="edit-title"
+               title="Edit mode: click cells to cycle empty → pit → wumpus → gold. Use this to set up specific worksheet problems. The agent's run is reset." style="margin-left:8px;">
+          <input type="checkbox" id="editChk"> <span data-i18n="edit-label">Edit world (teacher mode)</span>
+        </label>
+      </div>
 
-  <div class="canvas-pair">
-    <div class="canvas-card">
-      <h3 data-i18n="world-h3">The world</h3>
-      <canvas id="worldCv" width="400" height="400" role="img"
-              aria-label="The Wumpus world ground truth. Visited cells reveal their contents."></canvas>
-      <p class="sub" data-i18n="world-sub">What's actually there. Visited cells revealed unless teacher view is on.</p>
-    </div>
-    <div class="canvas-card">
-      <h3 data-i18n="kb-h3">Agent's knowledge map</h3>
-      <canvas id="kbCv" width="400" height="400" role="img"
-              aria-label="Agent's knowledge map showing inferred safe, deadly, and possibly deadly cells."></canvas>
-      <p class="sub" data-i18n="kb-sub">What the agent has inferred from percepts so far.</p>
-    </div>
-  </div>
+      <!-- Unified transport bar (shared playback controls; Step/Play/Speed relocated here). -->
+      <div class="transport" id="transport" role="group" aria-label="Playback controls">
+        <button class="tp-btn" id="restartBtn" data-i18n-title="restart-title"
+                title="Restart the agent on the same world (keeps the layout).">↺</button>
+        <button class="tp-btn" id="backBtn" data-i18n-title="back-title"
+                title="Step one action backward through the run.">◀❘</button>
+        <button class="tp-btn" id="playBtn" aria-pressed="false" data-i18n="play-btn" data-i18n-title="play-title"
+                title="Auto-play continuously at the current speed. Click again to pause.">▶ Play / pause</button>
+        <button class="tp-btn" id="stepBtn" data-i18n="step-btn" data-i18n-title="step-title"
+                title="Run one action by the agent.">❘▶ One action</button>
+        <label class="tp-speed"><span data-i18n="speed-label">Speed:</span>
+          <input id="speedSlider" type="range" min="0" max="100" value="40" aria-label="Auto-play speed"
+                 data-i18n-title="speed-title" title="Higher = faster. Adjustable while running."></label>
+        <span class="tp-scrub" id="wScrubGroup" style="display:inline-flex; visibility:hidden; align-items:center; gap:8px; flex:1 1 220px; min-width:150px;">
+          <span style="color:var(--accent); font-weight:600; font-size:0.82rem;" title="History">⏪</span>
+          <input type="range" id="replaySlider" min="0" max="0" value="0" step="1"
+                 aria-label="Scrub through past steps" style="flex:1; min-width:110px;">
+          <span id="replayLabel" style="display:none"></span>
+          <label style="color:var(--muted); display:flex; align-items:center; gap:4px; font-size:0.8rem;"><span>step</span>
+            <input type="number" id="wJump" min="0" aria-label="Jump to step" style="width:64px; padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;"></label>
+          <button class="tp-btn" id="replayResume" data-i18n="return-live" style="padding:4px 10px; font-size:0.8rem;" disabled>Jump to latest</button>
+        </span>
+        <span class="tp-count" id="tpCount" data-i18n="tp-idle">idle</span>
+      </div>
+  </div><!-- /.bento-cell controls -->
 
-  <div class="legend-grid">
-    <div><span class="sw" style="background:var(--safe-bg); border-color:var(--safe);"></span><span data-i18n="leg-safe">Inferred safe</span></div>
-    <div><span class="sw" style="background:var(--danger-bg); border-color:var(--danger);"></span><span data-i18n="leg-danger">Inferred deadly</span></div>
-    <div><span class="sw" style="background:var(--maybe-bg); border-color:var(--maybe);"></span><span data-i18n="leg-maybe">Possibly deadly</span></div>
-    <div><span class="sw" style="background:var(--unknown-bg); border-color:var(--unknown);"></span><span data-i18n="leg-unknown">Unknown</span></div>
-  </div>
+  <div class="bento-cell cell-maps">
+      <div class="canvas-pair">
+        <div class="canvas-card">
+          <h3 data-i18n="world-h3">The world</h3>
+          <canvas id="worldCv" width="400" height="400" role="img"
+                  aria-label="The Wumpus world ground truth. Visited cells reveal their contents."></canvas>
+          <p class="sub" data-i18n="world-sub">What's actually there. Visited cells revealed unless teacher view is on.</p>
+        </div>
+        <div class="canvas-card">
+          <h3 data-i18n="kb-h3">Agent's knowledge map</h3>
+          <canvas id="kbCv" width="400" height="400" role="img"
+                  aria-label="Agent's knowledge map showing inferred safe, deadly, and possibly deadly cells."></canvas>
+          <p class="sub" data-i18n="kb-sub">What the agent has inferred from percepts so far.</p>
+        </div>
+      </div>
 
-  <div class="stats-strip">
-    <div class="stat-item"><div class="label" data-i18n="stat-score">Score</div><div class="val" id="scoreV">0</div></div>
-    <div class="stat-item"><div class="label" data-i18n="stat-step">Step</div><div class="val" id="stepV">0</div></div>
-    <div class="stat-item"><div class="label" data-i18n="stat-gold">Carrying</div><div class="val" id="goldV">—</div></div>
-    <div class="stat-item" id="arrowsStatItem"><div class="label" data-i18n="stat-arrows">Arrows</div><div class="val" id="arrowsV">1</div></div>
-    <div class="stat-item"><div class="label" data-i18n="stat-status">Status</div><div class="val" id="statV">alive</div></div>
-  </div>
+      <div class="legend-grid">
+        <div><span class="sw" style="background:var(--safe-bg); border-color:var(--safe);"></span><span data-i18n="leg-safe">Inferred safe</span></div>
+        <div><span class="sw" style="background:var(--danger-bg); border-color:var(--danger);"></span><span data-i18n="leg-danger">Inferred deadly</span></div>
+        <div><span class="sw" style="background:var(--maybe-bg); border-color:var(--maybe);"></span><span data-i18n="leg-maybe">Possibly deadly</span></div>
+        <div><span class="sw" style="background:var(--unknown-bg); border-color:var(--unknown);"></span><span data-i18n="leg-unknown">Unknown</span></div>
+      </div>
+  </div><!-- /.bento-cell maps -->
 
-  <!-- Itemized score breakdown. Shows where the agent's score came from
-       (per-step penalty vs. gold vs. arrow vs. death). AIMA Wumpus scoring:
-       −1 per action, −10 per arrow, +1000 grab gold, −1000 die. -->
-  <div class="score-breakdown" style="margin-top:8px; padding:8px 12px; background:var(--soft); border:1px solid var(--border); border-radius:8px; font-family:ui-monospace,monospace; font-size:0.84rem;">
-    <strong style="color:var(--accent); font-family:-apple-system,system-ui,sans-serif;" data-i18n="score-bd-label">Score breakdown:</strong>
-    <span id="scoreBreakdown" style="margin-left:8px;"><span style="color:var(--muted); font-style:italic;">(no actions yet)</span></span>
-  </div>
+  <div class="bento-cell cell-analysis">
+      <div class="stats-strip">
+        <div class="stat-item"><div class="label" data-i18n="stat-score">Score</div><div class="val" id="scoreV">0</div></div>
+        <div class="stat-item"><div class="label" data-i18n="stat-step">Step</div><div class="val" id="stepV">0</div></div>
+        <div class="stat-item"><div class="label" data-i18n="stat-gold">Carrying</div><div class="val" id="goldV">—</div></div>
+        <div class="stat-item" id="arrowsStatItem"><div class="label" data-i18n="stat-arrows">Arrows</div><div class="val" id="arrowsV">1</div></div>
+        <div class="stat-item"><div class="label" data-i18n="stat-status">Status</div><div class="val" id="statV">alive</div></div>
+      </div>
 
-  <!-- Replay scrubber. Drag to inspect agent state at any past step.
-       Mirrors q-learning's existing pattern. -->
-  <div id="replayStrip" style="margin-top:8px; padding:8px 12px; background:var(--soft); border:1px solid var(--border); border-radius:8px; display:none;">
-    <div style="display:flex; align-items:center; gap:10px; font-size:0.85rem;">
-      <span style="color:var(--accent); font-weight:600;" data-i18n="replay-label">⏪ Replay</span>
-      <input type="range" id="replaySlider" min="0" max="0" value="0" step="1"
-             aria-label="Scrub through past steps" style="flex:1;">
-      <span id="replayLabel" style="font-family:ui-monospace,monospace; color:var(--muted); min-width:90px; text-align:right;">live</span>
-      <button class="step-btn" id="replayResume" style="padding:4px 10px; font-size:0.8rem; display:none;">Return to live</button>
-    </div>
-  </div>
+      <!-- Itemized score breakdown. Shows where the agent's score came from
+           (per-step penalty vs. gold vs. arrow vs. death). AIMA Wumpus scoring:
+           −1 per action, −10 per arrow, +1000 grab gold, −1000 die. -->
+      <div class="score-breakdown" style="margin-top:8px; padding:8px 12px; background:var(--soft); border:1px solid var(--border); border-radius:8px; font-family:ui-monospace,monospace; font-size:0.84rem;">
+        <strong style="color:var(--accent); font-family:-apple-system,system-ui,sans-serif;" data-i18n="score-bd-label">Score breakdown:</strong>
+        <span id="scoreBreakdown" style="margin-left:8px;"><span style="color:var(--muted); font-style:italic;">(no actions yet)</span></span>
+      </div>
 
-  <div class="log-panel">
-    <h3 data-i18n="log-h3">Reasoning log</h3>
-    <div id="log" role="log" aria-live="polite" aria-relevant="additions" aria-label="Agent reasoning log"></div>
-  </div>
+      <div class="log-panel">
+        <h3 data-i18n="log-h3">Reasoning log</h3>
+        <div id="log" role="log" aria-live="polite" aria-relevant="additions" aria-label="Agent reasoning log"></div>
+      </div>
 
-  <!-- per-cell resolution trace. Hover/tap a cell on the knowledge map to
-       see the inference chain that classified it. -->
-  <div class="why-panel" style="margin-top:12px; padding:12px 16px; background:var(--soft); border:1px solid var(--border); border-radius:8px;">
-    <h3 style="margin:0 0 6px; font-size:0.95rem; color:var(--accent);" data-i18n="why-h3">🔎 Why does the agent think this?</h3>
-    <p style="margin:0 0 8px; color:var(--muted); font-size:0.82rem;" data-i18n="why-hint">
-      Hover over a cell in the knowledge map (right). The agent's inference chain for that cell appears here.
-    </p>
-    <div id="whyPanel" style="font-family:ui-monospace,monospace; font-size:0.85rem; min-height:1.4em; line-height:1.6;">
-      <span style="color:var(--muted); font-style:italic;" data-i18n="why-empty">(hover a cell to see its reasoning)</span>
-    </div>
-  </div>
+      <!-- per-cell resolution trace. Hover/tap a cell on the knowledge map to
+           see the inference chain that classified it. -->
+      <div class="why-panel" style="margin-top:12px; padding:12px 16px; background:var(--soft); border:1px solid var(--border); border-radius:8px;">
+        <h3 style="margin:0 0 6px; font-size:0.95rem; color:var(--accent);" data-i18n="why-title">🔎 Why this cell? — click the knowledge map</h3>
+        <p style="margin:0 0 8px; color:var(--muted); font-size:0.82rem;" data-i18n="why-hint">
+          Hover over a cell in the knowledge map (right). The agent's inference chain for that cell appears here.
+        </p>
+        <div id="whyPanel" style="font-family:ui-monospace,monospace; font-size:0.85rem; min-height:1.4em; line-height:1.6;">
+          <span style="color:var(--muted); font-style:italic;" data-i18n="why-empty">Click any cell on the knowledge map to see the inference chain.</span>
+        </div>
+      </div>
+  </div><!-- /.bento-cell analysis -->
+</div><!-- /.bento -->
 
   <!-- Worksheet/lab mode. 3 questions per applet with instant check. -->
   <details class="worksheet" style="margin-top:8px;">
@@ -435,9 +472,12 @@
   const STRINGS = {
     en: {
       'title': 'Visualizing Wumpus World', 'back-link': '← Back to all playgrounds',
-      'footer-top': '↑ Back to top', 'footer-builtby': 'Built by', 'footer-course': 'Made for the 2025–26 Intro to AI course, Haidian Kaiwen Academy', 'footer-source': 'View source', 'footer-issue': 'Report an issue',
+      'footer-top': '↑ Back to top', 'footer-builtby': 'Built by', 'footer-course': 'Made for the 2025–2026 Intro to AI course, Haidian Kaiwen Academy', 'footer-source': 'View source', 'footer-issue': 'Report an issue',
       'reset-all': '↺ New world', 'strategy-label': 'Agent strategy:',
-      'step-btn': '▶ One action', 'play-btn': '▶▶ Play / pause',
+      'step-btn': '❘▶ One action', 'play-btn': '▶ Play / pause',
+      'restart-title': 'Restart the agent on the same world (keeps the layout).',
+      'back-title': 'Step one action backward through the run.',
+      'tp-idle': 'idle',
       'speed-label': 'Speed:',
       'step-title': 'Run one action by the agent.',
       'play-title': 'Auto-play continuously at the current speed. Click again to pause.',
@@ -461,10 +501,12 @@
       'stat-arrows': 'Arrows', 'stat-status': 'Status',
       'log-h3': 'Reasoning log',
       'why-h3': '🔎 Why does the agent think this?',
+      'why-title': '🔎 Why this cell? — click the knowledge map',
       'why-hint': "Hover over a cell in the knowledge map (right). The agent's inference chain for that cell appears here.",
-      'why-empty': '(hover a cell to see its reasoning)',
+      'why-empty': 'Click any cell on the knowledge map to see the inference chain.',
       'why-cell': 'Cell',
       'why-none': 'No inference yet. Visit adjacent cells to gather percepts.',
+      'why-no-proof': 'No proof yet — the agent hasn\'t gathered enough percepts to decide. (Unknown ≠ safe.)',
       's-safe': '✓ safe', 's-pit': '☠ pit', 's-wumpus': '👹 wumpus',
       's-no-pit': 'not a pit', 's-no-wum': 'not the wumpus', 's-unknown': 'unknown',
       'jump-link': '↓ Read the explanation',
@@ -473,12 +515,16 @@
       'ws-summary': '📝 Worksheet (3 questions)',
       'score-bd-label': 'Score breakdown:',
       'replay-label': '⏪ Replay',
+      'return-live': 'Jump to latest',
     },
     zh: {
       'title': '伍姆普斯世界可视化', 'back-link': '← 返回所有演示',
-      'footer-top': '↑ 返回顶部', 'footer-builtby': '作者', 'footer-course': '为海淀凯文学校 2025–26《人工智能导论》课程制作', 'footer-source': '查看源代码', 'footer-issue': '反馈问题',
+      'footer-top': '↑ 返回顶部', 'footer-builtby': '作者', 'footer-course': '为海淀凯文学校 2025–2026《人工智能导论》课程制作', 'footer-source': '查看源代码', 'footer-issue': '反馈问题',
       'reset-all': '↺ 新世界', 'strategy-label': '智能体策略:',
-      'step-btn': '▶ 单步', 'play-btn': '▶▶ 播放/暂停',
+      'step-btn': '❘▶ 单步', 'play-btn': '▶ 播放/暂停',
+      'restart-title': '在同一个世界中重启智能体(保留布局)。',
+      'back-title': '在运行中后退一步。',
+      'tp-idle': '空闲',
       'speed-label': '速度:',
       'step-title': '让智能体执行一步动作。',
       'play-title': '按当前速度自动连续播放。再点一次暂停。',
@@ -502,10 +548,12 @@
       'stat-arrows': '箭', 'stat-status': '状态',
       'log-h3': '推理日志',
       'why-h3': '🔎 智能体为什么这样判断?',
+      'why-title': '🔎 为什么是这个格子?——点击知识地图',
       'why-hint': '将鼠标悬停在右侧知识地图上的格子。该格子的推理链会显示在这里。',
-      'why-empty': '(悬停某个格子查看其推理)',
+      'why-empty': '点击知识地图上的任意格子,查看推理链。',
       'why-cell': '格子',
       'why-none': '尚无推理。访问相邻格子以收集感知信息。',
+      'why-no-proof': '尚无证明——智能体还没收集到足够的感知来判断。(未知 ≠ 安全。)',
       's-safe': '✓ 安全', 's-pit': '☠ 陷阱', 's-wumpus': '👹 吴普士',
       's-no-pit': '不是陷阱', 's-no-wum': '不是吴普士', 's-unknown': '未知',
       'jump-link': '↓ 阅读说明',
@@ -514,6 +562,7 @@
       'ws-summary': '📝 练习题(3 题)',
       'score-bd-label': '得分分解:',
       'replay-label': '⏪ 回放',
+      'return-live': '跳到最新',
     },
   };
   function setLang(lang) {
@@ -529,18 +578,18 @@
     });
     document.querySelectorAll('.lang-switch button').forEach(b =>
       b.classList.toggle('active', b.dataset.lang === lang));
-    try { localStorage.setItem('wumpus-lang', lang); } catch (_) {}
+    try { localStorage.setItem('lang', lang); } catch (_) {}
   }
   document.querySelectorAll('.lang-switch button').forEach(b =>
     b.addEventListener('click', () => setLang(b.dataset.lang)));
   let initialLang = 'en';
-  try { initialLang = localStorage.getItem('wumpus-lang') || 'en'; } catch (_) {}
+  try { initialLang = localStorage.getItem('lang') || 'en'; } catch (_) {}
   setLang(initialLang);
 
   function setTheme(t) {
     document.body.classList.toggle('dark-mode', t === 'dark');
     const btn = document.getElementById('themeToggle');
-    if (btn) btn.textContent = t === 'dark' ? '☀' : '🌙';
+    if (btn) btn.textContent = t === 'dark' ? '☀️' : '🌙';
     try { localStorage.setItem('theme', t); } catch (_) {}
   }
   let initialTheme = 'light';
@@ -606,8 +655,9 @@
     const logicalSize = SIZE * CELL;
     cv.width = logicalSize * dpr;
     cv.height = logicalSize * dpr;
-    cv.style.width = logicalSize + 'px';
-    cv.style.height = logicalSize + 'px';
+    // No inline cv.style.width/height — let the responsive CSS (#worldCv,#kbCv:
+    // width:100%; max-width; aspect-ratio) size the display so the maps scale with
+    // their column. The dpr-boosted internal buffer downscales crisply.
     const ctx = cv.getContext('2d');
     ctx.scale(dpr, dpr);
     return ctx;
@@ -680,8 +730,8 @@
     scoreItems = { moves: 0, arrows: 0, gold: 0, deaths: 0 };
     // reset replay state on new world.
     snapshots = []; replayMode = false; liveSnapshot = null;
-    if ($('replayStrip')) $('replayStrip').style.display = 'none';
-    if ($('replayResume')) $('replayResume').style.display = 'none';
+    if ($('wScrubGroup')) $('wScrubGroup').style.visibility = 'hidden';
+    if ($('replayResume')) $('replayResume').disabled = true;
     sense();
     infer();
     addLog('step', 'New world. Agent at (1,1) facing right.');
@@ -712,10 +762,10 @@
       worldGoldTaken: world.gold.taken,
     });
     if (snapshots.length > SNAPSHOT_CAP) snapshots.shift();
-    // Show the strip once we have at least 2 snapshots (step 0 + step 1).
-    const strip = $('replayStrip');
+    // Show the scrub group once we have at least 2 snapshots (step 0 + step 1).
+    const strip = $('wScrubGroup');
     if (strip && snapshots.length >= 2) {
-      strip.style.display = '';
+      strip.style.visibility = 'visible';
       const slider = $('replaySlider');
       slider.max = snapshots.length - 1;
       if (!replayMode) {
@@ -738,8 +788,9 @@
     if (!replayMode || !liveSnapshot) return;
     applySnapshot(liveSnapshot);
     replayMode = false; liveSnapshot = null;
-    $('replayResume').style.display = 'none';
+    $('replayResume').disabled = true;
     $('replayLabel').textContent = 'live';
+    { const tc = $('tpCount'); if (tc) tc.textContent = 'live'; }
     $('replaySlider').value = snapshots.length - 1;
   }
 
@@ -1144,26 +1195,33 @@
       const k = key(r, c);
       const visible = reveal || kb.visited.has(k);
       if (!visible) {
-        ctx.fillStyle = '#f1f5f9';
+        ctx.fillStyle = document.body.classList.contains('dark-mode') ? '#1e293b' : '#f1f5f9';
         ctx.fillRect(x, y, CELL, CELL);
         return;
       }
       if (world.pits.has(k)) {
         ctx.fillStyle = '#fecaca';
         ctx.fillRect(x, y, CELL, CELL);
-        ctx.fillStyle = '#7f1d1d';
-        ctx.font = 'bold 16px -apple-system, system-ui, sans-serif';
+        // Pit icon: a dark radial-gradient "abyss" with a skull — no text label.
+        const pcx = x + CELL/2, pcy = y + CELL/2;
+        const pg = ctx.createRadialGradient(pcx, pcy, 2, pcx, pcy, 23);
+        pg.addColorStop(0, '#111827'); pg.addColorStop(0.7, '#450a0a'); pg.addColorStop(1, 'rgba(127,29,29,0)');
+        ctx.fillStyle = pg;
+        ctx.beginPath(); ctx.arc(pcx, pcy, 23, 0, Math.PI * 2); ctx.fill();
+        ctx.font = '18px -apple-system, system-ui, sans-serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText('☠ PIT', x + CELL/2, y + CELL/2);
+        ctx.fillText('☠️', pcx, pcy);
         ctx.textAlign = 'start'; ctx.textBaseline = 'alphabetic';
       }
       if (world.wumpus.r === r && world.wumpus.c === c) {
         ctx.fillStyle = world.wumpus.alive ? '#e9d5ff' : '#cbd5e1';
         ctx.fillRect(x + 8, y + 8, CELL - 16, CELL - 16);
-        ctx.fillStyle = '#581c87';
-        ctx.font = 'bold 14px -apple-system, system-ui, sans-serif';
+        // Wumpus icon: emoji only (😈 alive, 💀 dead) — no text label.
+        ctx.font = '30px -apple-system, system-ui, sans-serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText(world.wumpus.alive ? '👹 WUMPUS' : '☠ dead', x + CELL/2, y + CELL/2);
+        ctx.globalAlpha = world.wumpus.alive ? 1 : 0.5;
+        ctx.fillText(world.wumpus.alive ? '👹' : '💀', x + CELL/2, y + CELL/2);
+        ctx.globalAlpha = 1;
         ctx.textAlign = 'start'; ctx.textBaseline = 'alphabetic';
       }
       if (world.gold.r === r && world.gold.c === c && !world.gold.taken) {
@@ -1177,25 +1235,24 @@
         ctx.fillText('G', x + CELL/2, y + CELL/2);
         ctx.textAlign = 'start'; ctx.textBaseline = 'alphabetic';
       } else if (world.gold.r === r && world.gold.c === c && world.gold.taken) {
-        // Residual placeholder: gold is gone but mark its origin cell.
-        ctx.beginPath();
-        ctx.arc(x + CELL/2, y + CELL/2, 14, 0, Math.PI * 2);
-        ctx.strokeStyle = '#ca8a04'; ctx.lineWidth = 1.5;
-        ctx.setLineDash([3, 3]); ctx.stroke(); ctx.setLineDash([]);
+        // Residual marker tucked into the cell's TOP-RIGHT corner: the gold is gone,
+        // but mark its origin cell while keeping the centre clear for the agent.
         ctx.fillStyle = '#a16207';
         ctx.font = '600 11px -apple-system, system-ui, sans-serif';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText('G (taken)', x + CELL/2, y + CELL/2);
+        ctx.textAlign = 'right'; ctx.textBaseline = 'top';
+        ctx.fillText('G (taken)', x + CELL - 6, y + 6);
         ctx.textAlign = 'start'; ctx.textBaseline = 'alphabetic';
       }
       const p = world.percepts.get(k);
       if (p) {
-        ctx.font = '600 12px -apple-system, system-ui, sans-serif';
-        ctx.fillStyle = document.body.classList.contains('dark-mode') ? '#e2e8f0' : '#334155';
-        let yo = 26;
-        if (p.breeze) { ctx.fillText('🌬 breeze', x + 6, y + CELL - yo); yo += 14; }
-        if (p.stench) { ctx.fillText('👃 stench', x + 6, y + CELL - yo); yo += 14; }
-        if (p.glitter) { ctx.fillText('✨ glitter', x + 6, y + CELL - yo); yo += 14; }
+        // Percept icons: a compact row of emoji (breeze 🌬 · stench 👃 · glitter ✨) — no words.
+        ctx.font = '15px -apple-system, system-ui, sans-serif';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+        let xo = x + 6;
+        if (p.breeze)  { ctx.fillText('🌬', xo, y + CELL - 6); xo += 19; }
+        if (p.stench)  { ctx.fillText('👃', xo, y + CELL - 6); xo += 19; }
+        if (p.glitter) { ctx.fillText('✨', xo, y + CELL - 6); xo += 19; }
+        ctx.textAlign = 'start'; ctx.textBaseline = 'alphabetic';
       }
     });
     const ax = agent.c * CELL + CELL/2;
@@ -1205,15 +1262,22 @@
       wctx.strokeStyle = '#fde047'; wctx.lineWidth = 5;
       wctx.beginPath(); wctx.arc(ax, ay, 22, 0, Math.PI * 2); wctx.stroke();
     }
-    wctx.fillStyle = getCSS('--agent');
-    wctx.beginPath(); wctx.arc(ax, ay, 16, 0, Math.PI * 2); wctx.fill();
-    wctx.strokeStyle = '#fff'; wctx.lineWidth = 2; wctx.stroke();
+    // Agent icon: a directional "dart" that points the way the agent faces
+    // (replaces the old circle + line). Canvas y is down, so negate dy.
     const [dx, dy] = DIRS[agent.dir];
-    wctx.strokeStyle = '#fff'; wctx.lineWidth = 3;
+    wctx.save();
+    wctx.translate(ax, ay);
+    wctx.rotate(Math.atan2(-dy, dx));
+    wctx.fillStyle = getCSS('--agent');
+    wctx.strokeStyle = '#fff'; wctx.lineWidth = 2; wctx.lineJoin = 'round';
     wctx.beginPath();
-    wctx.moveTo(ax, ay);
-    wctx.lineTo(ax + dx * 14, ay - dy * 14);
-    wctx.stroke();
+    wctx.moveTo(17, 0);      // nose (facing direction)
+    wctx.lineTo(-12, -12);   // back-left wing
+    wctx.lineTo(-5, 0);      // tail notch
+    wctx.lineTo(-12, 12);    // back-right wing
+    wctx.closePath();
+    wctx.fill(); wctx.stroke();
+    wctx.restore();
     // Gold "G" badge in the upper-right of the agent.
     if (agent.hasGold) {
       wctx.beginPath(); wctx.arc(ax + 14, ay - 14, 10, 0, Math.PI * 2);
@@ -1284,6 +1348,7 @@
     drawWorld(); drawKB();
     $('scoreV').textContent = score;
     $('stepV').textContent = stepCount;
+    if (!replayMode) { const tc = $('tpCount'); if (tc) tc.textContent = stepCount > 0 ? `step ${stepCount}` : 'idle'; }
     $('goldV').textContent = agent.hasGold ? '🏆 gold' : '—';
     $('arrowsV').textContent = agent.arrows;
     // Arrows only matter under hybrid/prob strategies that may shoot. Hide for pure-logic;
@@ -1309,7 +1374,14 @@
     }
   }
 
-  $('stepBtn').addEventListener('click', () => actOne());
+  $('stepBtn').addEventListener('click', () => {
+    if (replayMode) {
+      // While scrubbed back, ❘▶ walks forward through history; resume live once caught up.
+      if (parseInt($('replaySlider').value, 10) < snapshots.length - 1) { replayStep(1); return; }
+      resumeLive(); return;
+    }
+    actOne();
+  });
   // replay scrubber wiring.
   $('replaySlider').addEventListener('input', () => {
     if (snapshots.length < 2) return;
@@ -1325,12 +1397,44 @@
         worldGoldTaken: world.gold.taken,
       };
       replayMode = true;
-      $('replayResume').style.display = '';
+      $('replayResume').disabled = false;
     }
     applySnapshot(snapshots[idx]);
     $('replayLabel').textContent = (idx === snapshots.length - 1) ? 'live' : `step ${idx}`;
+    { const tc = $('tpCount'); if (tc) tc.textContent = (idx === snapshots.length - 1) ? 'live' : `step ${idx} of ${snapshots.length - 1}`; }
   });
   $('replayResume').addEventListener('click', resumeLive);
+  // ===== Unified transport bar: universal step-back + same-world restart =====
+  function replayStep(delta) {
+    if (playing) return;                  // don't scrub during auto-play
+    if (snapshots.length < 2) return;
+    const s = $('replaySlider');
+    let idx = parseInt(s.value, 10);
+    if (Number.isNaN(idx)) idx = snapshots.length - 1;
+    idx = Math.max(0, Math.min(snapshots.length - 1, idx + delta));
+    s.value = idx;
+    s.dispatchEvent(new Event('input'));   // reuse the existing replay-restore handler
+  }
+  $('backBtn').addEventListener('click', () => replayStep(-1));
+  $('restartBtn').addEventListener('click', () => { stopPlay(); resetAgentAfterEdit(); });
+  // Numeric jump-to-step input. Clamp to [0, slider.max], set slider, fire input event.
+  $('wJump').addEventListener('change', () => {
+    const slider = $('replaySlider');
+    const max = parseInt(slider.max, 10) || 0;
+    const val = Math.max(0, Math.min(max, parseInt($('wJump').value, 10) || 0));
+    slider.value = val;
+    slider.dispatchEvent(new Event('input'));
+  });
+  window.__wScrubTest = function(){ const g=document.getElementById('wScrubGroup'); const inBar=!!(g&&g.closest('#transport')); const r={scrubInBar:inBar, jump:!!document.getElementById('wJump'), slider:!!document.getElementById('replaySlider')}; const pass=r.scrubInBar&&r.jump&&r.slider; console.log('[wumpus] SCRUB-IN-BAR '+(pass?'passed':'FAILED'), r); return Object.assign({pass},r); };
+  window.__wumpusAcceptanceTest = function () {
+    const sp = $('speedSlider');
+    const r = { transportBar: !!$('transport'), backBtn: !!$('backBtn'),
+                restartBtn: !!$('restartBtn'), speedInBar: !!(sp && sp.closest('#transport')),
+                snapshots: snapshots.length };
+    const pass = r.transportBar && r.backBtn && r.restartBtn && r.speedInBar;
+    console.log('[wumpus] CONTROLS ACCEPTANCE TEST ' + (pass ? 'passed' : 'FAILED'), r);
+    return Object.assign({ pass }, r);
+  };
   $('hardReset').addEventListener('click', () => {
     $('log').innerHTML = ''; lastReport = new Set(); generateWorld();
   });
@@ -1343,8 +1447,8 @@
   // world stays internally consistent.
   function cellFromWorldClick(e) {
     const rect = worldCv.getBoundingClientRect();
-    const x = (e.clientX - rect.left) * (worldCv.clientWidth / rect.width);
-    const y = (e.clientY - rect.top)  * (worldCv.clientHeight / rect.height);
+    const x = (e.clientX - rect.left) * (SIZE * CELL / rect.width);
+    const y = (e.clientY - rect.top)  * (SIZE * CELL / rect.height);
     // SVG rows are bottom-up (row 0 at bottom of canvas) per drawGrid logic.
     const c = Math.floor(x / CELL);
     const r = SIZE - 1 - Math.floor(y / CELL);
@@ -1368,8 +1472,8 @@
     scoreItems = { moves: 0, arrows: 0, gold: 0, deaths: 0 };
     // reset replay state after teacher-mode edits too.
     snapshots = []; replayMode = false; liveSnapshot = null;
-    if ($('replayStrip')) $('replayStrip').style.display = 'none';
-    if ($('replayResume')) $('replayResume').style.display = 'none';
+    if ($('wScrubGroup')) $('wScrubGroup').style.visibility = 'hidden';
+    if ($('replayResume')) $('replayResume').disabled = true;
     world.percepts.clear();
     world.visited = new Set([key(0, 0)]);
     sense(); infer(); render();
@@ -1430,8 +1534,8 @@
   // hover handler on the KB canvas → show resolution trace for that cell.
   function cellFromKBClick(e) {
     const rect = kbCv.getBoundingClientRect();
-    const x = (e.clientX - rect.left) * (kbCv.clientWidth / rect.width);
-    const y = (e.clientY - rect.top)  * (kbCv.clientHeight / rect.height);
+    const x = (e.clientX - rect.left) * (SIZE * CELL / rect.width);
+    const y = (e.clientY - rect.top)  * (SIZE * CELL / rect.height);
     const c = Math.floor(x / CELL);
     const r = SIZE - 1 - Math.floor(y / CELL);
     return {r, c};
@@ -1460,7 +1564,7 @@
       for (const r of reasons) html += `<li>${r}</li>`;
       html += '</ol>';
     } else {
-      html += `<span style="color:var(--muted); font-style:italic;">${T['why-none'] || 'No inference yet. Visit adjacent cells to gather percepts.'}</span>`;
+      html += `<span style="color:var(--muted); font-style:italic;">${T['why-no-proof'] || 'No proof yet — the agent hasn\'t gathered enough percepts to decide. (Unknown ≠ safe.)'}</span>`;
     }
     panel.innerHTML = html;
   }
@@ -1498,6 +1602,7 @@
     if (playing) return;
     playing = true;
     $('playBtn').textContent = '⏸ Pause';
+    $('playBtn').setAttribute('aria-pressed', 'true');
     timer = setTimeout(tick, speedToDelay());
   }
   function stopPlay() {
@@ -1506,6 +1611,7 @@
     const lang = document.documentElement.lang || 'en';
     const T = (STRINGS[lang] && STRINGS[lang]) || STRINGS.en;
     $('playBtn').textContent = T['play-btn'] || '▶▶ Play / pause';
+    $('playBtn').setAttribute('aria-pressed', 'false');
   }
   $('playBtn').addEventListener('click', () => {
     if (playing) stopPlay(); else startPlay();
@@ -1603,6 +1709,7 @@
       fb.style.color = ok ? '#16a34a' : '#dc2626';
     });
   });
+  window.__inferTest = function(){ const r = { panel: !!document.getElementById('whyPanel') }; const pass = r.panel; console.log('[wumpus] INFERENCE-TRACE ' + (pass?'passed':'FAILED'), r); return Object.assign({pass}, r); };
 })();
 </script>
 <!-- Embed mode handler (shared pattern across all 12 applets). -->
@@ -1629,8 +1736,10 @@
 </script>
   <footer class="site-footer" style="margin-top:36px; border-top:1px solid var(--border,#e5e7eb); padding:20px 24px; text-align:center; color:var(--muted,#6b7280); font-size:0.82rem; line-height:1.7;">
     <p style="margin:0 0 6px;"><a href="#top" data-i18n="footer-top" style="color:var(--accent,#0891b2); text-decoration:none;">↑ Back to top</a></p>
-    <p style="margin:0;"><span data-i18n="footer-builtby">Built by</span> Logan Dixon · <span data-i18n="footer-course">Made for the 2025–26 Intro to AI course, Haidian Kaiwen Academy</span></p>
+    <p style="margin:0;"><span data-i18n="footer-builtby">Built by</span> Logan Dixon · <span data-i18n="footer-course">Made for the 2025–2026 Intro to AI course, Haidian Kaiwen Academy</span></p>
     <p style="margin:6px 0 0;"><a href="https://github.com/lmdixon23/my_dev_projects/tree/main/ai_playgrounds" data-i18n="footer-source" style="color:var(--accent,#0891b2);">View source</a> · <a href="https://github.com/lmdixon23/my_dev_projects/blob/main/LICENSE" style="color:var(--accent,#0891b2);">MIT</a> · <a href="https://github.com/lmdixon23/my_dev_projects/issues" data-i18n="footer-issue" style="color:var(--accent,#0891b2);">Report an issue</a> · © 2026 Logan Dixon</p>
   </footer>
+  <!-- Privacy-friendly analytics — GoatCounter, cookieless. -->
+  <script data-goatcounter="https://lmdixon23.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>

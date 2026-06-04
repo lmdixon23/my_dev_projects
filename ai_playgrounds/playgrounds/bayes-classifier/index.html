@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Visualizing Bayes' Rule</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230284c7'/%3E%3Cpath d='M13 10l9 6-9 6z' fill='%23ffffff'/%3E%3C/svg%3E">
 <meta name="description" content="Interactive visualization of Bayes' rule. Slide the prior and the test accuracy to see how a '99% accurate' test for a rare disease can still be wrong most of the time.">
 <link rel="canonical" href="https://lmdixon23.github.io/my_dev_projects/playgrounds/bayes-classifier/">
 <meta property="og:type" content="website">
@@ -22,15 +23,15 @@
     --sick: #dc2626; --healthy: #16a34a; --pos: #f59e0b; --neg: #2563eb;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; font-family: 'Georgia', serif; background: var(--bg); color: var(--fg); line-height: 1.6; }
-  .page-header { background: var(--card); border-bottom: 1px solid var(--border);
-                  padding: 16px 24px; display: flex; align-items: center; justify-content: space-between;
-                  flex-wrap: wrap; gap: 12px; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", Arial, sans-serif; background: var(--bg); color: var(--fg); line-height: 1.6; }
+  .page-header { background: var(--card); border-bottom: 1px solid var(--border); padding: 12px 24px; }
+  .header-utility { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+  .header-prefs { display: flex; align-items: center; gap: 8px; }
+  .header-main { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .header-actions { display: flex; align-items: center; gap: 8px; font-family: -apple-system, system-ui, sans-serif; font-size: 0.85rem; }
+  .header-actions .header-reset { margin-left: 12px; }
   .page-header h1 { margin: 0; font-size: 1.5rem; }
-  .page-header .back { color: var(--accent); text-decoration: none; font-size: 0.9rem;
-                       font-family: -apple-system, system-ui, sans-serif; }
-  .header-tools { display: flex; gap: 8px; align-items: center;
-                   font-family: -apple-system, system-ui, sans-serif; font-size: 0.85rem; }
+  .page-header .back { color: var(--accent); text-decoration: none; font-size: 0.9rem; font-family: -apple-system, system-ui, sans-serif; }
   .lang-switch { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
   .lang-switch button { padding: 4px 10px; background: white; color: var(--muted);
                           border: none; cursor: pointer; font: inherit; font-size: 0.78rem; }
@@ -39,16 +40,19 @@
                     border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
                     font: inherit; font-size: 0.82rem; }
   .header-reset:hover { background: var(--soft); }
-  .tldr { position: fixed; top: 80px; right: 24px; max-width: 250px;
+  .tldr { max-width: 820px; margin: 16px auto 0;
            background: var(--accent); color: white;
            border-radius: 8px; padding: 14px 16px; font-size: 0.88rem; font-weight: 500;
-           font-family: -apple-system, system-ui, sans-serif; line-height: 1.45;
-           z-index: 50; box-shadow: 0 6px 20px rgba(0,0,0,0.18); }
+           font-family: -apple-system, system-ui, sans-serif; line-height: 1.45; }
   .tldr strong { color: rgba(255,255,255,0.85); font-size: 0.72rem; letter-spacing: 0.08em;
                   text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 6px; }
-  @media (max-width: 1100px) { .tldr { display: none; } }
   .interactive { background: var(--card); padding: 24px; border-bottom: 1px solid var(--border); }
-  .interactive-inner { max-width: 880px; margin: 0 auto; }
+  .interactive-inner { max-width: 1280px; margin: 0 auto; }
+  .bento { display: grid; grid-template-columns: minmax(300px, 360px) minmax(0, 1fr); gap: 16px; align-items: start; margin-bottom: 14px; }
+  .bento-side, .bento-main { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  .bento-cell { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; min-width: 0; }
+  .bento-cell > :first-child { margin-top: 0 !important; }
+  @media (max-width: 860px) { .bento { grid-template-columns: 1fr; gap: 12px; } }
   .control-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
                   margin-bottom: 14px; font-family: -apple-system, system-ui, sans-serif;
                   font-size: 0.88rem; }
@@ -88,6 +92,7 @@
 
   canvas { display: block; margin: 0 auto; background: white;
             border: 1px solid var(--border); border-radius: 6px; max-width: 100%; }
+  #dots { width: 100%; max-width: 1000px; height: auto; aspect-ratio: 1000 / 280; }
   .legend-strip { display: flex; gap: 14px; justify-content: center; margin-top: 10px;
                     font-family: -apple-system, system-ui, sans-serif; font-size: 0.85rem; flex-wrap: wrap; }
   .legend-strip .dot { display: inline-block; width: 12px; height: 12px;
@@ -146,18 +151,8 @@
                   font-size: 0.85rem; font-family: inherit; }
   .header-png:hover { background: var(--soft); }
   body.dark-mode .header-png { background: var(--card); color: var(--fg); }
-  input[type="range"] { height: 28px; cursor: pointer; }
-  input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none; appearance: none;
-    width: 24px; height: 24px; border-radius: 50%; cursor: pointer;
-    background: var(--accent); border: 2px solid white;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-  }
-  input[type="range"]::-moz-range-thumb {
-    width: 24px; height: 24px; border-radius: 50%; cursor: pointer;
-    background: var(--accent); border: 2px solid white;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-  }
+  /* ===== Slider styling — native themed control via accent-color (consistent across browsers) ===== */
+  input[type="range"] { accent-color: var(--accent); height: 28px; cursor: pointer; }
   /* embed mode. Strip chrome so the applet fits cleanly in an LMS iframe. */
   body.embed-mode .page-header,
   body.embed-mode aside.tldr,
@@ -169,25 +164,31 @@
 <body>
 
 <header class="page-header">
-  <h1 data-i18n="title">Visualizing Bayes' Rule</h1>
-  <div class="header-tools">
-    <button class="header-png" id="shareLink"
-            title="Copy a URL that re-opens this prior / sensitivity / specificity / population in another browser.">🔗 Share</button>
-    <button class="header-png" id="embedLink"
-            title="Copy an <iframe> snippet for embedding in an LMS. Strips header/essay so only the interactive area shows.">📎 Embed</button>
-    <button class="header-png" id="csvExport"
-            title="Download the current Bayes scenario (prior, sens, spec, population) and the resulting contingency table + posteriors as CSV.">📊 CSV</button>
-    <button class="header-png" id="exportPng"
-            title="Download the population dot-grid as a PNG.">📷 PNG</button>
-    <button class="header-theme" id="themeToggle" aria-label="Toggle dark or light theme"
-            title="Toggle dark / light theme (saved across all playgrounds).">🌙</button>
-    <button class="header-reset" id="hardReset" data-i18n="reset-all"
-            title="Reset to default disease scenario: prior=1%, sensitivity=99%, specificity=95%, population=10000.">↺ Reset all</button>
-    <div class="lang-switch" title="Switch interface language">
-      <button data-lang="en" class="active">EN</button>
-      <button data-lang="zh">中文</button>
-    </div>
+  <div class="header-utility">
     <a class="back" href="../../" data-i18n="back-link">← Back to all playgrounds</a>
+    <div class="header-prefs">
+      <button class="header-theme" id="themeToggle" aria-label="Toggle dark or light theme"
+              title="Toggle dark / light theme (saved across all playgrounds).">🌙</button>
+      <div class="lang-switch" title="Switch interface language">
+        <button data-lang="en" class="active">EN</button>
+        <button data-lang="zh">中文</button>
+      </div>
+    </div>
+  </div>
+  <div class="header-main">
+    <h1 data-i18n="title">Visualizing Bayes' Rule</h1>
+    <div class="header-actions">
+      <button class="header-png" id="shareLink"
+              title="Copy a URL that re-opens this prior / sensitivity / specificity / population in another browser.">🔗 Share</button>
+      <button class="header-png" id="embedLink"
+              title="Copy an <iframe> snippet for embedding in an LMS. Strips header/essay so only the interactive area shows.">📎 Embed</button>
+      <button class="header-png" id="csvExport"
+              title="Download the current Bayes scenario (prior, sens, spec, population) and the resulting contingency table + posteriors as CSV.">📊 CSV</button>
+      <button class="header-png" id="exportPng"
+              title="Download the population dot-grid as a PNG.">📷 PNG</button>
+      <button class="header-reset" id="hardReset" data-i18n="reset-all"
+              title="Reset to default disease scenario: prior=1%, sensitivity=99%, specificity=95%, population=10000.">↺ Reset all</button>
+    </div>
   </div>
 </header>
 
@@ -199,134 +200,148 @@
 <section class="interactive">
 <div class="interactive-inner">
 
-  <div class="control-row">
-    <label data-i18n="scenario-label">Scenario:</label>
-    <div class="group scenario-tabs">
-      <button data-scen="disease" class="active" data-i18n="scen-disease" data-i18n-title="scen-disease-title" title="Medical screening: detect a rare disease in the population.">Disease test</button>
-      <button data-scen="spam" data-i18n="scen-spam" data-i18n-title="scen-spam-title" title="Email filter: flag spam messages. Same math, different stakes.">Spam filter</button>
-    </div>
-  </div>
-
-  <div class="sliders-grid">
-    <div class="slider-field">
-      <div class="row">
-        <span class="lbl" id="priorLabel">P(disease)</span>
-        <span class="val" id="priorV">1.0%</span>
+<div class="bento">
+  <div class="bento-side">
+    <div class="bento-cell">
+      <div class="control-row">
+        <label data-i18n="scenario-label">Scenario:</label>
+        <div class="group scenario-tabs">
+          <button data-scen="disease" class="active" data-i18n="scen-disease" data-i18n-title="scen-disease-title" title="Medical screening: detect a rare disease in the population.">Disease test</button>
+          <button data-scen="spam" data-i18n="scen-spam" data-i18n-title="scen-spam-title" title="Email filter: flag spam messages. Same math, different stakes.">Spam filter</button>
+        </div>
       </div>
-      <input id="prior" type="range" min="0.1" max="50" step="0.1" value="1" aria-label="Prior probability percent"
-             data-i18n-title="prior-slider-title"
-             title="How common is the condition? Slide far left for a rare disease and watch the posterior collapse.">
-      <div class="help" data-i18n="prior-help">How common is the condition in the population?</div>
-    </div>
-    <div class="slider-field">
-      <div class="row">
-        <span class="lbl" id="sensLabel">P(test+ | disease)</span>
-        <span class="val" id="sensV">99.0%</span>
+
+      <div class="sliders-grid">
+        <div class="slider-field">
+          <div class="row">
+            <span class="lbl" id="priorLabel">P(disease)</span>
+            <span class="val" id="priorV">1.0%</span>
+          </div>
+          <input id="prior" type="range" min="0.1" max="50" step="0.1" value="1" aria-label="Prior probability percent"
+                 data-i18n-title="prior-slider-title"
+                 title="How common is the condition? Slide far left for a rare disease and watch the posterior collapse.">
+          <div class="help" data-i18n="prior-help">How common is the condition in the population?</div>
+        </div>
+        <div class="slider-field">
+          <div class="row">
+            <span class="lbl" id="sensLabel">P(test+ | disease)</span>
+            <span class="val" id="sensV">99.0%</span>
+          </div>
+          <input id="sens" type="range" min="50" max="100" step="0.1" value="99" aria-label="Sensitivity (true positive rate) percent"
+                 data-i18n-title="sens-slider-title"
+                 title="When the person IS sick, what % of the time does the test say so? (True positive rate.)">
+          <div class="help" data-i18n="sens-help">Sensitivity: when sick, % the test correctly says so.</div>
+        </div>
+        <div class="slider-field">
+          <div class="row">
+            <span class="lbl" id="specLabel">P(test− | healthy)</span>
+            <span class="val" id="specV">95.0%</span>
+          </div>
+          <input id="spec" type="range" min="50" max="100" step="0.1" value="95" aria-label="Specificity (true negative rate) percent"
+                 data-i18n-title="spec-slider-title"
+                 title="When the person is healthy, what % of the time does the test correctly say so? (True negative rate.)">
+          <div class="help" data-i18n="spec-help">Specificity: when healthy, % the test correctly says so.</div>
+        </div>
+        <div class="slider-field">
+          <div class="row">
+            <span class="lbl" data-i18n="pop-label">Population shown</span>
+            <span class="val" id="popV">10,000</span>
+          </div>
+          <input id="pop" type="range" min="100" max="100000" step="100" value="10000" aria-label="Population size"
+                 data-i18n-title="pop-slider-title"
+                 title="Larger population = smoother visualization. Same math regardless.">
+          <div class="help" data-i18n="pop-help">Larger = smoother visualization; same math regardless.</div>
+        </div>
       </div>
-      <input id="sens" type="range" min="50" max="100" step="0.1" value="99" aria-label="Sensitivity (true positive rate) percent"
-             data-i18n-title="sens-slider-title"
-             title="When the person IS sick, what % of the time does the test say so? (True positive rate.)">
-      <div class="help" data-i18n="sens-help">Sensitivity: when sick, % the test correctly says so.</div>
-    </div>
-    <div class="slider-field">
-      <div class="row">
-        <span class="lbl" id="specLabel">P(test− | healthy)</span>
-        <span class="val" id="specV">95.0%</span>
+
+      <div class="formula-box">
+        P(<b>disease</b> | <b>test+</b>) = [P(<b>test+</b> | <b>disease</b>) × P(<b>disease</b>)] ÷ P(<b>test+</b>)
+        <div id="formulaPlugged" style="margin-top:8px"></div>
       </div>
-      <input id="spec" type="range" min="50" max="100" step="0.1" value="95" aria-label="Specificity (true negative rate) percent"
-             data-i18n-title="spec-slider-title"
-             title="When the person is healthy, what % of the time does the test correctly say so? (True negative rate.)">
-      <div class="help" data-i18n="spec-help">Specificity: when healthy, % the test correctly says so.</div>
-    </div>
-    <div class="slider-field">
-      <div class="row">
-        <span class="lbl" data-i18n="pop-label">Population shown</span>
-        <span class="val" id="popV">10,000</span>
+
+      <!-- Likelihood ratio readout. LR+ and LR- expose the clinical-practice quantities. -->
+      <div class="lr-box" style="margin-top:8px; padding:10px 14px; background:var(--soft); border:1px solid var(--border); border-radius:8px; font-family:-apple-system,system-ui,sans-serif; font-size:0.88rem;">
+        <strong style="color:var(--accent);" data-i18n="lr-strong">Likelihood ratios:</strong>
+        <span style="margin-left:10px;">
+          <b>LR⁺</b> = <span data-i18n="lr-plus-def">sensitivity ÷ (1 − specificity)</span> =
+          <span id="lrPos" style="font-family:ui-monospace,monospace; color:var(--accent); font-weight:700;">—</span>
+        </span>
+        <span style="margin-left:18px;">
+          <b>LR⁻</b> = <span data-i18n="lr-minus-def">(1 − sensitivity) ÷ specificity</span> =
+          <span id="lrNeg" style="font-family:ui-monospace,monospace; color:var(--accent); font-weight:700;">—</span>
+        </span>
+        <div style="color:var(--muted); font-size:0.78rem; margin-top:4px;" data-i18n="lr-hint">
+          LR⁺ &gt; 10 = strong positive evidence. LR⁻ &lt; 0.1 = strong negative evidence.
+          Multiply the prior odds by the LR to get posterior odds (the way doctors actually compute Bayes).
+        </div>
       </div>
-      <input id="pop" type="range" min="100" max="100000" step="100" value="10000" aria-label="Population size"
-             data-i18n-title="pop-slider-title"
-             title="Larger population = smoother visualization. Same math regardless.">
-      <div class="help" data-i18n="pop-help">Larger = smoother visualization; same math regardless.</div>
-    </div>
-  </div>
 
-  <div class="formula-box">
-    P(<b>disease</b> | <b>test+</b>) = [P(<b>test+</b> | <b>disease</b>) × P(<b>disease</b>)] ÷ P(<b>test+</b>)
-    <div id="formulaPlugged" style="margin-top:8px"></div>
-  </div>
+      <!-- Sequential updating. The first posterior becomes the second prior — the
+           clinical-practice point that this applet was missing. -->
+      <div class="sequential-box" style="margin-top:12px; padding:12px 16px; background:var(--soft); border:1px solid var(--border); border-radius:8px;">
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+          <strong style="color:var(--accent);" data-i18n="seq-strong">Run a second test:</strong>
+          <span style="color:var(--muted); font-size:0.9rem;" data-i18n="seq-explain">The posterior from the first test becomes the prior for the second. Watch P(sick) update twice.</span>
+          <button class="step-btn" id="seqPosBtn" data-i18n="seq-pos-btn"
+                  data-i18n-title="seq-pos-title"
+                  title="Set the prior to P(sick | positive), then re-test. A second positive should push the posterior even higher.">
+            ✓ Test came back POSITIVE
+          </button>
+          <button class="step-btn secondary" id="seqNegBtn" data-i18n="seq-neg-btn"
+                  data-i18n-title="seq-neg-title"
+                  title="Set the prior to P(sick | negative). A second negative should drop the posterior even lower.">
+            ✗ Test came back NEGATIVE
+          </button>
+          <button class="step-btn secondary" id="seqResetBtn" data-i18n="seq-reset-btn"
+                  data-i18n-title="seq-reset-title"
+                  title="Discard the chained prior and reset to the scenario default.">↺ Reset chain</button>
+        </div>
+        <div id="seqHistory" style="margin-top:8px; font-family:ui-monospace,monospace; font-size:0.85rem; color:var(--muted); min-height:1.4em;"></div>
+      </div>
+    </div><!-- /.bento-cell controls -->
+  </div><!-- /.bento-side -->
 
-  <!-- Likelihood ratio readout. LR+ and LR- expose the clinical-practice quantities. -->
-  <div class="lr-box" style="margin-top:8px; padding:10px 14px; background:var(--soft); border:1px solid var(--border); border-radius:8px; font-family:-apple-system,system-ui,sans-serif; font-size:0.88rem;">
-    <strong style="color:var(--accent);" data-i18n="lr-strong">Likelihood ratios:</strong>
-    <span style="margin-left:10px;">
-      <b>LR⁺</b> = <span data-i18n="lr-plus-def">sensitivity ÷ (1 − specificity)</span> =
-      <span id="lrPos" style="font-family:ui-monospace,monospace; color:var(--accent); font-weight:700;">—</span>
-    </span>
-    <span style="margin-left:18px;">
-      <b>LR⁻</b> = <span data-i18n="lr-minus-def">(1 − sensitivity) ÷ specificity</span> =
-      <span id="lrNeg" style="font-family:ui-monospace,monospace; color:var(--accent); font-weight:700;">—</span>
-    </span>
-    <div style="color:var(--muted); font-size:0.78rem; margin-top:4px;" data-i18n="lr-hint">
-      LR⁺ &gt; 10 = strong positive evidence. LR⁻ &lt; 0.1 = strong negative evidence.
-      Multiply the prior odds by the LR to get posterior odds (the way doctors actually compute Bayes).
-    </div>
-  </div>
+  <div class="bento-main">
+    <div class="bento-cell">
+      <canvas id="dots" width="1000" height="280" role="img"
+              aria-label="Population dot grid showing true/false positives and true/false negatives for the current Bayes scenario."></canvas>
+      <div class="legend-strip">
+        <span><span class="dot" style="background:var(--sick)"></span>Has disease (red)</span>
+        <span><span class="dot" style="background:var(--healthy)"></span>Healthy (green)</span>
+        <span>Yellow ring = test +</span>
+        <span>Blue ring = test −</span>
+      </div>
+    </div><!-- /.bento-cell canvas -->
 
-  <!-- Tree diagram view (alternative representation to the dot grid). -->
-  <details class="tree-details" style="margin-top:10px;">
-    <summary style="cursor:pointer; padding:8px 12px; background:var(--soft); border:1px solid var(--border); border-radius:6px; font-family:-apple-system,system-ui,sans-serif; font-size:0.88rem; color:var(--accent); font-weight:600;">
-      <span data-i18n="tree-summary">🌳 Show probability tree (alternative representation)</span>
-    </summary>
-    <div style="padding:10px 14px; border:1px solid var(--border); border-top:0; border-radius:0 0 6px 6px;">
-      <svg id="treeSvg" width="100%" viewBox="0 0 520 220" style="display:block; max-width:520px; margin:0 auto;"
-           role="img" aria-label="Probability tree showing prior → conditional → joint at each leaf."></svg>
-    </div>
-  </details>
+    <div class="bento-cell">
+      <div class="posterior-row">
+        <div class="post-card primary">
+          <div class="lbl" data-i18n="post-pos">If your test is POSITIVE, prob. you're actually sick:</div>
+          <div class="num" id="posteriorPos">—</div>
+        </div>
+        <div class="post-card">
+          <div class="lbl" data-i18n="post-neg">If your test is NEGATIVE, prob. you're actually sick:</div>
+          <div class="num" id="posteriorNeg">—</div>
+        </div>
+      </div>
 
-  <div class="posterior-row">
-    <div class="post-card primary">
-      <div class="lbl" data-i18n="post-pos">If your test is POSITIVE, prob. you're actually sick:</div>
-      <div class="num" id="posteriorPos">—</div>
-    </div>
-    <div class="post-card">
-      <div class="lbl" data-i18n="post-neg">If your test is NEGATIVE, prob. you're actually sick:</div>
-      <div class="num" id="posteriorNeg">—</div>
-    </div>
-  </div>
+      <div class="counts-box" id="counts"></div>
+    </div><!-- /.bento-cell readouts -->
 
-  <!-- Sequential updating. The first posterior becomes the second prior — the
-       clinical-practice point that this applet was missing. -->
-  <div class="sequential-box" style="margin-top:12px; padding:12px 16px; background:var(--soft); border:1px solid var(--border); border-radius:8px;">
-    <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-      <strong style="color:var(--accent);" data-i18n="seq-strong">Run a second test:</strong>
-      <span style="color:var(--muted); font-size:0.9rem;" data-i18n="seq-explain">The posterior from the first test becomes the prior for the second. Watch P(sick) update twice.</span>
-      <button class="step-btn" id="seqPosBtn" data-i18n="seq-pos-btn"
-              data-i18n-title="seq-pos-title"
-              title="Set the prior to P(sick | positive), then re-test. A second positive should push the posterior even higher.">
-        ✓ Test came back POSITIVE
-      </button>
-      <button class="step-btn secondary" id="seqNegBtn" data-i18n="seq-neg-btn"
-              data-i18n-title="seq-neg-title"
-              title="Set the prior to P(sick | negative). A second negative should drop the posterior even lower.">
-        ✗ Test came back NEGATIVE
-      </button>
-      <button class="step-btn secondary" id="seqResetBtn" data-i18n="seq-reset-btn"
-              data-i18n-title="seq-reset-title"
-              title="Discard the chained prior and reset to the scenario default.">↺ Reset chain</button>
-    </div>
-    <div id="seqHistory" style="margin-top:8px; font-family:ui-monospace,monospace; font-size:0.85rem; color:var(--muted); min-height:1.4em;"></div>
-  </div>
-
-  <canvas id="dots" width="1000" height="280" role="img"
-          aria-label="Population dot grid showing true/false positives and true/false negatives for the current Bayes scenario."></canvas>
-  <div class="legend-strip">
-    <span><span class="dot" style="background:var(--sick)"></span>Has disease (red)</span>
-    <span><span class="dot" style="background:var(--healthy)"></span>Healthy (green)</span>
-    <span>Yellow ring = test +</span>
-    <span>Blue ring = test −</span>
-  </div>
-
-  <div class="counts-box" id="counts"></div>
+    <!-- Tree diagram view (alternative representation to the dot grid) — moved to the wide main column so the 520px SVG has room. -->
+    <div class="bento-cell">
+      <details class="tree-details" style="margin-top:0;">
+        <summary style="cursor:pointer; padding:8px 12px; background:var(--soft); border:1px solid var(--border); border-radius:6px; font-family:-apple-system,system-ui,sans-serif; font-size:0.88rem; color:var(--accent); font-weight:600;">
+          <span data-i18n="tree-summary">🌳 Show probability tree (alternative representation)</span>
+        </summary>
+        <div style="padding:10px 14px; border:1px solid var(--border); border-top:0; border-radius:0 0 6px 6px;">
+          <svg id="treeSvg" width="100%" viewBox="0 0 520 220" style="display:block; max-width:520px; margin:0 auto;"
+               role="img" aria-label="Probability tree showing prior → conditional → joint at each leaf."></svg>
+        </div>
+      </details>
+    </div><!-- /.bento-cell tree -->
+  </div><!-- /.bento-main -->
+</div><!-- /.bento -->
 
   <!-- Worksheet/lab mode. 3 questions per applet with instant check. -->
   <details class="worksheet" style="margin-top:8px;">
@@ -477,7 +492,7 @@
   const STRINGS = {
     en: {
       'title': "Visualizing Bayes' Rule", 'back-link': '← Back to all playgrounds',
-      'footer-top': '↑ Back to top', 'footer-builtby': 'Built by', 'footer-course': 'Made for the 2025–26 Intro to AI course, Haidian Kaiwen Academy', 'footer-source': 'View source', 'footer-issue': 'Report an issue',
+      'footer-top': '↑ Back to top', 'footer-builtby': 'Built by', 'footer-course': 'Made for the 2025–2026 Intro to AI course, Haidian Kaiwen Academy', 'footer-source': 'View source', 'footer-issue': 'Report an issue',
       'reset-all': '↺ Reset all', 'scenario-label': 'Scenario:',
       'tldr-strong': 'The big idea',
       'tldr-body': 'A "99% accurate" test for a 1%-rare disease is wrong most of the time when it says positive. Bayes\' rule is just counting groups of people.',
@@ -515,7 +530,7 @@
     },
     zh: {
       'title': '贝叶斯规则可视化', 'back-link': '← 返回所有演示',
-      'footer-top': '↑ 返回顶部', 'footer-builtby': '作者', 'footer-course': '为海淀凯文学校 2025–26《人工智能导论》课程制作', 'footer-source': '查看源代码', 'footer-issue': '反馈问题',
+      'footer-top': '↑ 返回顶部', 'footer-builtby': '作者', 'footer-course': '为海淀凯文学校 2025–2026《人工智能导论》课程制作', 'footer-source': '查看源代码', 'footer-issue': '反馈问题',
       'reset-all': '↺ 全部重置', 'scenario-label': '场景:',
       'tldr-strong': '核心思想',
       'tldr-body': '对一种发病率为 1% 的疾病做"准确率 99%"的检测,阳性结果大部分时候反而是错的。贝叶斯规则不过是在数人群。',
@@ -565,7 +580,7 @@
     });
     document.querySelectorAll('.lang-switch button').forEach(b =>
       b.classList.toggle('active', b.dataset.lang === lang));
-    try { localStorage.setItem('bayes-lang', lang); } catch (_) {}
+    try { localStorage.setItem('lang', lang); } catch (_) {}
     // Re-translate dynamic slider labels (their text isn't in data-i18n).
     // try/catch: on the initial setLang call these helpers read `scen` / `seqHistory`,
     // which are `let` bindings declared further down — TDZ. The catch swallows the
@@ -576,13 +591,13 @@
   document.querySelectorAll('.lang-switch button').forEach(b =>
     b.addEventListener('click', () => setLang(b.dataset.lang)));
   let initialLang = 'en';
-  try { initialLang = localStorage.getItem('bayes-lang') || 'en'; } catch (_) {}
+  try { initialLang = localStorage.getItem('lang') || 'en'; } catch (_) {}
   setLang(initialLang);
 
   function setTheme(t) {
     document.body.classList.toggle('dark-mode', t === 'dark');
     const btn = document.getElementById('themeToggle');
-    if (btn) btn.textContent = t === 'dark' ? '☀' : '🌙';
+    if (btn) btn.textContent = t === 'dark' ? '☀️' : '🌙';
     try { localStorage.setItem('theme', t); } catch (_) {}
   }
   let initialTheme = 'light';
@@ -1061,8 +1076,10 @@
 </script>
   <footer class="site-footer" style="margin-top:36px; border-top:1px solid var(--border,#e5e7eb); padding:20px 24px; text-align:center; color:var(--muted,#6b7280); font-size:0.82rem; line-height:1.7;">
     <p style="margin:0 0 6px;"><a href="#top" data-i18n="footer-top" style="color:var(--accent,#0891b2); text-decoration:none;">↑ Back to top</a></p>
-    <p style="margin:0;"><span data-i18n="footer-builtby">Built by</span> Logan Dixon · <span data-i18n="footer-course">Made for the 2025–26 Intro to AI course, Haidian Kaiwen Academy</span></p>
+    <p style="margin:0;"><span data-i18n="footer-builtby">Built by</span> Logan Dixon · <span data-i18n="footer-course">Made for the 2025–2026 Intro to AI course, Haidian Kaiwen Academy</span></p>
     <p style="margin:6px 0 0;"><a href="https://github.com/lmdixon23/my_dev_projects/tree/main/ai_playgrounds" data-i18n="footer-source" style="color:var(--accent,#0891b2);">View source</a> · <a href="https://github.com/lmdixon23/my_dev_projects/blob/main/LICENSE" style="color:var(--accent,#0891b2);">MIT</a> · <a href="https://github.com/lmdixon23/my_dev_projects/issues" data-i18n="footer-issue" style="color:var(--accent,#0891b2);">Report an issue</a> · © 2026 Logan Dixon</p>
   </footer>
+  <!-- Privacy-friendly analytics — GoatCounter, cookieless. -->
+  <script data-goatcounter="https://lmdixon23.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>

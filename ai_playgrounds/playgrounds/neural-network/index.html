@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Visualizing a Tiny Neural Net</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230284c7'/%3E%3Cpath d='M13 10l9 6-9 6z' fill='%23ffffff'/%3E%3C/svg%3E">
 <meta name="description" content="A tiny neural network learning to classify 2D points. Add hidden neurons, change the activation, watch the loss fall and the decision boundary curve.">
 <link rel="canonical" href="https://lmdixon23.github.io/my_dev_projects/playgrounds/neural-network/">
 <meta property="og:type" content="website">
@@ -22,15 +23,15 @@
     --classA: #2563eb; --classB: #f97316;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; font-family: 'Georgia', serif; background: var(--bg); color: var(--fg); line-height: 1.6; }
-  .page-header { background: var(--card); border-bottom: 1px solid var(--border);
-                  padding: 16px 24px; display: flex; align-items: center; justify-content: space-between;
-                  flex-wrap: wrap; gap: 12px; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", Arial, sans-serif; background: var(--bg); color: var(--fg); line-height: 1.6; }
+  .page-header { background: var(--card); border-bottom: 1px solid var(--border); padding: 12px 24px; }
+  .header-utility { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+  .header-prefs { display: flex; align-items: center; gap: 8px; }
+  .header-main { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .header-actions { display: flex; align-items: center; gap: 8px; font-family: -apple-system, system-ui, sans-serif; font-size: 0.85rem; }
+  .header-actions .header-reset { margin-left: 12px; }
   .page-header h1 { margin: 0; font-size: 1.5rem; }
-  .page-header .back { color: var(--accent); text-decoration: none; font-size: 0.9rem;
-                       font-family: -apple-system, system-ui, sans-serif; }
-  .header-tools { display: flex; gap: 8px; align-items: center;
-                   font-family: -apple-system, system-ui, sans-serif; font-size: 0.85rem; }
+  .page-header .back { color: var(--accent); text-decoration: none; font-size: 0.9rem; font-family: -apple-system, system-ui, sans-serif; }
   .lang-switch { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
   .lang-switch button { padding: 4px 10px; background: white; color: var(--muted);
                           border: none; cursor: pointer; font: inherit; font-size: 0.78rem; }
@@ -39,16 +40,14 @@
                     border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
                     font: inherit; font-size: 0.82rem; }
   .header-reset:hover { background: var(--soft); }
-  .tldr { position: fixed; top: 80px; right: 24px; max-width: 250px;
+  .tldr { max-width: 820px; margin: 16px auto 0;
            background: var(--accent); color: white;
            border-radius: 8px; padding: 14px 16px; font-size: 0.88rem; font-weight: 500;
-           font-family: -apple-system, system-ui, sans-serif; line-height: 1.45;
-           z-index: 50; box-shadow: 0 6px 20px rgba(0,0,0,0.18); }
+           font-family: -apple-system, system-ui, sans-serif; line-height: 1.45; }
   .tldr strong { color: rgba(255,255,255,0.85); font-size: 0.72rem; letter-spacing: 0.08em;
                   text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 6px; }
-  @media (max-width: 1100px) { .tldr { display: none; } }
   .interactive { background: var(--card); padding: 24px; border-bottom: 1px solid var(--border); }
-  .interactive-inner { max-width: 880px; margin: 0 auto;
+  .interactive-inner { max-width: 1280px; margin: 0 auto;
                          font-family: -apple-system, system-ui, sans-serif; }
   .control-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
                   margin-bottom: 14px; font-size: 0.88rem; }
@@ -64,12 +63,14 @@
   .slider-block input[type=range] { width: 100px; }
   .slider-block .val { color: var(--accent); font-weight: 700; font-family: monospace;
                          font-size: 0.92rem; min-width: 30px; text-align: right; }
-  .canvas-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .canvas-pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-bottom: 0; }
   .canvas-card { background: white; border: 1px solid var(--border);
                    border-radius: 8px; padding: 10px; }
   .canvas-card h3 { margin: 0 0 6px; font-size: 0.85rem; color: var(--accent);
                       text-transform: uppercase; letter-spacing: 0.05em; }
-  canvas { display: block; width: 100%; height: 300px; background: white; border-radius: 4px; }
+  canvas { display: block; width: 100%; height: auto; background: white; border-radius: 4px; }
+  #bv, #lc { aspect-ratio: 420 / 300; }
+  #ng { aspect-ratio: 840 / 300; }
   .stats-strip { display: flex; gap: 24px; justify-content: center;
                    font-family: -apple-system, system-ui, sans-serif; font-size: 0.85rem;
                    margin-top: 12px; flex-wrap: wrap; }
@@ -99,6 +100,18 @@
   .essay .for-teachers h3 { font-family: -apple-system, system-ui, sans-serif;
                               color: var(--accent); font-size: 0.9rem;
                               text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0; }
+  /* ===== Unified transport bar (shared playback controls across stepped applets) ===== */
+  .transport { display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+               padding: 8px 10px; margin: 10px 0; border: 1px solid var(--border);
+               border-radius: 8px; background: var(--soft); }
+  .tp-btn { font: inherit; font-size: 0.9rem; cursor: pointer; border: 1px solid var(--border);
+            background: var(--card); color: var(--fg); border-radius: 6px; padding: 6px 12px; min-width: 40px; line-height: 1; }
+  .tp-btn:hover { background: var(--soft); }
+  .tp-speed { display: flex; align-items: center; gap: 6px; font-size: 0.82rem; color: var(--muted); }
+  .tp-speed input { accent-color: var(--accent); }
+  .tp-count { margin-left: auto; font-family: ui-monospace, monospace; font-size: 0.82rem;
+              color: var(--muted); font-variant-numeric: tabular-nums; min-width: 128px; text-align: right; }
+  .tp-btn:disabled { opacity: 0.45; cursor: default; }  /* reserve layout space; signal unavailable instead of vanishing */
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { transition: none !important; animation: none !important; }
   }
@@ -125,46 +138,52 @@
                   font-size: 0.85rem; font-family: inherit; }
   .header-png:hover { background: var(--soft); }
   body.dark-mode .header-png { background: var(--card); color: var(--fg); }
-  input[type="range"] { height: 28px; cursor: pointer; }
-  input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none; appearance: none;
-    width: 24px; height: 24px; border-radius: 50%; cursor: pointer;
-    background: var(--accent); border: 2px solid white;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-  }
-  input[type="range"]::-moz-range-thumb {
-    width: 24px; height: 24px; border-radius: 50%; cursor: pointer;
-    background: var(--accent); border: 2px solid white;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-  }
+  /* ===== Slider styling — ROUTE A TEST: native themed control via accent-color =====
+     Single variant by design: with accent-color the browser renders the track AND the
+     filled portion itself, so there is no authorable "no-fill" Route A. Chrome and
+     Firefox draw that fill in their own way — that difference is part of the comparison. */
+  input[type="range"] { accent-color: var(--accent); height: 28px; cursor: pointer; }
   /* embed mode. Strip chrome so the applet fits cleanly in an LMS iframe. */
   body.embed-mode .page-header,
   body.embed-mode aside.tldr,
   body.embed-mode article.essay,
   body.embed-mode .jump-anchor { display: none !important; }
   body.embed-mode .interactive { padding: 12px; border-bottom: none; }
+  /* ===== Bento grid ===== */
+  .bento { display: grid; grid-template-columns: minmax(300px, 360px) minmax(0, 1fr); gap: 16px; align-items: start; margin-bottom: 14px; }
+  .bento-side, .bento-main { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  .bento-cell { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; min-width: 0; }
+  .bento-cell > :first-child { margin-top: 0 !important; }
+  .tp-scrub { min-width: 0; }
+  @media (max-width: 860px) { .bento { grid-template-columns: 1fr; gap: 12px; } }
 </style>
 </head>
 <body>
 
 <header class="page-header">
-  <h1 data-i18n="title">Visualizing a Tiny Neural Net</h1>
-  <div class="header-tools">
-    <button class="header-png" id="shareLink"
-            title="Copy a URL that re-opens this dataset / activation / architecture / learning-rate in another browser.">🔗 Share</button>
-    <button class="header-png" id="embedLink"
-            title="Copy an <iframe> snippet for embedding in an LMS. Strips header/essay so only the interactive area shows.">📎 Embed</button>
-    <button class="header-png" id="exportPng"
-            title="Download the decision-boundary canvas as a PNG.">📷 PNG</button>
-    <button class="header-theme" id="themeToggle" aria-label="Toggle dark or light theme"
-            title="Toggle dark / light theme (saved across all playgrounds).">🌙</button>
-    <button class="header-reset" id="hardReset" data-i18n="reset-all"
-            title="Reset everything to default: two-moons dataset, [2-6-4-1] architecture, ReLU activation, LR=0.03.">↺ Reset all</button>
-    <div class="lang-switch" title="Switch interface language">
-      <button data-lang="en" class="active">EN</button>
-      <button data-lang="zh">中文</button>
-    </div>
+  <div class="header-utility">
     <a class="back" href="../../" data-i18n="back-link">← Back to all playgrounds</a>
+    <div class="header-prefs">
+      <button class="header-theme" id="themeToggle" aria-label="Toggle dark or light theme"
+              title="Toggle dark / light theme (saved across all playgrounds).">🌙</button>
+      <div class="lang-switch" title="Switch interface language">
+        <button data-lang="en" class="active">EN</button>
+        <button data-lang="zh">中文</button>
+      </div>
+    </div>
+  </div>
+  <div class="header-main">
+    <h1 data-i18n="title">Visualizing a Tiny Neural Net</h1>
+    <div class="header-actions">
+      <button class="header-png" id="shareLink"
+              title="Copy a URL that re-opens this dataset / activation / architecture / learning-rate in another browser.">🔗 Share</button>
+      <button class="header-png" id="embedLink"
+              title="Copy an <iframe> snippet for embedding in an LMS. Strips header/essay so only the interactive area shows.">📎 Embed</button>
+      <button class="header-png" id="exportPng"
+              title="Download the decision-boundary canvas as a PNG.">📷 PNG</button>
+      <button class="header-reset" id="hardReset" data-i18n="reset-all"
+              title="Reset everything to default: two-moons dataset, [2-6-4-1] architecture, ReLU activation, LR=0.03.">↺ Reset all</button>
+    </div>
   </div>
 </header>
 
@@ -176,6 +195,9 @@
 <section class="interactive">
 <div class="interactive-inner">
 
+  <div class="bento">
+  <div class="bento-side">
+  <div class="bento-cell">
   <div class="control-row">
     <label data-i18n="dataset-label">Dataset:</label>
     <select id="datasetSel" data-i18n-title="dataset-sel-title" title="Test problem. XOR forces non-linearity; blobs work with a single line.">
@@ -216,14 +238,34 @@
       <option value="momentum" data-i18n="opt-momentum">Momentum (β=0.9)</option>
       <option value="adam" data-i18n="opt-adam">Adam (β₁=0.9, β₂=0.999)</option>
     </select>
-    <button class="step-btn primary" id="trainBtn" data-i18n="train-btn"
-            title="Run gradient descent over the full training set. Click again to pause.">▶ Train / pause</button>
-    <button class="step-btn" id="resetBtn" data-i18n="reset-btn"
-            title="Re-initialize weights randomly; rebuild architecture from current settings.">Reset weights</button>
+    <!-- Train / Reset relocated to the unified transport bar below. -->
     <!-- train/test toggle. Test set = held-out 20% of generated data. -->
     <label data-i18n-title="show-test-title" style="margin-left:10px;"
            title="Show test-loss curve on the loss chart and mark test points on the decision-boundary chart. Test = held-out 20% never used for gradients.">
       <input type="checkbox" id="showTestLoss"> <span data-i18n="show-test-label">Show test loss/points</span></label>
+  </div>
+
+  <!-- Unified transport bar (shared playback controls + inline history scrubber). -->
+  <div class="transport" id="transport" role="group" aria-label="Playback controls">
+    <button class="tp-btn" id="resetBtn" data-i18n-title="restart-title"
+            title="Re-initialize weights randomly; rebuild architecture from current settings.">↺</button>
+    <button class="tp-btn" id="backBtn" data-i18n-title="back-title"
+            title="Step one training frame backward (review).">◀❘</button>
+    <button class="tp-btn" id="trainBtn" data-i18n="train-btn" aria-pressed="false"
+            title="Run gradient descent over the full training set. Click again to pause.">▶ Train / pause</button>
+    <button class="tp-btn" id="stepBtn" data-i18n="step-btn"
+            title="Run one training epoch.">❘▶ Step</button>
+    <label class="tp-speed"><span data-i18n="speed-label">Speed</span>
+      <input id="speedSlider" type="range" min="0" max="100" value="70" aria-label="Training speed"
+             data-i18n-title="speed-title" title="Higher = faster training animation. Adjustable live."></label>
+    <span class="tp-scrub" id="nnScrubGroup" style="display:inline-flex; visibility:hidden; align-items:center; gap:8px; flex:1 1 220px; min-width:150px;">
+      <span style="color:var(--accent); font-weight:600; font-size:0.82rem;" title="History">⏪</span>
+      <input type="range" id="nnScrub" min="0" max="0" value="0" step="1" aria-label="Scrub through training frames" style="flex:1; min-width:110px;">
+      <label style="color:var(--muted); display:flex; align-items:center; gap:4px; font-size:0.8rem;"><span data-i18n="goto-label">epoch</span>
+        <input type="number" id="nnJump" min="0" aria-label="Jump to epoch" style="width:64px; padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;"></label>
+      <button class="tp-btn" id="nnLive" style="padding:4px 10px; font-size:0.8rem;" disabled data-i18n="return-live">Jump to latest</button>
+    </span>
+    <span class="tp-count" id="tpCount" data-i18n="tp-idle">idle</span>
   </div>
 
   <!-- Engineered input features (TF-Playground style). x and y are always on;
@@ -249,7 +291,20 @@
            title="Feed sin(y) as an extra input. Adds periodic structure along the y axis.">
       <input type="checkbox" id="fsiny"> <span data-i18n="feat-siny-label">sin(y)</span></label>
   </div>
+  </div><!-- /.bento-cell controls -->
 
+  <div class="bento-cell">
+  <div class="stats-strip">
+    <div class="stat-item"><div class="label" data-i18n="stat-epoch">Epoch</div><div class="val" id="epochV">0</div></div>
+    <div class="stat-item"><div class="label" data-i18n="stat-loss">Loss (BCE)</div><div class="val" id="lossV">—</div></div>
+    <div class="stat-item"><div class="label" data-i18n="stat-acc">Train accuracy</div><div class="val" id="accV">—</div></div>
+    <div class="stat-item"><div class="label" data-i18n="stat-param">Parameters</div><div class="val" id="paramV">—</div></div>
+  </div>
+  </div><!-- /.bento-cell stats -->
+  </div><!-- /.bento-side -->
+
+  <div class="bento-main">
+  <div class="bento-cell">
   <div class="canvas-pair">
     <div class="canvas-card">
       <h3 data-i18n="bv-h3">Decision boundary + training data</h3>
@@ -262,17 +317,12 @@
               aria-label="Binary cross-entropy loss over training epochs."></canvas>
     </div>
   </div>
+  </div><!-- /.bento-cell charts -->
 
-  <div class="stats-strip">
-    <div class="stat-item"><div class="label" data-i18n="stat-epoch">Epoch</div><div class="val" id="epochV">0</div></div>
-    <div class="stat-item"><div class="label" data-i18n="stat-loss">Loss (BCE)</div><div class="val" id="lossV">—</div></div>
-    <div class="stat-item"><div class="label" data-i18n="stat-acc">Train accuracy</div><div class="val" id="accV">—</div></div>
-    <div class="stat-item"><div class="label" data-i18n="stat-param">Parameters</div><div class="val" id="paramV">—</div></div>
-  </div>
-
+  <div class="bento-cell">
   <!-- Network graph (TF-Playground style): neurons as nodes in columns,
        weights as edges colored by sign and scaled by magnitude. Open by default. -->
-  <details open style="margin-top:12px;">
+  <details open id="ngDetails" style="margin-top:12px;">
     <summary style="cursor:pointer; padding:8px 12px; background:var(--soft); border:1px solid var(--border); border-radius:6px; font-family:-apple-system,system-ui,sans-serif; font-size:0.88rem; color:var(--accent); font-weight:600;">
       <span data-i18n="graph-summary">🕸 Network graph — weights as connections</span>
     </summary>
@@ -280,13 +330,24 @@
       <div style="color:var(--muted); font-size:0.82rem; margin-bottom:6px;" data-i18n="graph-hint">
         Each circle is a neuron; each line is one weight. Blue = positive, red = negative; thicker / brighter = larger magnitude. Updates live as the network trains.
       </div>
+      <div id="nnInitHint" style="display:none; font-size:0.82rem; color:var(--muted); background:var(--soft); border:1px solid var(--border); border-radius:6px; padding:6px 10px; margin-bottom:8px;" data-i18n="init-hint">⚠ Random initialization — these weights are noise until you press Train.</div>
+      <!-- Weights | Gradients toggle -->
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px; flex-wrap:wrap;">
+        <div style="display:inline-flex; border:1px solid var(--border); border-radius:6px; overflow:hidden;">
+          <button id="ngViewW" style="padding:4px 12px; font:inherit; font-size:0.82rem; border:none; cursor:pointer; background:var(--accent); color:white; font-weight:600;" data-i18n="ng-view-w">Weights</button>
+          <button id="ngViewG" style="padding:4px 12px; font:inherit; font-size:0.82rem; border:none; cursor:pointer; background:var(--card); color:var(--muted);" data-i18n="ng-view-g">Gradients</button>
+        </div>
+        <span id="ngGradHint" style="display:none; font-size:0.8rem; color:var(--muted);" data-i18n="ng-grad-hint">Gradient view: blue = backprop pushes this weight up, red = down (width = how hard).</span>
+      </div>
       <canvas id="ng" width="840" height="300" role="img"
               aria-label="Network graph: neurons as nodes, weights as colored connections."></canvas>
     </div>
   </details>
+  </div><!-- /.bento-cell network-graph -->
 
+  <div class="bento-cell">
   <!-- Inside-the-network views (weight matrices + per-neuron activation heatmaps). -->
-  <details style="margin-top:12px;">
+  <details id="insideDetails" style="margin-top:12px;">
     <summary style="cursor:pointer; padding:8px 12px; background:var(--soft); border:1px solid var(--border); border-radius:6px; font-family:-apple-system,system-ui,sans-serif; font-size:0.88rem; color:var(--accent); font-weight:600;">
       <span data-i18n="inside-summary">🧠 Inside the network (weights + per-neuron activation maps)</span>
     </summary>
@@ -305,6 +366,9 @@
       </div>
     </div>
   </details>
+  </div><!-- /.bento-cell inside-network -->
+  </div><!-- /.bento-main -->
+  </div><!-- /.bento -->
 
   <!-- Worksheet/lab mode. 3 questions per applet with instant check. -->
   <details class="worksheet" style="margin-top:8px;">
@@ -454,7 +518,7 @@
   const STRINGS = {
     en: {
       'title': 'Visualizing a Tiny Neural Net', 'back-link': '← Back to all playgrounds',
-      'footer-top': '↑ Back to top', 'footer-builtby': 'Built by', 'footer-course': 'Made for the 2025–26 Intro to AI course, Haidian Kaiwen Academy', 'footer-source': 'View source', 'footer-issue': 'Report an issue',
+      'footer-top': '↑ Back to top', 'footer-builtby': 'Built by', 'footer-course': 'Made for the 2025–2026 Intro to AI course, Haidian Kaiwen Academy', 'footer-source': 'View source', 'footer-issue': 'Report an issue',
       'reset-all': '↺ Reset all', 'dataset-label': 'Dataset:', 'act-label': 'Activation:',
       'tldr-strong': 'The big idea',
       'tldr-body': 'Layers stacked with non-linear activations can carve any decision boundary. Remove the non-linearity and the whole network collapses into a single line.',
@@ -468,6 +532,11 @@
       'opt-momentum': 'Momentum (β=0.9)', 'opt-adam': 'Adam (β₁=0.9, β₂=0.999)',
       'opt-title': 'SGD: plain gradient descent (w ← w − lr·g). Momentum: accumulates a velocity buffer (v ← βv − lr·g; w ← w + v) — smooths noisy gradients and accelerates through ravines. Adam: combines momentum (1st moment) with adaptive per-parameter learning rates (2nd moment).',
       'train-btn': '▶ Train / pause', 'reset-btn': 'Reset weights',
+      'step-btn': '❘▶ Step', 'speed-label': 'Speed',
+      'restart-title': 'Re-initialize weights randomly; rebuild architecture from current settings.',
+      'back-title': 'Step one training frame backward (review).',
+      'tp-idle': 'idle',
+      'history-label': '⏪ History', 'goto-label': 'epoch', 'return-live': 'Jump to latest',
       'show-test-label': 'Show test loss/points',
       'show-test-title': 'Show test-loss curve on the loss chart and mark test points (open shapes) on the decision-boundary chart. Test = held-out 20% never used for gradients.',
       'inside-summary': '🧠 Inside the network (weights + per-neuron activation maps)',
@@ -499,11 +568,16 @@
       // network-graph view (neurons as nodes, weights as colored connections).
       'graph-summary': '🕸 Network graph — weights as connections',
       'graph-hint': 'Each circle is a neuron; each line is one weight. Blue = positive, red = negative; thicker / brighter = larger magnitude. Updates live as the network trains.',
+      'init-hint': '⚠ Random initialization — these weights are noise until you press Train.',
       'graph-out-label': 'out',
+      'ng-view-w': 'Weights',
+      'ng-view-g': 'Gradients',
+      'ng-grad-hint': 'Gradient view: blue = backprop pushes this weight up, red = down (width = how hard).',
+      'ng-grad-none': 'Train (or Step) once to see gradients.',
     },
     zh: {
       'title': '迷你神经网络可视化', 'back-link': '← 返回所有演示',
-      'footer-top': '↑ 返回顶部', 'footer-builtby': '作者', 'footer-course': '为海淀凯文学校 2025–26《人工智能导论》课程制作', 'footer-source': '查看源代码', 'footer-issue': '反馈问题',
+      'footer-top': '↑ 返回顶部', 'footer-builtby': '作者', 'footer-course': '为海淀凯文学校 2025–2026《人工智能导论》课程制作', 'footer-source': '查看源代码', 'footer-issue': '反馈问题',
       'reset-all': '↺ 全部重置', 'dataset-label': '数据集:', 'act-label': '激活函数:',
       'tldr-strong': '核心思想',
       'tldr-body': '带非线性激活函数的层堆叠起来可以刻出任意决策边界。去掉非线性,整个网络就会塌缩成一条直线。',
@@ -517,6 +591,11 @@
       'opt-momentum': '动量 (β=0.9)', 'opt-adam': 'Adam (β₁=0.9, β₂=0.999)',
       'opt-title': 'SGD:朴素梯度下降(w ← w − lr·g)。动量:累积速度缓冲(v ← βv − lr·g;w ← w + v)——平滑噪声梯度并在峡谷中加速。Adam:把动量(一阶矩)与每参数自适应学习率(二阶矩)结合。',
       'train-btn': '▶ 训练 / 暂停', 'reset-btn': '重置权重',
+      'step-btn': '❘▶ 单步', 'speed-label': '速度',
+      'restart-title': '随机重新初始化权重;按当前设置重建网络结构。',
+      'back-title': '后退一个训练帧(回看)。',
+      'tp-idle': '空闲',
+      'history-label': '⏪ 历史', 'goto-label': '回合', 'return-live': '跳到最新',
       'show-test-label': '显示测试损失/点',
       'show-test-title': '在损失图上显示测试损失曲线,并在决策边界图上以空心形状标注测试点。测试集 = 留出的 20%,从不用于梯度更新。',
       'inside-summary': '🧠 网络内部(权重 + 每个神经元的激活图)',
@@ -548,7 +627,12 @@
       // 网络图视图(神经元为节点,权重为彩色连线)。
       'graph-summary': '🕸 网络图——权重即连线',
       'graph-hint': '每个圆圈是一个神经元,每条线是一个权重。蓝 = 正,红 = 负;越粗 / 越亮 = 绝对值越大。训练时实时更新。',
+      'init-hint': '⚠ 随机初始化——训练之前,这些权重只是噪声。',
       'graph-out-label': '输出',
+      'ng-view-w': '权重',
+      'ng-view-g': '梯度',
+      'ng-grad-hint': '梯度视图:蓝 = 反向传播把该权重往上推,红 = 往下推(粗细 = 力度)。',
+      'ng-grad-none': '先训练(或单步)一次以查看梯度。',
     },
   };
   function setLang(lang) {
@@ -564,18 +648,18 @@
     });
     document.querySelectorAll('.lang-switch button').forEach(b =>
       b.classList.toggle('active', b.dataset.lang === lang));
-    try { localStorage.setItem('nn-lang', lang); } catch (_) {}
+    try { localStorage.setItem('lang', lang); } catch (_) {}
   }
   document.querySelectorAll('.lang-switch button').forEach(b =>
     b.addEventListener('click', () => setLang(b.dataset.lang)));
   let initialLang = 'en';
-  try { initialLang = localStorage.getItem('nn-lang') || 'en'; } catch (_) {}
+  try { initialLang = localStorage.getItem('lang') || 'en'; } catch (_) {}
   setLang(initialLang);
 
   function setTheme(t) {
     document.body.classList.toggle('dark-mode', t === 'dark');
     const btn = document.getElementById('themeToggle');
-    if (btn) btn.textContent = t === 'dark' ? '☀' : '🌙';
+    if (btn) btn.textContent = t === 'dark' ? '☀️' : '🌙';
     try { localStorage.setItem('theme', t); } catch (_) {}
   }
   let initialTheme = 'light';
@@ -589,6 +673,7 @@
     if (typeof drawBoundary === 'function') drawBoundary();
     if (typeof drawLoss === 'function') drawLoss();
     if (typeof drawNetworkGraph === 'function') drawNetworkGraph();
+    if (typeof setNgView === 'function') setNgView(ngView);
   });
 
   // For-teachers is hidden by default (cognitive-load floor). User toggles persist.
@@ -723,6 +808,8 @@
   function featureCount() { return 2 + activeFeatures.length; }
 
   let layers = [];
+  let lastGradW = null; // captured gradient from the most recent trainStep (averaged over training set)
+  let ngView = 'weights'; // 'weights' | 'gradients'
   // optimizer step counter (used by Adam bias correction). Reset on every
   // network rebuild (changing arch, resetting weights, switching optimizer mid-run
   // intentionally KEEPS the counter — that mirrors PyTorch behavior).
@@ -827,6 +914,8 @@
     const opt = optSel ? optSel.value : 'sgd';
     const beta1 = 0.9, beta2 = 0.999, eps = 1e-8;
     optStep++;
+    // Capture averaged gradient for the Gradients view (deep-clone before any weight update).
+    lastGradW = gW.map(layer => layer.map(row => row.map(v => v / n)));
     for (let li = 0; li < layers.length; li++) {
       const L = layers[li];
       for (let r = 0; r < L.W.length; r++) {
@@ -959,6 +1048,7 @@
   }
   function renderWeightsView() {
     const root = document.getElementById('weightsRows');
+    if (root) root.style.opacity = (epoch === 0) ? '0.5' : '1';
     if (!root) return;
     let html = '';
     layers.forEach((L, idx) => {
@@ -997,6 +1087,8 @@
   }
   function drawNetworkGraph() {
     const cv = $('ng'); if (!cv || !layers.length) return;
+    { const untrained = (epoch === 0); cv.style.opacity = untrained ? '0.5' : '1';
+      const ih = $('nnInitHint'); if (ih) ih.style.display = untrained ? '' : 'none'; }
     const ctx = cv.getContext('2d');
     const rect = cv.getBoundingClientRect();
     const W = rect.width, H = rect.height;
@@ -1023,11 +1115,33 @@
       return top + (j / (count - 1)) * (bot - top);
     };
 
-    // Normalize against a FIXED reference scale (matches colorForWeight's 2.0
-    // clamp), NOT the per-frame max. Per-frame max-normalization made edges look
-    // frozen during training: weights grow together so each |w|/max ratio barely
-    // moves. A fixed scale lets absolute weight growth recolor/thicken edges live.
-    const maxAbs = 2;
+    // Determine gradient view vs weight view and set normalization reference.
+    // Gradient view: edge value = −lastGradW[k][rr][cc] (negated so blue = weight
+    // will increase, red = weight will decrease, matching the w ← w−lr·g update).
+    // Weight view: fixed maxAbs=2 scale (matches colorForWeight's clamp).
+    const useGrad = (ngView === 'gradients') && lastGradW;
+    const gradHint = document.getElementById('ngGradHint');
+    if (gradHint) {
+      if (ngView === 'gradients' && !lastGradW) {
+        // No gradients yet — show the "train once" hint instead.
+        const lang = document.documentElement.lang || 'en';
+        gradHint.textContent = (STRINGS[lang] && STRINGS[lang]['ng-grad-none']) || STRINGS['en']['ng-grad-none'];
+        gradHint.style.display = '';
+      } else if (ngView === 'gradients') {
+        const lang = document.documentElement.lang || 'en';
+        gradHint.textContent = (STRINGS[lang] && STRINGS[lang]['ng-grad-hint']) || STRINGS['en']['ng-grad-hint'];
+        gradHint.style.display = '';
+      } else {
+        gradHint.style.display = 'none';
+      }
+    }
+    // Compute normalization reference for gradient view (per-frame max |g|).
+    let maxAbs = 2; // default: fixed weight scale
+    if (useGrad) {
+      let maxG = 0;
+      for (const layer of lastGradW) for (const row of layer) for (const v of row) { const av = Math.abs(v); if (av > maxG) maxG = av; }
+      maxAbs = maxG > 0 ? maxG : 1;
+    }
 
     // Edges first (so nodes draw on top). W[r][c] links input node c (col k)
     // to output node r (col k+1) — exactly the weight-matrix orientation.
@@ -1037,7 +1151,8 @@
       const x0 = colX(k), x1 = colX(k + 1);
       for (let rr = 0; rr < outCount; rr++) {
         for (let cc = 0; cc < inCount; cc++) {
-          const w = L.W[rr][cc];
+          // Edge value: negated gradient (shows direction weight will move) or raw weight.
+          const w = useGrad ? -(lastGradW[k][rr][cc]) : L.W[rr][cc];
           const t = Math.min(1, Math.abs(w) / maxAbs); // 0..1 magnitude
           if (t < 0.02) continue; // skip ~zero weights to reduce clutter
           ctx.strokeStyle = w >= 0
@@ -1112,6 +1227,7 @@
   }
   function renderActivationsView() {
     const root = document.getElementById('activationsRows');
+    if (root) root.style.opacity = (epoch === 0) ? '0.5' : '1';
     if (!root) return;
     // Only hidden layers (skip the output layer which has 1 neuron and isn't pedagogically novel).
     const hiddenLayers = layers.slice(0, -1);
@@ -1214,20 +1330,146 @@
         $('accV').textContent = (accuracy() * 100).toFixed(1) + '%';
         drawBoundary(); drawLoss(); renderWeightsView(); renderActivationsView(); drawNetworkGraph();
         document.title = `(epoch ${epoch}) ${nnBaseTitle}`;
-        await new Promise(r => setTimeout(r, 0));
+        nnSnap();
+        { const tc = $('tpCount'); if (tc) tc.textContent = `epoch ${epoch}`; }
+        await new Promise(r => setTimeout(r, Math.max(0, 100 - (+$('speedSlider').value))));
       }
     }
     document.title = nnBaseTitle;
   }
 
+  // ===== Unified transport bar: weight-snapshot ring buffer (universal step-back) =====
+  const NN_CAP = 300;
+  let nnHistory = [];          // ring buffer of weight snapshots
+  let nnReviewing = false;     // true while scrubbed back (review-only)
+  let nnCursor = 0;
+  function cloneLayers(ls) {
+    return ls.map(L => ({
+      W: L.W.map(r => r.slice()), b: L.b.slice(), act: L.act,
+      mW: L.mW.map(r => r.slice()), mB: L.mB.slice(),
+      vW: L.vW.map(r => r.slice()), vB: L.vB.slice(),
+    }));
+  }
+  function nnSnap() {
+    nnHistory.push({ layers: cloneLayers(layers), optStep, epoch });
+    if (nnHistory.length > NN_CAP) nnHistory.shift();
+    nnSyncScrub();
+  }
+  function nnSetCount(t) { const tc = $('tpCount'); if (tc) tc.textContent = t; }
+  function nnDrawAll() {
+    $('epochV').textContent = epoch;
+    $('accV').textContent = (accuracy() * 100).toFixed(1) + '%';
+    drawBoundary(); drawLoss(); renderWeightsView(); renderActivationsView(); drawNetworkGraph();
+  }
+  function nnApply(s) {           // restore weights for review (loss curve left intact)
+    layers = cloneLayers(s.layers); optStep = s.optStep; epoch = s.epoch;
+    nnDrawAll();
+  }
+  function nnSyncScrub() {
+    const sc = $('nnScrub'); if (!sc) return;
+    sc.max = Math.max(0, nnHistory.length - 1);
+    if (!nnReviewing) sc.value = nnHistory.length - 1;
+    const grp = $('nnScrubGroup');
+    if (grp && nnHistory.length >= 2) grp.style.visibility = 'visible';
+  }
+  function nnReturnLive() {
+    if (nnHistory.length) nnApply(nnHistory[nnHistory.length - 1]);
+    nnReviewing = false; nnSetCount('live');
+    const sc = $('nnScrub'); if (sc) sc.value = Math.max(0, nnHistory.length - 1);
+    const live = $('nnLive'); if (live) live.disabled = true;
+  }
+  function nnGoto(idx) {            // jump to a past frame for review (handles the live edge)
+    if (running || nnHistory.length === 0) return;
+    idx = Math.max(0, Math.min(nnHistory.length - 1, idx | 0));
+    if (idx >= nnHistory.length - 1) { nnReturnLive(); return; }
+    nnReviewing = true; nnCursor = idx;
+    nnApply(nnHistory[idx]);
+    const ep = nnHistory[idx].epoch;
+    nnSetCount(`e${ep} · ${idx + 1}/${nnHistory.length}`);
+    const sc = $('nnScrub'); if (sc) sc.value = idx;
+    const live = $('nnLive'); if (live) live.disabled = false;
+  }
+  function nnEpochToFrame(targetEp) {   // nearest snapshot to a typed epoch number
+    let best = 0, bestd = Infinity;
+    for (let i = 0; i < nnHistory.length; i++) {
+      const d = Math.abs(nnHistory[i].epoch - targetEp);
+      if (d < bestd) { bestd = d; best = i; }
+    }
+    return best;
+  }
+  function nnBack() {
+    if (running || nnHistory.length === 0) return;
+    nnGoto((nnReviewing ? nnCursor : nnHistory.length - 1) - 1);
+  }
+  function nnStep() {              // ❘▶ : forward through review, else one live epoch
+    if (running) return;
+    if (nnReviewing) { nnGoto(nnCursor + 1); return; }
+    const loss = trainStep(); epoch++;
+    lossHistory.push(loss);
+    if (epoch % 5 === 0) testLossHistory.push(evalTestLoss());
+    else testLossHistory.push(testLossHistory[testLossHistory.length - 1] || 0);
+    nnSnap();
+    $('lossV').textContent = loss.toFixed(4);
+    nnDrawAll();
+    nnSetCount(`epoch ${epoch}`);
+  }
+  $('stepBtn').addEventListener('click', nnStep);
+  $('backBtn').addEventListener('click', nnBack);
+  { const sc = $('nnScrub'); if (sc) sc.addEventListener('input', () => nnGoto(+sc.value)); }
+  { const jb = $('nnJump'); if (jb) jb.addEventListener('change', () => {
+      const v = parseInt(jb.value, 10); if (!Number.isNaN(v)) nnGoto(nnEpochToFrame(v)); }); }
+  { const lv = $('nnLive'); if (lv) lv.addEventListener('click', nnReturnLive); }
+
+  // Weights | Gradients toggle for the network graph.
+  function setNgView(v) {
+    ngView = v;
+    const wBtn = $('ngViewW'), gBtn = $('ngViewG');
+    if (wBtn && gBtn) {
+      if (v === 'weights') {
+        wBtn.style.background = 'var(--accent)'; wBtn.style.color = 'white'; wBtn.style.fontWeight = '600';
+        gBtn.style.background = 'var(--card)'; gBtn.style.color = 'var(--muted)'; gBtn.style.fontWeight = '';
+      } else {
+        gBtn.style.background = 'var(--accent)'; gBtn.style.color = 'white'; gBtn.style.fontWeight = '600';
+        wBtn.style.background = 'var(--card)'; wBtn.style.color = 'var(--muted)'; wBtn.style.fontWeight = '';
+      }
+    }
+    drawNetworkGraph();
+  }
+  { const w = $('ngViewW'); if (w) w.addEventListener('click', () => setNgView('weights')); }
+  { const g = $('ngViewG'); if (g) g.addEventListener('click', () => setNgView('gradients')); }
+
+  // Render-on-expand: a collapsed <details> renders its canvases to a zero-size box,
+  // so force a fresh draw (and re-measure) whenever a panel is opened.
+  ['ngDetails', 'insideDetails'].forEach(id => {
+    const d = document.getElementById(id);
+    if (d) d.addEventListener('toggle', () => {
+      if (!d.open) return;
+      try { if (typeof resizeCv === 'function') resizeCv($('ng')); } catch (_) {}
+      drawNetworkGraph(); renderWeightsView(); renderActivationsView();
+    });
+  });
+  window.__nnAcceptanceTest = function () {
+    const sp = $('speedSlider');
+    const r = { transportBar: !!$('transport'), backBtn: !!$('backBtn'), stepBtn: !!$('stepBtn'),
+                resetBtn: !!$('resetBtn'), speedInBar: !!(sp && sp.closest('#transport')),
+                snapshots: nnHistory.length };
+    const pass = r.transportBar && r.backBtn && r.stepBtn && r.resetBtn && r.speedInBar;
+    console.log('[neural-network] CONTROLS ACCEPTANCE TEST ' + (pass ? 'passed' : 'FAILED'), r);
+    return Object.assign({ pass }, r);
+  };
+
   $('trainBtn').addEventListener('click', () => {
+    if (nnReviewing) nnReturnLive();   // resuming training returns to the live head (no branching)
     running = !running;
     $('trainBtn').textContent = running ? '⏸ Pause' : '▶ Train / pause';
+    document.getElementById('trainBtn').setAttribute('aria-pressed', running ? 'true' : 'false');
     if (running) loop();
   });
   $('resetBtn').addEventListener('click', () => {
     running = false; $('trainBtn').textContent = '▶ Train / pause';
     epoch = 0; lossHistory.length = 0; testLossHistory.length = 0;
+    nnHistory = []; nnReviewing = false; nnSetCount('idle');
+    { const st = $('nnScrubGroup'); if (st) st.style.visibility = 'hidden'; const sc = $('nnScrub'); if (sc) { sc.max = 0; sc.value = 0; } const lv = $('nnLive'); if (lv) lv.disabled = true; }
     buildNet(); drawBoundary(); drawLoss(); renderWeightsView(); renderActivationsView(); drawNetworkGraph();
     $('epochV').textContent = 0; $('lossV').textContent = '—'; $('accV').textContent = '—';
   });
@@ -1239,6 +1481,8 @@
     // reset engineered-feature toggles to default (all off → only x, y).
     FEATURE_DEFS.forEach(f => { const el = $(f.id); if (el) el.checked = false; });
     epoch = 0; lossHistory.length = 0; testLossHistory.length = 0;
+    nnHistory = []; nnReviewing = false; nnSetCount('idle');
+    { const st = $('nnScrubGroup'); if (st) st.style.visibility = 'hidden'; const sc = $('nnScrub'); if (sc) { sc.max = 0; sc.value = 0; } const lv = $('nnLive'); if (lv) lv.disabled = true; }
     genData(); buildNet(); drawBoundary(); drawLoss(); renderWeightsView(); renderActivationsView(); drawNetworkGraph();
     $('epochV').textContent = 0; $('lossV').textContent = '—'; $('accV').textContent = '—';
   });
@@ -1400,6 +1644,14 @@
       fb.style.color = ok ? '#16a34a' : '#dc2626';
     });
   });
+
+  window.__backpropTest = function() {
+    const r = { toggle: !!document.getElementById('ngViewG'), gradCaptured: !!lastGradW, view: ngView };
+    const pass = r.toggle;
+    console.log('[neural-network] BACKPROP-VIEW ' + (pass ? 'passed' : 'FAILED'), r);
+    return Object.assign({ pass }, r);
+  };
+  window.__bentoTest = function(){ const b=document.querySelector('.bento'); const cells=document.querySelectorAll('.bento-cell').length; const r={bento:!!b, cells, ngAspect: getComputedStyle(document.getElementById('ng')).aspectRatio}; const pass=!!b && cells>=4; console.log('[neural-network] BENTO '+(pass?'passed':'FAILED'), r); return Object.assign({pass}, r); };
 })();
 </script>
 <!-- Embed mode handler (shared pattern across all 12 applets). -->
@@ -1426,8 +1678,10 @@
 </script>
   <footer class="site-footer" style="margin-top:36px; border-top:1px solid var(--border,#e5e7eb); padding:20px 24px; text-align:center; color:var(--muted,#6b7280); font-size:0.82rem; line-height:1.7;">
     <p style="margin:0 0 6px;"><a href="#top" data-i18n="footer-top" style="color:var(--accent,#0891b2); text-decoration:none;">↑ Back to top</a></p>
-    <p style="margin:0;"><span data-i18n="footer-builtby">Built by</span> Logan Dixon · <span data-i18n="footer-course">Made for the 2025–26 Intro to AI course, Haidian Kaiwen Academy</span></p>
+    <p style="margin:0;"><span data-i18n="footer-builtby">Built by</span> Logan Dixon · <span data-i18n="footer-course">Made for the 2025–2026 Intro to AI course, Haidian Kaiwen Academy</span></p>
     <p style="margin:6px 0 0;"><a href="https://github.com/lmdixon23/my_dev_projects/tree/main/ai_playgrounds" data-i18n="footer-source" style="color:var(--accent,#0891b2);">View source</a> · <a href="https://github.com/lmdixon23/my_dev_projects/blob/main/LICENSE" style="color:var(--accent,#0891b2);">MIT</a> · <a href="https://github.com/lmdixon23/my_dev_projects/issues" data-i18n="footer-issue" style="color:var(--accent,#0891b2);">Report an issue</a> · © 2026 Logan Dixon</p>
   </footer>
+  <!-- Privacy-friendly analytics — GoatCounter, cookieless. -->
+  <script data-goatcounter="https://lmdixon23.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>

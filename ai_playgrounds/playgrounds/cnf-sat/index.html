@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Visualizing CNF & SAT</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230284c7'/%3E%3Cpath d='M13 10l9 6-9 6z' fill='%23ffffff'/%3E%3C/svg%3E">
 <meta name="description" content="Type propositional logic. Watch it get rewritten into CNF step-by-step. Brute-force SAT enumerates every assignment and shows all satisfying models.">
 <link rel="canonical" href="https://lmdixon23.github.io/my_dev_projects/playgrounds/cnf-sat/">
 <meta property="og:type" content="website">
@@ -22,15 +23,15 @@
     --true: #16a34a; --false: #dc2626;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; font-family: 'Georgia', serif; background: var(--bg); color: var(--fg); line-height: 1.6; }
-  .page-header { background: var(--card); border-bottom: 1px solid var(--border);
-                  padding: 16px 24px; display: flex; align-items: center; justify-content: space-between;
-                  flex-wrap: wrap; gap: 12px; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", Arial, sans-serif; background: var(--bg); color: var(--fg); line-height: 1.6; }
+  .page-header { background: var(--card); border-bottom: 1px solid var(--border); padding: 12px 24px; }
+  .header-utility { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+  .header-prefs { display: flex; align-items: center; gap: 8px; }
+  .header-main { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .header-actions { display: flex; align-items: center; gap: 8px; font-family: -apple-system, system-ui, sans-serif; font-size: 0.85rem; }
+  .header-actions .header-reset { margin-left: 12px; }
   .page-header h1 { margin: 0; font-size: 1.5rem; }
-  .page-header .back { color: var(--accent); text-decoration: none; font-size: 0.9rem;
-                       font-family: -apple-system, system-ui, sans-serif; }
-  .header-tools { display: flex; gap: 8px; align-items: center;
-                   font-family: -apple-system, system-ui, sans-serif; font-size: 0.85rem; }
+  .page-header .back { color: var(--accent); text-decoration: none; font-size: 0.9rem; font-family: -apple-system, system-ui, sans-serif; }
   .lang-switch { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
   .lang-switch button { padding: 4px 10px; background: white; color: var(--muted);
                           border: none; cursor: pointer; font: inherit; font-size: 0.78rem; }
@@ -39,14 +40,12 @@
                     border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
                     font: inherit; font-size: 0.82rem; }
   .header-reset:hover { background: var(--soft); }
-  .tldr { position: fixed; top: 80px; right: 24px; max-width: 250px;
+  .tldr { max-width: 820px; margin: 16px auto 0;
            background: var(--accent); color: white;
            border-radius: 8px; padding: 14px 16px; font-size: 0.88rem; font-weight: 500;
-           font-family: -apple-system, system-ui, sans-serif; line-height: 1.45;
-           z-index: 50; box-shadow: 0 6px 20px rgba(0,0,0,0.18); }
+           font-family: -apple-system, system-ui, sans-serif; line-height: 1.45; }
   .tldr strong { color: rgba(255,255,255,0.85); font-size: 0.72rem; letter-spacing: 0.08em;
                   text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 6px; }
-  @media (max-width: 1100px) { .tldr { display: none; } }
   .interactive { background: var(--card); padding: 24px; border-bottom: 1px solid var(--border); }
   .interactive-inner { max-width: 900px; margin: 0 auto;
                          font-family: -apple-system, system-ui, sans-serif; }
@@ -122,6 +121,51 @@
   .essay .for-teachers h3 { font-family: -apple-system, system-ui, sans-serif;
                               color: var(--accent); font-size: 0.9rem;
                               text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0; }
+  /* ===== Step-through players: shared transport bar + formula coloring ===== */
+  .player { margin-top: 10px; }
+  .transport { display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+               padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--soft); }
+  .tp-btn { font: inherit; font-size: 0.9rem; cursor: pointer; border: 1px solid var(--border);
+            background: var(--card); color: var(--fg); border-radius: 6px; padding: 6px 12px; min-width: 40px; line-height: 1; }
+  .tp-btn:hover { background: var(--soft); }
+  .tp-btn:disabled { opacity: 0.45; cursor: default; }
+  /* Scrollable list/table region — show everything in a fixed height instead of truncating with "N more". */
+  .list-scroll { overflow: auto; }
+  .list-scroll table { margin-top: 0; }
+  .list-scroll thead th { position: sticky; top: 0; background: var(--soft); z-index: 1; }
+  .tp-play[aria-pressed="true"] { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .tp-speed { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--muted); }
+  .tp-speed input { accent-color: var(--accent); }
+  .tp-count { margin-left: auto; font-family: ui-monospace, monospace; font-size: 0.82rem;
+              color: var(--muted); font-variant-numeric: tabular-nums; min-width: 90px; text-align: right; }
+  .stage-caption { margin: 12px 2px 4px; font-size: 0.92rem; font-weight: 600; }
+  .stage-caption .rule { font-weight: 400; color: var(--muted); font-family: ui-monospace, monospace; font-size: 0.82rem; }
+  .stage-metric { margin: 0 2px 10px; font-size: 0.82rem; color: var(--muted); }
+  .stage-metric .jump { color: var(--accent); font-weight: 700; font-size: 0.95rem; }
+  .stage-line-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin: 8px 2px 2px; }
+  .stage-before, .stage-after { font-family: 'SF Mono', ui-monospace, monospace; font-size: 0.95rem;
+                                padding: 8px 10px; border-radius: 6px; background: var(--soft);
+                                border-left: 3px solid var(--border); overflow-x: auto; line-height: 1.95; }
+  .stage-before { opacity: 0.62; }
+  .stage-after { border-left-color: var(--accent); }
+  .tok { border-radius: 3px; padding: 0 1px; }
+  .hl-iff .op-iff, .hl-imp .op-imp, .hl-not .op-not, .hl-and .op-and, .hl-or .op-or {
+    background: color-mix(in oklab, var(--accent) 26%, transparent); outline: 1px solid var(--accent); font-weight: 700; }
+  .stage-before.hl-iff .op-iff, .stage-before.hl-imp .op-imp {
+    background: color-mix(in oklab, var(--false) 22%, transparent); outline-color: var(--false); }
+  .clause-chips, .assign-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .assign-chips { margin: 4px 0 10px; }
+  .clause-chip, .assign-chip { font-family: ui-monospace, monospace; font-size: 0.85rem;
+                               padding: 3px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--card); }
+  .clause-chip.unit { outline: 2px solid var(--accent); border-color: var(--accent); }
+  .clause-chip.conflict { background: color-mix(in oklab, var(--false) 22%, transparent); border-color: var(--false); color: var(--false); font-weight: 700; }
+  .assign-chip.t { background: #dcfce7; color: var(--true); border-color: #86efac; }
+  .assign-chip.f { background: #fee2e2; color: var(--false); border-color: #fca5a5; }
+  .assign-chip.u { color: var(--muted); }
+  .dpll-action { display: inline-block; font-weight: 700; padding: 2px 8px; border-radius: 5px; font-size: 0.82rem; margin: 2px 0; }
+  .dpll-detail { font-size: 0.88rem; margin: 6px 0; }
+  body.dark-mode .assign-chip.t { background: rgba(22,163,74,0.25); }
+  body.dark-mode .assign-chip.f { background: rgba(220,38,38,0.25); }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { transition: none !important; animation: none !important; }
   }
@@ -159,21 +203,27 @@
 <body>
 
 <header class="page-header">
-  <h1 data-i18n="title">Visualizing CNF &amp; SAT</h1>
-  <div class="header-tools">
-    <button class="header-theme" id="shareLink" style="font-size:0.9rem;"
-            title="Copy a URL that re-opens this exact formula in another browser.">🔗 Share</button>
-    <button class="header-theme" id="embedLink" style="font-size:0.9rem;"
-            title="Copy an <iframe> snippet for embedding in an LMS. Strips header/essay so only the interactive area shows.">📎 Embed</button>
-    <button class="header-theme" id="themeToggle" aria-label="Toggle dark or light theme"
-            title="Toggle dark / light theme (saved across all playgrounds).">🌙</button>
-    <button class="header-reset" id="hardReset" data-i18n="reset-all"
-            title="Reset input to default 'modus ponens' example.">↺ Reset all</button>
-    <div class="lang-switch" title="Switch interface language">
-      <button data-lang="en" class="active">EN</button>
-      <button data-lang="zh">中文</button>
-    </div>
+  <div class="header-utility">
     <a class="back" href="../../" data-i18n="back-link">← Back to all playgrounds</a>
+    <div class="header-prefs">
+      <button class="header-theme" id="themeToggle" aria-label="Toggle dark or light theme"
+              title="Toggle dark / light theme (saved across all playgrounds).">🌙</button>
+      <div class="lang-switch" title="Switch interface language">
+        <button data-lang="en" class="active">EN</button>
+        <button data-lang="zh">中文</button>
+      </div>
+    </div>
+  </div>
+  <div class="header-main">
+    <h1 data-i18n="title">Visualizing CNF &amp; SAT</h1>
+    <div class="header-actions">
+      <button class="header-theme" id="shareLink" style="font-size:0.9rem;"
+              title="Copy a URL that re-opens this exact formula in another browser.">🔗 Share</button>
+      <button class="header-theme" id="embedLink" style="font-size:0.9rem;"
+              title="Copy an <iframe> snippet for embedding in an LMS. Strips header/essay so only the interactive area shows.">📎 Embed</button>
+      <button class="header-reset" id="hardReset" data-i18n="reset-all"
+              title="Reset input to default 'modus ponens' example.">↺ Reset all</button>
+    </div>
   </div>
 </header>
 
@@ -225,13 +275,48 @@ P</textarea>
   <div class="panel">
     <h3 data-i18n="step2-h3">2. Conjunctive Normal Form (step by step)</h3>
     <div class="sub" data-i18n="step2-sub">Standard rewrite pipeline: eliminate ↔, eliminate →, push ¬ in (De Morgan), distribute ∨ over ∧.</div>
-    <div id="cnfOut"></div>
+    <div id="cnfPlayer" class="player">
+      <div class="transport" id="cnfTransport" role="group" aria-label="CNF conversion playback">
+        <button class="tp-btn" id="cnfReset" title="Back to the original formula">↺</button>
+        <button class="tp-btn" id="cnfBack" title="Previous stage">◀❘</button>
+        <button class="tp-btn tp-play" id="cnfPlay" aria-pressed="false" title="Play / pause the rewrite">▶</button>
+        <button class="tp-btn" id="cnfStep" title="Next stage">❘▶</button>
+        <label class="tp-speed">Speed <input type="range" id="cnfSpeed" min="0" max="100" value="55" aria-label="Playback speed"></label>
+        <span class="tp-count" id="cnfCount">Stage 0</span>
+      </div>
+      <div class="stage-caption" id="cnfCaption">—</div>
+      <div class="stage-metric" id="cnfMetric"></div>
+      <div class="stage-line-label" id="cnfBeforeLabel" style="display:none;">before</div>
+      <div class="stage-before" id="cnfBefore" style="display:none;"></div>
+      <div class="stage-line-label" id="cnfAfterLabel">result</div>
+      <div class="stage-after" id="cnfAfter"></div>
+    </div>
+    <details id="cnfAllWrap" style="margin-top:10px;">
+      <summary style="cursor:pointer; color:var(--accent); font-weight:600; font-size:0.85rem;" data-i18n="cnf-showall">Show all five stages at once</summary>
+      <div id="cnfOut"></div>
+    </details>
   </div>
 
   <div class="panel">
     <h3 data-i18n="step3-h3">3. Satisfiability</h3>
     <div class="sub"><span data-i18n="step3-sub">Brute-force enumeration of all 2</span><sup>n</sup><span data-i18n="step3-sub2"> assignments (cap n = 12).</span></div>
     <div id="satOut"></div>
+    <div id="dpllPlayer" class="player">
+      <div class="transport" id="dpllTransport" role="group" aria-label="DPLL search playback">
+        <button class="tp-btn" id="dpllReset" title="Back to first step">↺</button>
+        <button class="tp-btn" id="dpllBack" title="Previous step">◀❘</button>
+        <button class="tp-btn tp-play" id="dpllPlay" aria-pressed="false" title="Play / pause the search">▶</button>
+        <button class="tp-btn" id="dpllStep" title="Next step">❘▶</button>
+        <label class="tp-speed">Speed <input type="range" id="dpllSpeed" min="0" max="100" value="55" aria-label="Playback speed"></label>
+        <span class="tp-count" id="dpllCount">Step 0</span>
+      </div>
+      <div class="stage-caption" id="dpllTitle" style="font-size:0.8rem; color:var(--muted); font-weight:400;"></div>
+      <div class="assign-chips" id="dpllAssign"></div>
+      <div id="dpllAction"></div>
+      <div class="dpll-detail" id="dpllDetail"></div>
+      <div class="stage-line-label" id="dpllClausesLabel">working clause set</div>
+      <div class="clause-chips" id="dpllClauses"></div>
+    </div>
   </div>
 
   <!-- Entailment by resolution refutation (AIMA Ch 7.5). -->
@@ -405,11 +490,15 @@ P</textarea>
 (() => {
   const $ = id => document.getElementById(id);
 
+  // Step-through player state (CNF conversion + DPLL search). Populated by run().
+  let cnfStages = [], dpllSteps = [], dpllVarList = [], dpllRows = 0;
+  let cnfStepper = null, dpllStepper = null;
+
   // ===== i18n strings =====
   const STRINGS = {
     en: {
       'title': "Visualizing CNF & SAT", 'back-link': '← Back to all playgrounds',
-      'footer-top': '↑ Back to top', 'footer-builtby': 'Built by', 'footer-course': 'Made for the 2025–26 Intro to AI course, Haidian Kaiwen Academy', 'footer-source': 'View source', 'footer-issue': 'Report an issue',
+      'footer-top': '↑ Back to top', 'footer-builtby': 'Built by', 'footer-course': 'Made for the 2025–2026 Intro to AI course, Haidian Kaiwen Academy', 'footer-source': 'View source', 'footer-issue': 'Report an issue',
       'reset-all': '↺ Reset all', 'convert-btn': '▶ Convert + check SAT',
       'tldr-strong': 'The big idea',
       'tldr-body': 'Every SAT solver in the world wants Conjunctive Normal Form. Watch ↔ → ¬ get distributed away in five mechanical steps, then brute-force-enumerate every satisfying assignment.',
@@ -426,6 +515,7 @@ P</textarea>
       'step1-sub': 'Your sentences as parsed by the engine. Errors flagged here.',
       'step2-h3': '2. Conjunctive Normal Form (step by step)',
       'step2-sub': 'Standard rewrite pipeline: eliminate ↔, eliminate →, push ¬ in (De Morgan), distribute ∨ over ∧.',
+      'cnf-showall': 'Show all five stages at once',
       'step3-h3': '3. Satisfiability',
       'step3-sub': 'Brute-force enumeration of all 2',
       'step3-sub2': ' assignments (cap n = 12).',
@@ -448,7 +538,7 @@ P</textarea>
     },
     zh: {
       'title': '合取范式与可满足性可视化', 'back-link': '← 返回所有演示',
-      'footer-top': '↑ 返回顶部', 'footer-builtby': '作者', 'footer-course': '为海淀凯文学校 2025–26《人工智能导论》课程制作', 'footer-source': '查看源代码', 'footer-issue': '反馈问题',
+      'footer-top': '↑ 返回顶部', 'footer-builtby': '作者', 'footer-course': '为海淀凯文学校 2025–2026《人工智能导论》课程制作', 'footer-source': '查看源代码', 'footer-issue': '反馈问题',
       'reset-all': '↺ 全部重置', 'convert-btn': '▶ 转换 + 检查可满足性',
       'tldr-strong': '核心思想',
       'tldr-body': '世界上每一个 SAT 求解器都需要合取范式作为输入。看 ↔ → ¬ 如何在五个机械的步骤里被消除,然后暴力枚举所有满足赋值。',
@@ -465,6 +555,7 @@ P</textarea>
       'step1-sub': '引擎解析后的语句。错误会在此标注。',
       'step2-h3': '2. 合取范式(逐步)',
       'step2-sub': '标准重写流程:消除 ↔,消除 →,把 ¬ 推进去(德摩根),∨ 对 ∧ 分配。',
+      'cnf-showall': '一次性显示全部五个阶段',
       'step3-h3': '3. 可满足性',
       'step3-sub': '暴力枚举全部 2',
       'step3-sub2': ' 种赋值(上限 n = 12)。',
@@ -499,18 +590,18 @@ P</textarea>
     });
     document.querySelectorAll('.lang-switch button').forEach(b =>
       b.classList.toggle('active', b.dataset.lang === lang));
-    try { localStorage.setItem('cnf-lang', lang); } catch (_) {}
+    try { localStorage.setItem('lang', lang); } catch (_) {}
   }
   document.querySelectorAll('.lang-switch button').forEach(b =>
     b.addEventListener('click', () => setLang(b.dataset.lang)));
   let initialLang = 'en';
-  try { initialLang = localStorage.getItem('cnf-lang') || 'en'; } catch (_) {}
+  try { initialLang = localStorage.getItem('lang') || 'en'; } catch (_) {}
   setLang(initialLang);
 
   function setTheme(t) {
     document.body.classList.toggle('dark-mode', t === 'dark');
     const btn = document.getElementById('themeToggle');
-    if (btn) btn.textContent = t === 'dark' ? '☀' : '🌙';
+    if (btn) btn.textContent = t === 'dark' ? '☀️' : '🌙';
     try { localStorage.setItem('theme', t); } catch (_) {}
   }
   let initialTheme = 'light';
@@ -635,6 +726,31 @@ P</textarea>
     if (parent && prec[parent] > p) s = '(' + s + ')';
     return s;
   }
+  const escHtml = s => String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  // Span-emitting version of fmt(): identical precedence/paren logic, but every
+  // token is a <span> (operators carry an op-<type> class) so a stage can recolor them.
+  function fmtSpanned(e, parent) {
+    const prec = {var: 99, not: 7, and: 6, or: 5, imp: 4, iff: 3};
+    const p = prec[e.op];
+    let s;
+    if (e.op === 'var') s = `<span class="tok tok-var">${escHtml(e.name)}</span>`;
+    else if (e.op === 'not') s = '<span class="tok op op-not">¬</span>' + fmtSpanned(e.a, e.op);
+    else if (e.op === 'and') s = fmtSpanned(e.a, e.op) + '<span class="tok op op-and"> ∧ </span>' + fmtSpanned(e.b, e.op);
+    else if (e.op === 'or') s = fmtSpanned(e.a, e.op) + '<span class="tok op op-or"> ∨ </span>' + fmtSpanned(e.b, e.op);
+    else if (e.op === 'imp') s = fmtSpanned(e.a, e.op) + '<span class="tok op op-imp"> → </span>' + fmtSpanned(e.b, e.op);
+    else if (e.op === 'iff') s = fmtSpanned(e.a, e.op) + '<span class="tok op op-iff"> ↔ </span>' + fmtSpanned(e.b, e.op);
+    if (parent && prec[parent] > p) s = '<span class="paren">(</span>' + s + '<span class="paren">)</span>';
+    return s;
+  }
+  // Count operators of a given type in an AST (for the per-stage "↔: 3 → 0" metric).
+  function countOp(e, op) {
+    if (!e || e.op === 'var') return 0;
+    return (e.op === op ? 1 : 0) + countOp(e.a, op) + (e.b ? countOp(e.b, op) : 0);
+  }
+  // Number of top-level conjuncts (≈ clauses before distribution blows them up).
+  function topConjuncts(e) {
+    return e && e.op === 'and' ? topConjuncts(e.a) + topConjuncts(e.b) : 1;
+  }
   function elimIff(e) {
     if (e.op === 'var') return e;
     if (e.op === 'not') return {op: 'not', a: elimIff(e.a)};
@@ -714,6 +830,10 @@ P</textarea>
   }
 
   function run() {
+    // Clear the step-through players first; the success path repopulates them below.
+    cnfStages = []; dpllSteps = []; dpllVarList = [];
+    if (cnfStepper) cnfStepper.go(0);
+    if (dpllStepper) dpllStepper.go(0);
     const input = $('input').value;
     const lines = input.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#'));
     if (!lines.length) { $('parseOut').innerHTML = '<div class="error">Enter at least one sentence.</div>'; return; }
@@ -748,6 +868,34 @@ P</textarea>
     $('cnfOut').innerHTML = cnfHtml;
     const vars = new Set(); collectVars(combined, vars);
     const varList = [...vars].sort();
+
+    // ===== Build the stepped CNF-conversion stages (the player reads these) =====
+    {
+      const nV = varList.length;
+      const rows = nV <= 30 ? Math.pow(2, nV) : Infinity;
+      const distBefore = topConjuncts(step3);
+      const nC = clauses.length;
+      const grew = nC > distBefore;
+      const ratio = nC / distBefore;
+      const ratioTxt = ratio % 1 === 0 ? ratio + '×' : '~' + ratio.toFixed(1) + '×';
+      cnfStages = [
+        { key:'orig', label:'Stage 0 · Original', rule: CNF_RULES.orig, ast: combined, prevAst: null, hl: null,
+          metric: `${nV} variable${nV===1?'':'s'} → ${rows===Infinity ? '2^'+nV : rows.toLocaleString()} truth-table row${rows===1?'':'s'} to brute-force` },
+        { key:'iff', label:'Stage 1 · Eliminate ↔', rule: CNF_RULES.iff, ast: step1, prevAst: combined, hl:'iff',
+          metric: `↔ operators: ${countOp(combined,'iff')} → 0` },
+        { key:'imp', label:'Stage 2 · Eliminate →', rule: CNF_RULES.imp, ast: step2, prevAst: step1, hl:'imp',
+          metric: `→ operators: ${countOp(step1,'imp')} → 0` },
+        { key:'not', label:'Stage 3 · Push ¬ inward (De Morgan)', rule: CNF_RULES.not, ast: step3, prevAst: step2, hl:'not',
+          metric: 'negations now rest only on variables' },
+        { key:'dist', label:'Stage 4 · Distribute ∨ over ∧', rule: CNF_RULES.dist, ast: step4, prevAst: step3, hl:'or',
+          clauseCount: nC,
+          metric: `clauses: ${distBefore} → <span class="jump">${nC}</span>` + (grew ? ` &nbsp;↑ distribution grew the formula ${ratioTxt}` : ' (no blow-up for this formula)') },
+        { key:'cnf', label:'Stage 5 · CNF clauses', rule: CNF_RULES.cnf, ast: step4, prevAst: step3, hl:'or',
+          isClauses: true, clauses: clauses, clauseCount: nC,
+          metric: `${nC} clause${nC===1?'':'s'} · ${nV} variable${nV===1?'':'s'}` },
+      ];
+      if (cnfStepper) cnfStepper.go(0);
+    }
     if (varList.length > 12) {
       $('satOut').innerHTML = `<div class="error">Too many variables (${varList.length}). Cap is 12 for this brute-force demo.</div>`;
       return;
@@ -765,16 +913,14 @@ P</textarea>
               + (isSat ? `✓ SAT (${models.length} model${models.length===1?'':'s'} out of ${total})`
                        : '✗ UNSAT (no satisfying assignment)') + '</div>';
     if (models.length > 0) {
-      satHtml += '<table class="table">';
-      satHtml += '<tr>' + varList.map(v => `<th>${v}</th>`).join('') + '</tr>';
-      const show = models.slice(0, 16);
-      for (const env of show) {
+      satHtml += '<div class="list-scroll" style="max-height:240px; margin-top:10px;"><table class="table">';
+      satHtml += '<thead><tr>' + varList.map(v => `<th>${v}</th>`).join('') + '</tr></thead><tbody>';
+      for (const env of models) {
         satHtml += '<tr>';
         for (const v of varList) satHtml += `<td class="${env[v] ? 'T' : 'F'}">${env[v] ? 'T' : 'F'}</td>`;
         satHtml += '</tr>';
       }
-      satHtml += '</table>';
-      if (models.length > 16) satHtml += `<div class="sub" style="margin-top:8px">…and ${models.length - 16} more.</div>`;
+      satHtml += '</tbody></table></div>';
     }
     $('satOut').innerHTML = satHtml;
 
@@ -820,11 +966,11 @@ P</textarea>
     }
     function solve(clauses, depth) {
       if (clauses.length === 0) {
-        trace.push({depth, action: 'sat', detail: `All clauses satisfied. Assignment: ${JSON.stringify({...assignment})}`, clauses: snap(clauses)});
+        trace.push({depth, action: 'sat', detail: `All clauses satisfied. Assignment: ${JSON.stringify({...assignment})}`, clauses: snap(clauses), assign: {...assignment}, struct: clauses.map(c => c.map(l => ({...l})))});
         return {sat: true, model: {...assignment}};
       }
       if (clauses.some(c => c.length === 0)) {
-        trace.push({depth, action: 'unsat', detail: 'Empty clause → contradiction. Backtrack.', clauses: snap(clauses)});
+        trace.push({depth, action: 'unsat', detail: 'Empty clause → contradiction. Backtrack.', clauses: snap(clauses), assign: {...assignment}, struct: clauses.map(c => c.map(l => ({...l})))});
         return {sat: false};
       }
       // Unit propagation.
@@ -832,7 +978,7 @@ P</textarea>
       if (unit) {
         const lit = unit[0];
         assignment[lit.name] = !lit.neg;
-        trace.push({depth, action: 'unit', detail: `Unit clause forces ${lit.name} = ${!lit.neg ? 'T' : 'F'}.`, clauses: snap(clauses)});
+        trace.push({depth, action: 'unit', detail: `Unit clause forces ${lit.name} = ${!lit.neg ? 'T' : 'F'}.`, clauses: snap(clauses), assign: {...assignment}, struct: clauses.map(c => c.map(l => ({...l})))});
         const result = solve(simplify(clauses, lit), depth + 1);
         if (!result.sat) delete assignment[lit.name];
         return result;
@@ -841,7 +987,7 @@ P</textarea>
       const pure = pureLiteral(clauses);
       if (pure) {
         assignment[pure.name] = !pure.neg;
-        trace.push({depth, action: 'pure', detail: `Pure literal: ${pure.name} appears only ${pure.neg ? 'negated' : 'positive'} → assign ${!pure.neg ? 'T' : 'F'}.`, clauses: snap(clauses)});
+        trace.push({depth, action: 'pure', detail: `Pure literal: ${pure.name} appears only ${pure.neg ? 'negated' : 'positive'} → assign ${!pure.neg ? 'T' : 'F'}.`, clauses: snap(clauses), assign: {...assignment}, struct: clauses.map(c => c.map(l => ({...l})))});
         const result = solve(simplify(clauses, pure), depth + 1);
         if (!result.sat) delete assignment[pure.name];
         return result;
@@ -854,13 +1000,13 @@ P</textarea>
       }
       // Try TRUE first.
       assignment[branchVar] = true;
-      trace.push({depth, action: 'branch+', detail: `Branch: try ${branchVar} = T.`, clauses: snap(clauses)});
+      trace.push({depth, action: 'branch+', detail: `Branch: try ${branchVar} = T.`, clauses: snap(clauses), assign: {...assignment}, struct: clauses.map(c => c.map(l => ({...l})))});
       let result = solve(simplify(clauses, {name: branchVar, neg: false}), depth + 1);
       if (result.sat) return result;
       delete assignment[branchVar];
       // Backtrack, try FALSE.
       assignment[branchVar] = false;
-      trace.push({depth, action: 'branch-', detail: `Branch: backtrack, try ${branchVar} = F.`, clauses: snap(clauses)});
+      trace.push({depth, action: 'branch-', detail: `Branch: backtrack, try ${branchVar} = F.`, clauses: snap(clauses), assign: {...assignment}, struct: clauses.map(c => c.map(l => ({...l})))});
       result = solve(simplify(clauses, {name: branchVar, neg: true}), depth + 1);
       if (!result.sat) delete assignment[branchVar];
       return result;
@@ -868,32 +1014,148 @@ P</textarea>
     const final = solve(initialClauses, 0);
     return {trace, final};
   }
+  // Persist the DPLL trace and hand it to the step-player (rendered by renderDpllStep).
   function renderDpllTrace(clauses, vars) {
-    // Avoid mutating original clauses.
     const deep = clauses.map(c => c.map(l => ({...l})));
-    const {trace, final} = dpllTrace(deep, vars);
-    const target = document.getElementById('satOut');
-    if (!target) return;
-    let html = '<details style="margin-top:10px; padding:8px 12px; background:var(--soft); border:1px solid var(--border); border-radius:6px;">';
-    const lang = document.documentElement.lang === 'zh' ? 'zh' : 'en';
-    const summaryT = lang === 'zh' ? '🔬 DPLL 跟踪(替代暴力枚举)' : '🔬 DPLL trace (alternative to brute-force)';
-    html += `<summary style="cursor:pointer; color:var(--accent); font-weight:600;">${summaryT}</summary>`;
-    html += '<table style="border-collapse:collapse; font-family:ui-monospace,monospace; font-size:0.82rem; width:100%; margin-top:8px;">';
-    const actLabels = lang === 'zh'
-      ? {unit:'单元传播', pure:'纯文字消去', 'branch+':'分支 (T)', 'branch-':'回溯 (F)', sat:'✓ SAT', unsat:'✗ UNSAT'}
-      : {unit:'unit-prop', pure:'pure-lit', 'branch+':'branch+', 'branch-':'branch−', sat:'✓ SAT', unsat:'✗ UNSAT'};
-    for (const step of trace) {
-      const indent = '·&nbsp;&nbsp;'.repeat(step.depth);
-      const color = step.action === 'sat' ? '#16a34a' :
-                    step.action === 'unsat' ? '#dc2626' :
-                    step.action === 'unit' ? '#0284c7' :
-                    step.action === 'pure' ? '#9333ea' : 'var(--fg)';
-      html += `<tr><td style="padding:2px 6px; vertical-align:top;">${indent}<span style="color:${color}; font-weight:600;">[${actLabels[step.action]}]</span></td>`;
-      html += `<td style="padding:2px 6px;">${step.detail}</td></tr>`;
-    }
-    html += '</table></details>';
-    target.innerHTML += html;
+    const { trace } = dpllTrace(deep, vars);
+    dpllSteps = trace;
+    dpllVarList = vars.slice();
+    dpllRows = vars.length <= 30 ? Math.pow(2, vars.length) : Infinity;
+    if (dpllStepper) dpllStepper.go(0);
   }
+
+  // ===== Shared step-through controller (one transport bar, reused by both players) =====
+  function makeStepper(ids, getLen, renderIdx) {
+    let idx = 0, playing = false, timer = null;
+    const el = k => $(ids[k]);
+    const speed = () => { const s = el('speed'); return s ? +s.value : 55; };
+    const delay = () => Math.max(180, 1500 - speed() * 13);   // 0→1500ms … 100→~200ms
+    function refresh() {
+      renderIdx(idx);
+      const c = el('count'); if (c) c.textContent = ids.countLabel(idx, getLen());
+      const b = el('back'); if (b) b.disabled = idx <= 0;
+      const st = el('step'); if (st) st.disabled = idx >= getLen() - 1;
+    }
+    function go(i) { const n = getLen(); idx = n ? Math.max(0, Math.min(n - 1, i)) : 0; refresh(); }
+    function pause() { playing = false; if (timer) { clearTimeout(timer); timer = null; }
+      const b = el('play'); if (b) { b.textContent = '▶'; b.setAttribute('aria-pressed', 'false'); } }
+    function tick() { if (!playing) return;
+      if (idx >= getLen() - 1) { pause(); return; }
+      go(idx + 1); timer = setTimeout(tick, delay()); }
+    function play() { if (getLen() <= 1) return;
+      if (idx >= getLen() - 1) idx = 0;
+      playing = true; const b = el('play');
+      if (b) { b.textContent = '⏸'; b.setAttribute('aria-pressed', 'true'); }
+      refresh(); timer = setTimeout(tick, delay()); }
+    const bp = el('play'); if (bp) bp.addEventListener('click', () => playing ? pause() : play());
+    const bs = el('step'); if (bs) bs.addEventListener('click', () => { pause(); go(idx + 1); });
+    const bb = el('back'); if (bb) bb.addEventListener('click', () => { pause(); go(idx - 1); });
+    const br = el('reset'); if (br) br.addEventListener('click', () => { pause(); go(0); });
+    return { go, pause, refresh, get index() { return idx; } };
+  }
+
+  // ----- CNF conversion player -----
+  const CNF_RULES = {
+    orig: 'the conjunction of all your sentences, before any rewriting',
+    iff: 'A ↔ B  ⇒  (A → B) ∧ (B → A)',
+    imp: 'A → B  ⇒  ¬A ∨ B',
+    not: '¬(A ∧ B) ⇒ ¬A ∨ ¬B  ·  ¬(A ∨ B) ⇒ ¬A ∧ ¬B  ·  ¬¬A ⇒ A',
+    dist: 'A ∨ (B ∧ C)  ⇒  (A ∨ B) ∧ (A ∨ C)',
+    cnf: 'flatten the ∧-tree into a list of clauses (each an ∨ of literals)',
+  };
+  function renderCnfStage(i) {
+    const cap = $('cnfCaption'); if (!cap) return;
+    const met = $('cnfMetric'), before = $('cnfBefore'), after = $('cnfAfter'),
+          bLab = $('cnfBeforeLabel'), aLab = $('cnfAfterLabel');
+    if (!cnfStages.length || i < 0 || i >= cnfStages.length) {
+      cap.textContent = '—'; if (met) met.innerHTML = '';
+      if (before) before.style.display = 'none'; if (bLab) bLab.style.display = 'none';
+      if (after) after.innerHTML = ''; return;
+    }
+    const st = cnfStages[i];
+    cap.innerHTML = escHtml(st.label) + (st.rule ? ` <span class="rule">${escHtml(st.rule)}</span>` : '');
+    if (met) met.innerHTML = st.metric || '';
+    if (st.prevAst) {
+      before.style.display = ''; bLab.style.display = '';
+      before.className = 'stage-before' + (st.hl ? ' hl-' + st.hl : '');
+      before.innerHTML = fmtSpanned(st.prevAst);
+    } else {
+      before.style.display = 'none'; bLab.style.display = 'none';
+    }
+    if (st.isClauses) {
+      aLab.textContent = 'CNF clauses';
+      after.className = 'stage-after';
+      after.innerHTML = '<div class="clause-chips">' +
+        st.clauses.map(cl => `<span class="clause-chip">(${cl.map(l => (l.neg ? '¬' : '') + escHtml(l.name)).join(' ∨ ')})</span>`).join('') + '</div>';
+    } else {
+      aLab.textContent = 'result';
+      after.className = 'stage-after' + (st.hl ? ' hl-' + st.hl : '');
+      after.innerHTML = fmtSpanned(st.ast);
+    }
+  }
+
+  // ----- DPLL search player -----
+  const DPLL_COLORS = { unit: '#0284c7', pure: '#9333ea', 'branch+': 'var(--fg)',
+                        'branch-': '#b45309', sat: '#16a34a', unsat: '#dc2626' };
+  function renderDpllStep(i) {
+    const actEl = $('dpllAction'); if (!actEl) return;
+    const titleEl = $('dpllTitle'), assignEl = $('dpllAssign'), detEl = $('dpllDetail'), clsEl = $('dpllClauses');
+    const lang = document.documentElement.lang === 'zh' ? 'zh' : 'en';
+    const labels = lang === 'zh'
+      ? {unit:'单元传播', pure:'纯文字消去', 'branch+':'分支:试 T', 'branch-':'回溯:试 F', sat:'✓ SAT', unsat:'✗ 冲突'}
+      : {unit:'unit-propagation', pure:'pure-literal', 'branch+':'branch: try T', 'branch-':'backtrack: try F', sat:'✓ SAT', unsat:'✗ conflict'};
+    if (!dpllSteps.length) {
+      actEl.innerHTML = ''; if (detEl) detEl.textContent = '';
+      if (assignEl) assignEl.innerHTML = ''; if (clsEl) clsEl.innerHTML = '';
+      if (titleEl) titleEl.textContent = ''; return;
+    }
+    const s = dpllSteps[Math.max(0, Math.min(dpllSteps.length - 1, i))];
+    const rowsTxt = dpllRows === Infinity ? '2^' + dpllVarList.length : dpllRows;
+    if (titleEl) titleEl.textContent = lang === 'zh'
+      ? `DPLL 在剪枝:这条搜索路径只触及少数赋值,而暴力枚举要查 ${rowsTxt} 行。`
+      : `DPLL prunes: this path touches a few assignments vs. ${rowsTxt} brute-force rows.`;
+    if (assignEl) assignEl.innerHTML = dpllVarList.map(v => {
+      const a = s.assign && (v in s.assign) ? s.assign[v] : undefined;
+      const cls = a === true ? 't' : a === false ? 'f' : 'u';
+      const val = a === true ? 'T' : a === false ? 'F' : '?';
+      return `<span class="assign-chip ${cls}">${escHtml(v)} = ${val}</span>`;
+    }).join('');
+    const color = DPLL_COLORS[s.action] || 'var(--fg)';
+    actEl.innerHTML = `<span class="dpll-action" style="background:color-mix(in oklab, ${color} 16%, transparent); color:${color};">[${labels[s.action] || s.action}] · depth ${s.depth}</span>`;
+    if (detEl) detEl.textContent = s.detail || '';
+    const struct = s.struct || [];
+    if (clsEl) {
+      if (!struct.length) {
+        clsEl.innerHTML = `<span class="clause-chip" style="color:var(--true); border-color:var(--true);">⊤ ${lang === 'zh' ? '所有子句已满足' : 'all clauses satisfied'}</span>`;
+      } else {
+        clsEl.innerHTML = struct.map(cl => {
+          const isEmpty = cl.length === 0, isUnit = cl.length === 1;
+          const cn = 'clause-chip' + (isEmpty ? ' conflict' : isUnit ? ' unit' : '');
+          const body = isEmpty ? '□' : '(' + cl.map(l => (l.neg ? '¬' : '') + escHtml(l.name)).join(' ∨ ') + ')';
+          return `<span class="${cn}">${body}</span>`;
+        }).join('');
+      }
+    }
+  }
+
+  cnfStepper = makeStepper(
+    { play:'cnfPlay', step:'cnfStep', back:'cnfBack', reset:'cnfReset', count:'cnfCount', speed:'cnfSpeed',
+      countLabel: (i, n) => `Stage ${i} / ${Math.max(0, n - 1)}` },
+    () => cnfStages.length, renderCnfStage);
+  dpllStepper = makeStepper(
+    { play:'dpllPlay', step:'dpllStep', back:'dpllBack', reset:'dpllReset', count:'dpllCount', speed:'dpllSpeed',
+      countLabel: (i, n) => `Step ${n ? i + 1 : 0} / ${n}` },
+    () => dpllSteps.length, renderDpllStep);
+
+  // Console acceptance test (mirrors the convolution applet's __convAcceptanceTest pattern).
+  window.__cnfAcceptanceTest = function () {
+    const dist = cnfStages.find(s => s.key === 'dist');
+    const r = { cnfStages: cnfStages.length, dpllSteps: dpllSteps.length,
+                dpllRows: dpllRows, clausesAtDistribute: dist ? dist.clauseCount : null };
+    const pass = cnfStages.length === 6 && dpllSteps.length > 0 && dpllRows > 0;
+    console.log('[cnf-sat] STEP-THROUGH ACCEPTANCE TEST ' + (pass ? 'passed' : 'FAILED'), r);
+    return Object.assign({ pass }, r);
+  };
 
   $('convertBtn').addEventListener('click', run);
 
@@ -1219,8 +1481,10 @@ P</textarea>
 </script>
   <footer class="site-footer" style="margin-top:36px; border-top:1px solid var(--border,#e5e7eb); padding:20px 24px; text-align:center; color:var(--muted,#6b7280); font-size:0.82rem; line-height:1.7;">
     <p style="margin:0 0 6px;"><a href="#top" data-i18n="footer-top" style="color:var(--accent,#0891b2); text-decoration:none;">↑ Back to top</a></p>
-    <p style="margin:0;"><span data-i18n="footer-builtby">Built by</span> Logan Dixon · <span data-i18n="footer-course">Made for the 2025–26 Intro to AI course, Haidian Kaiwen Academy</span></p>
+    <p style="margin:0;"><span data-i18n="footer-builtby">Built by</span> Logan Dixon · <span data-i18n="footer-course">Made for the 2025–2026 Intro to AI course, Haidian Kaiwen Academy</span></p>
     <p style="margin:6px 0 0;"><a href="https://github.com/lmdixon23/my_dev_projects/tree/main/ai_playgrounds" data-i18n="footer-source" style="color:var(--accent,#0891b2);">View source</a> · <a href="https://github.com/lmdixon23/my_dev_projects/blob/main/LICENSE" style="color:var(--accent,#0891b2);">MIT</a> · <a href="https://github.com/lmdixon23/my_dev_projects/issues" data-i18n="footer-issue" style="color:var(--accent,#0891b2);">Report an issue</a> · © 2026 Logan Dixon</p>
   </footer>
+  <!-- Privacy-friendly analytics — GoatCounter, cookieless. -->
+  <script data-goatcounter="https://lmdixon23.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>

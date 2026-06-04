@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Visualizing K-Nearest Neighbors</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230284c7'/%3E%3Cpath d='M13 10l9 6-9 6z' fill='%23ffffff'/%3E%3C/svg%3E">
 <meta name="description" content="Interactive visualization of the k-nearest-neighbors classifier. Click to add training points, watch the decision boundary redraw as you change k.">
 <link rel="canonical" href="https://lmdixon23.github.io/my_dev_projects/playgrounds/knn-classifier/">
 <meta property="og:type" content="website">
@@ -22,21 +23,21 @@
     --classA: #2563eb; --classB: #d97706;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; font-family: 'Georgia', serif; background: var(--bg); color: var(--fg); line-height: 1.6; }
-  .page-header { background: var(--card); border-bottom: 1px solid var(--border);
-                  padding: 16px 24px; display: flex; align-items: center; justify-content: space-between;
-                  flex-wrap: wrap; gap: 12px; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", Arial, sans-serif; background: var(--bg); color: var(--fg); line-height: 1.6; }
+  .page-header { background: var(--card); border-bottom: 1px solid var(--border); padding: 12px 24px; }
+  .header-utility { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+  .header-prefs { display: flex; align-items: center; gap: 8px; }
+  .header-main { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .header-actions { display: flex; align-items: center; gap: 8px; font-family: -apple-system, system-ui, sans-serif; font-size: 0.85rem; }
+  .header-actions .header-reset { margin-left: 12px; }
   .page-header h1 { margin: 0; font-size: 1.5rem; }
-  .page-header .back { color: var(--accent); text-decoration: none; font-size: 0.9rem;
-                       font-family: -apple-system, system-ui, sans-serif; }
-  .tldr { position: fixed; top: 80px; right: 24px; max-width: 250px;
+  .page-header .back { color: var(--accent); text-decoration: none; font-size: 0.9rem; font-family: -apple-system, system-ui, sans-serif; }
+  .tldr { max-width: 820px; margin: 16px auto 0;
            background: var(--accent); color: white;
            border-radius: 8px; padding: 14px 16px; font-size: 0.88rem; font-weight: 500;
-           font-family: -apple-system, system-ui, sans-serif; line-height: 1.45;
-           z-index: 50; box-shadow: 0 6px 20px rgba(0,0,0,0.18); }
+           font-family: -apple-system, system-ui, sans-serif; line-height: 1.45; }
   .tldr strong { color: rgba(255,255,255,0.85); font-size: 0.72rem; letter-spacing: 0.08em;
                   text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 6px; }
-  @media (max-width: 1100px) { .tldr { display: none; } }
   .jump-link { display: inline-block; margin-top: 14px;
                 padding: 6px 14px; border: 1px solid var(--border); border-radius: 999px;
                 background: white; color: var(--accent); text-decoration: none;
@@ -45,7 +46,12 @@
   .jump-link:hover { background: var(--soft); }
   .jump-anchor { text-align: center; }
   .interactive { background: var(--card); padding: 24px; border-bottom: 1px solid var(--border); }
-  .interactive-inner { max-width: 820px; margin: 0 auto; }
+  .interactive-inner { max-width: 1280px; margin: 0 auto; }
+  .bento { display: grid; grid-template-columns: minmax(300px, 360px) minmax(0, 1fr); gap: 16px; align-items: start; margin-bottom: 14px; }
+  .bento-side, .bento-main { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  .bento-cell { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; min-width: 0; }
+  .bento-cell > :first-child { margin-top: 0 !important; }
+  @media (max-width: 860px) { .bento { grid-template-columns: 1fr; gap: 12px; } }
   .control-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
                   margin-bottom: 14px; font-family: -apple-system, system-ui, sans-serif;
                   font-size: 0.88rem; }
@@ -92,8 +98,6 @@
                               color: var(--accent); font-size: 0.9rem;
                               text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0; }
   /* === header tools + reduced motion === */
-  .header-tools { display: flex; gap: 8px; align-items: center;
-                   font-family: -apple-system, system-ui, sans-serif; font-size: 0.85rem; }
   .lang-switch { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
   .lang-switch button { padding: 4px 10px; background: white; color: var(--muted);
                           border: none; cursor: pointer; font: inherit; font-size: 0.78rem; }
@@ -134,42 +138,38 @@
                   font-size: 0.85rem; font-family: inherit; }
   .header-png:hover { background: var(--soft); }
   body.dark-mode .header-png { background: var(--card); color: var(--fg); }
-  input[type="range"] { height: 28px; cursor: pointer; }
-  input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none; appearance: none;
-    width: 24px; height: 24px; border-radius: 50%; cursor: pointer;
-    background: var(--accent); border: 2px solid white;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-  }
-  input[type="range"]::-moz-range-thumb {
-    width: 24px; height: 24px; border-radius: 50%; cursor: pointer;
-    background: var(--accent); border: 2px solid white;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-  }
+  /* ===== Slider styling — native themed control via accent-color (consistent across browsers) ===== */
+  input[type="range"] { accent-color: var(--accent); height: 28px; cursor: pointer; }
 </style>
 </head>
 <body>
 
 <header class="page-header">
-  <h1 data-i18n="title">Visualizing K-Nearest Neighbors</h1>
-  <div class="header-tools">
-    <button class="header-png" id="shareLink"
-            title="Copy a URL that re-opens this k value and dataset in another browser.">🔗 Share</button>
-    <button class="header-png" id="embedLink" data-i18n-title="embed-title"
-            title="Copy an <iframe> snippet you can paste into an LMS (Canvas, Moodle, Schoology) or any HTML page. The embed strips the header and essay so only the interactive area shows.">📎 Embed</button>
-    <button class="header-png" id="csvExport" data-i18n-title="csv-title"
-            title="Download the training points as a CSV file (x, y, class). Open in Excel/Sheets for follow-up homework.">📊 CSV</button>
-    <button class="header-png" id="exportPng"
-            title="Download the current points + decision boundary as a PNG.">📷 PNG</button>
-    <button class="header-theme" id="themeToggle" aria-label="Toggle dark or light theme"
-            title="Toggle dark / light theme (saved across all playgrounds).">🌙</button>
-    <button class="header-reset" id="hardReset" data-i18n="reset-all"
-            title="Reset everything to defaults: two-moons dataset, k=5, both visualizations on.">↺ Reset all</button>
-    <div class="lang-switch" title="Switch interface language">
-      <button data-lang="en" class="active">EN</button>
-      <button data-lang="zh">中文</button>
-    </div>
+  <div class="header-utility">
     <a class="back" href="../../" data-i18n="back-link">← Back to all playgrounds</a>
+    <div class="header-prefs">
+      <button class="header-theme" id="themeToggle" aria-label="Toggle dark or light theme"
+              title="Toggle dark / light theme (saved across all playgrounds).">🌙</button>
+      <div class="lang-switch" title="Switch interface language">
+        <button data-lang="en" class="active">EN</button>
+        <button data-lang="zh">中文</button>
+      </div>
+    </div>
+  </div>
+  <div class="header-main">
+    <h1 data-i18n="title">Visualizing K-Nearest Neighbors</h1>
+    <div class="header-actions">
+      <button class="header-png" id="shareLink"
+              title="Copy a URL that re-opens this k value and dataset in another browser.">🔗 Share</button>
+      <button class="header-png" id="embedLink" data-i18n-title="embed-title"
+              title="Copy an <iframe> snippet you can paste into an LMS (Canvas, Moodle, Schoology) or any HTML page. The embed strips the header and essay so only the interactive area shows.">📎 Embed</button>
+      <button class="header-png" id="csvExport" data-i18n-title="csv-title"
+              title="Download the training points as a CSV file (x, y, class). Open in Excel/Sheets for follow-up homework.">📊 CSV</button>
+      <button class="header-png" id="exportPng"
+              title="Download the current points + decision boundary as a PNG.">📷 PNG</button>
+      <button class="header-reset" id="hardReset" data-i18n="reset-all"
+              title="Reset everything to defaults: two-moons dataset, k=5, both visualizations on.">↺ Reset all</button>
+    </div>
   </div>
 </header>
 
@@ -180,72 +180,114 @@
 
 <section class="interactive">
 <div class="interactive-inner">
-  <div class="control-row">
-    <label data-i18n="click-adds">Click adds:</label>
-    <div class="group mode-tabs">
-      <button data-class="A" class="active" data-i18n="class-a" data-i18n-title="class-a-title" title="Future clicks on the canvas add Class A points (blue circles).">Class A (○ blue)</button>
-      <button data-class="B" data-i18n="class-b" data-i18n-title="class-b-title" title="Future clicks on the canvas add Class B points (orange triangles).">Class B (△ orange)</button>
-    </div>
-    <label data-i18n="k-label">k:</label>
-    <input id="k" type="range" min="1" max="25" value="5" aria-label="Number of neighbors (k)" aria-valuetext="k equals 5"
-           data-i18n-title="k-slider-title"
-           title="Number of neighbors to consult. k=1 hugs every point; large k smooths everything into one prediction.">
-    <span class="kval" id="kV">5</span>
-    <label data-i18n="metric-label" style="margin-left:12px;">Distance:</label>
-    <select id="metricSel" data-i18n-title="metric-title"
-            title="Euclidean (L²) = straight-line distance. Manhattan (L¹) = sum of |dx|+|dy| — sharp diamond boundaries. Chebyshev (L∞) = max(|dx|,|dy|) — square neighborhoods.">
-      <option value="euclidean" selected data-i18n="m-euclidean">Euclidean (L²)</option>
-      <option value="manhattan" data-i18n="m-manhattan">Manhattan (L¹)</option>
-      <option value="chebyshev" data-i18n="m-chebyshev">Chebyshev (L∞)</option>
-    </select>
-    <!-- weighting toggle. -->
-    <label data-i18n="weight-label" style="margin-left:12px;">Weighting:</label>
-    <select id="weightSel" data-i18n-title="weight-title"
-            title="Uniform: each of the k neighbors gets 1 vote. Distance: each vote is scaled by 1/(distance+ε), so closer points matter more — ties evaporate.">
-      <option value="uniform" selected data-i18n="w-uniform">Uniform (1 vote each)</option>
-      <option value="distance" data-i18n="w-distance">By distance (1/d)</option>
-    </select>
-  </div>
-  <!-- per-axis scaling. Pedagogically demonstrates why standardization matters. -->
-  <div class="control-row">
-    <label data-i18n="scale-label" data-i18n-title="scale-title" title="Multiply the X coordinate of every point before computing distance. When scale ≠ 1, the X axis is over- or under-weighted in the distance calculation. Shows why standardization (z-score / min-max) matters.">X-axis scale:</label>
-    <input id="xScale" type="range" min="0.2" max="5" step="0.1" value="1" aria-label="X-axis scale factor for distance" style="min-width:160px;">
-    <span class="kval" id="xScaleV">1.0×</span>
-    <span style="color:var(--muted); font-size:0.8rem;" data-i18n="scale-hint">
-      &lt; 1 shrinks X (Y dominates). &gt; 1 stretches X (X dominates). Watch the boundary tilt.
-    </span>
-  </div>
-  <div class="control-row">
-    <label data-i18n="dataset-label">Dataset:</label>
-    <button class="step-btn" id="loadBlobs" data-i18n="ds-blobs" data-i18n-title="ds-blobs-title" title="Two well-separated Gaussian blobs. The easy case.">Two blobs</button>
-    <button class="step-btn" id="loadMoons" data-i18n="ds-moons" data-i18n-title="ds-moons-title" title="Curved interlocking moons. The classic non-linear classifier test.">Two moons</button>
-    <button class="step-btn" id="loadSpiral" data-i18n="ds-spiral" data-i18n-title="ds-spiral-title" title="Interlocking spirals. Tests the decision-boundary's ability to bend.">Spiral</button>
-    <button class="step-btn" id="loadNoise" data-i18n="ds-noise" data-i18n-title="ds-noise-title" title="Two heavily overlapping clusters. There is no good boundary — what does k do?">Noisy overlap</button>
-    <button class="step-btn" id="clearBtn" data-i18n="clear-btn" data-i18n-title="clear-title" title="Remove all training points. Click the canvas to add new ones.">Clear</button>
-  </div>
-  <div class="control-row">
-    <label title="Color the entire canvas by the prediction at each cell. Shows the model's decision boundary.">
-      <input type="checkbox" id="showBoundary" checked> <span data-i18n="show-boundary">Decision boundary</span></label>
-    <label title="When you hover, draw lines to the k nearest training points the model would consult.">
-      <input type="checkbox" id="showNeighbors" checked> <span data-i18n="show-neighbors">Highlight k neighbors on hover</span></label>
-    <label data-i18n-title="weighted-title"
-           title="Uniform vote: every neighbor counts equally. Distance-weighted: each neighbor's vote is multiplied by 1/(d+ε). Closer neighbors have more say; ties disappear.">
-      <input type="checkbox" id="weightedChk"> <span data-i18n="weighted-label">Distance-weighted voting</span></label>
-  </div>
 
-  <div style="position:relative;">
-    <canvas id="cv" width="640" height="480" role="img"
-            aria-label="K-nearest-neighbors classifier visualization. Click to add training points."></canvas>
-    <!-- D3/SVG hybrid: a11y overlay; canvas keeps the boundary heatmap. -->
-    <svg id="cvOverlay" viewBox="0 0 640 480" preserveAspectRatio="none"
-         style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none;"></svg>
-  </div>
+<div class="bento">
+  <div class="bento-side"><!-- bento-side -->
+    <div class="bento-cell">
 
-  <div class="legend-strip">
-    <span><span class="sw" style="background:var(--classA)"></span><span data-i18n="legend-a">Class A</span></span>
-    <span><span class="sw" style="background:var(--classB)"></span><span data-i18n="legend-b">Class B</span></span>
-    <span style="color:var(--muted)" data-i18n="legend-hint">Hover anywhere to see how k neighbors vote.</span>
-  </div>
+      <div class="control-row">
+        <label data-i18n="click-adds">Click adds:</label>
+        <div class="group mode-tabs">
+          <button data-class="A" class="active" data-i18n="class-a" data-i18n-title="class-a-title" title="Future clicks on the canvas add Class A points (blue circles).">Class A (○ blue)</button>
+          <button data-class="B" data-i18n="class-b" data-i18n-title="class-b-title" title="Future clicks on the canvas add Class B points (orange triangles).">Class B (△ orange)</button>
+        </div>
+        <label data-i18n="k-label">k:</label>
+        <input id="k" type="range" min="1" max="25" value="5" aria-label="Number of neighbors (k)" aria-valuetext="k equals 5"
+               data-i18n-title="k-slider-title"
+               title="Number of neighbors to consult. k=1 hugs every point; large k smooths everything into one prediction.">
+        <span class="kval" id="kV">5</span>
+        <label data-i18n="metric-label" style="margin-left:12px;">Distance:</label>
+        <select id="metricSel" data-i18n-title="metric-title"
+                title="Euclidean (L²) = straight-line distance. Manhattan (L¹) = sum of |dx|+|dy| — sharp diamond boundaries. Chebyshev (L∞) = max(|dx|,|dy|) — square neighborhoods.">
+          <option value="euclidean" selected data-i18n="m-euclidean">Euclidean (L²)</option>
+          <option value="manhattan" data-i18n="m-manhattan">Manhattan (L¹)</option>
+          <option value="chebyshev" data-i18n="m-chebyshev">Chebyshev (L∞)</option>
+        </select>
+        <!-- weighting toggle. -->
+        <label data-i18n="weight-label" style="margin-left:12px;">Weighting:</label>
+        <select id="weightSel" data-i18n-title="weight-title"
+                title="Uniform: each of the k neighbors gets 1 vote. Distance: each vote is scaled by 1/(distance+ε), so closer points matter more — ties evaporate.">
+          <option value="uniform" selected data-i18n="w-uniform">Uniform (1 vote each)</option>
+          <option value="distance" data-i18n="w-distance">By distance (1/d)</option>
+        </select>
+      </div>
+      <!-- per-axis scaling. Pedagogically demonstrates why standardization matters. -->
+      <div class="control-row">
+        <label data-i18n="scale-label" data-i18n-title="scale-title" title="Multiply the X coordinate of every point before computing distance. When scale ≠ 1, the X axis is over- or under-weighted in the distance calculation. Shows why standardization (z-score / min-max) matters.">X-axis scale:</label>
+        <input id="xScale" type="range" min="0.2" max="5" step="0.1" value="1" aria-label="X-axis scale factor for distance" style="min-width:160px;">
+        <span class="kval" id="xScaleV">1.0×</span>
+        <span style="color:var(--muted); font-size:0.8rem;" data-i18n="scale-hint">
+          &lt; 1 shrinks X (Y dominates). &gt; 1 stretches X (X dominates). Watch the boundary tilt.
+        </span>
+      </div>
+      <div class="control-row">
+        <label data-i18n="dataset-label">Dataset:</label>
+        <button class="step-btn" id="loadBlobs" data-i18n="ds-blobs" data-i18n-title="ds-blobs-title" title="Two well-separated Gaussian blobs. The easy case.">Two blobs</button>
+        <button class="step-btn" id="loadMoons" data-i18n="ds-moons" data-i18n-title="ds-moons-title" title="Curved interlocking moons. The classic non-linear classifier test.">Two moons</button>
+        <button class="step-btn" id="loadSpiral" data-i18n="ds-spiral" data-i18n-title="ds-spiral-title" title="Interlocking spirals. Tests the decision-boundary's ability to bend.">Spiral</button>
+        <button class="step-btn" id="loadNoise" data-i18n="ds-noise" data-i18n-title="ds-noise-title" title="Two heavily overlapping clusters. There is no good boundary — what does k do?">Noisy overlap</button>
+        <button class="step-btn" id="clearBtn" data-i18n="clear-btn" data-i18n-title="clear-title" title="Remove all training points. Click the canvas to add new ones.">Clear</button>
+      </div>
+      <div class="control-row">
+        <label title="Color the entire canvas by the prediction at each cell. Shows the model's decision boundary.">
+          <input type="checkbox" id="showBoundary" checked> <span data-i18n="show-boundary">Decision boundary</span></label>
+        <label title="When you hover, draw lines to the k nearest training points the model would consult.">
+          <input type="checkbox" id="showNeighbors" checked> <span data-i18n="show-neighbors">Highlight k neighbors on hover</span></label>
+      </div>
+
+    </div><!-- /.bento-cell controls -->
+  </div><!-- /.bento-side -->
+
+  <div class="bento-main"><!-- bento-main -->
+    <div class="bento-cell">
+
+      <div style="position:relative;">
+        <canvas id="cv" width="640" height="480" role="img"
+                style="width: 100%; max-width: 640px; height: auto; aspect-ratio: 640 / 480;"
+                aria-label="K-nearest-neighbors classifier visualization. Click to add training points."></canvas>
+        <!-- D3/SVG hybrid: a11y overlay; canvas keeps the boundary heatmap. -->
+        <svg id="cvOverlay" viewBox="0 0 640 480" preserveAspectRatio="none"
+             style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none;"></svg>
+      </div>
+
+      <div class="legend-strip">
+        <span><span class="sw" style="background:var(--classA)"></span><span data-i18n="legend-a">Class A</span></span>
+        <span><span class="sw" style="background:var(--classB)"></span><span data-i18n="legend-b">Class B</span></span>
+        <span style="color:var(--muted)" data-i18n="legend-hint">Hover anywhere to see how k neighbors vote.</span>
+      </div>
+
+    </div><!-- /.bento-cell canvas -->
+
+    <div class="bento-cell">
+      <!-- k-fold cross-validation. Run f-fold CV across a range of k values
+           and chart accuracy vs k. This is THE standard way to pick k in practice. -->
+      <details class="cv-panel" style="margin-top:0;">
+        <summary style="cursor:pointer; padding:8px 12px; background:var(--soft); border:1px solid var(--border); border-radius:6px; font-family:-apple-system,system-ui,sans-serif; font-size:0.88rem; color:var(--accent); font-weight:600;">
+          <span data-i18n="cv-summary">🔢 k-fold cross-validation (find the best k)</span>
+        </summary>
+        <div style="margin-top:8px; padding:12px 14px; background:var(--card); border:1px solid var(--border); border-radius:6px; font-size:0.88rem;">
+          <p style="margin:0 0 8px; color:var(--muted); font-size:0.82rem;" data-i18n="cv-hint">
+            Splits the training points into f equal folds. For each k in 1..30, trains on f−1 folds and validates on the held-out fold; averages accuracy across all f rotations. The k with highest CV accuracy is the right pick — NOT the k that fits the training data best (that's always k=1).
+          </p>
+          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:8px;">
+            <label data-i18n="cv-folds-label">Folds (f):</label>
+            <input id="cvFolds" type="range" min="2" max="10" value="5" style="width:140px;">
+            <span id="cvFoldsV" style="font-family:ui-monospace,monospace; color:var(--accent); font-weight:700;">5</span>
+            <label data-i18n="cv-kmax-label" style="margin-left:10px;">k_max:</label>
+            <input id="cvKmax" type="range" min="5" max="30" value="20" style="width:120px;">
+            <span id="cvKmaxV" style="font-family:ui-monospace,monospace; color:var(--accent); font-weight:700;">20</span>
+            <button class="step-btn" id="cvRunBtn" data-i18n="cv-run">▶ Run CV</button>
+          </div>
+          <canvas id="cvCv" width="560" height="200" style="border:1px solid var(--border); width:100%; height:auto; background:white; image-rendering:auto;"></canvas>
+          <div id="cvStats" style="font-family:ui-monospace,monospace; font-size:0.82rem; color:var(--muted); margin-top:6px; min-height:1.4em;">
+            <span style="font-style:italic;" data-i18n="cv-empty">(click "Run CV" — needs at least 10 training points)</span>
+          </div>
+        </div>
+      </details>
+    </div><!-- /.bento-cell cv-panel -->
+
+  </div><!-- /.bento-main -->
+</div><!-- /.bento -->
 
   <!-- Lesson tour. Ordered scenarios that step students through the key ideas. -->
   <details class="lesson-tour" style="margin-top:12px;">
@@ -262,32 +304,6 @@
         <button class="step-btn secondary" id="tourPrev" data-i18n="tour-prev">← Prev</button>
         <button class="step-btn" id="tourApply" data-i18n="tour-apply">▶ Apply this scenario</button>
         <button class="step-btn secondary" id="tourNext" data-i18n="tour-next">Next →</button>
-      </div>
-    </div>
-  </details>
-
-  <!-- k-fold cross-validation. Run f-fold CV across a range of k values
-       and chart accuracy vs k. This is THE standard way to pick k in practice. -->
-  <details class="cv-panel" style="margin-top:8px;">
-    <summary style="cursor:pointer; padding:8px 12px; background:var(--soft); border:1px solid var(--border); border-radius:6px; font-family:-apple-system,system-ui,sans-serif; font-size:0.88rem; color:var(--accent); font-weight:600;">
-      <span data-i18n="cv-summary">🔢 k-fold cross-validation (find the best k)</span>
-    </summary>
-    <div style="margin-top:8px; padding:12px 14px; background:var(--card); border:1px solid var(--border); border-radius:6px; font-size:0.88rem;">
-      <p style="margin:0 0 8px; color:var(--muted); font-size:0.82rem;" data-i18n="cv-hint">
-        Splits the training points into f equal folds. For each k in 1..30, trains on f−1 folds and validates on the held-out fold; averages accuracy across all f rotations. The k with highest CV accuracy is the right pick — NOT the k that fits the training data best (that's always k=1).
-      </p>
-      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:8px;">
-        <label data-i18n="cv-folds-label">Folds (f):</label>
-        <input id="cvFolds" type="range" min="2" max="10" value="5" style="width:140px;">
-        <span id="cvFoldsV" style="font-family:ui-monospace,monospace; color:var(--accent); font-weight:700;">5</span>
-        <label data-i18n="cv-kmax-label" style="margin-left:10px;">k_max:</label>
-        <input id="cvKmax" type="range" min="5" max="30" value="20" style="width:120px;">
-        <span id="cvKmaxV" style="font-family:ui-monospace,monospace; color:var(--accent); font-weight:700;">20</span>
-        <button class="step-btn" id="cvRunBtn" data-i18n="cv-run">▶ Run CV</button>
-      </div>
-      <canvas id="cvCv" width="560" height="200" style="border:1px solid var(--border); width:100%; height:auto; background:white; image-rendering:auto;"></canvas>
-      <div id="cvStats" style="font-family:ui-monospace,monospace; font-size:0.82rem; color:var(--muted); margin-top:6px; min-height:1.4em;">
-        <span style="font-style:italic;" data-i18n="cv-empty">(click "Run CV" — needs at least 10 training points)</span>
       </div>
     </div>
   </details>
@@ -413,7 +429,7 @@
   const STRINGS = {
     en: {
       'title': 'Visualizing K-Nearest Neighbors', 'back-link': '← Back to all playgrounds',
-      'footer-top': '↑ Back to top', 'footer-builtby': 'Built by', 'footer-course': 'Made for the 2025–26 Intro to AI course, Haidian Kaiwen Academy', 'footer-source': 'View source', 'footer-issue': 'Report an issue',
+      'footer-top': '↑ Back to top', 'footer-builtby': 'Built by', 'footer-course': 'Made for the 2025–2026 Intro to AI course, Haidian Kaiwen Academy', 'footer-source': 'View source', 'footer-issue': 'Report an issue',
       'reset-all': '↺ Reset all',
       'click-adds': 'Click adds:', 'k-label': 'k:', 'dataset-label': 'Dataset:',
       'embed-title': 'Copy an <iframe> snippet you can paste into an LMS (Canvas, Moodle, Schoology) or any HTML page. The embed strips the header and essay so only the interactive area shows.',
@@ -460,7 +476,7 @@
     },
     zh: {
       'title': 'K-近邻可视化', 'back-link': '← 返回所有演示',
-      'footer-top': '↑ 返回顶部', 'footer-builtby': '作者', 'footer-course': '为海淀凯文学校 2025–26《人工智能导论》课程制作', 'footer-source': '查看源代码', 'footer-issue': '反馈问题',
+      'footer-top': '↑ 返回顶部', 'footer-builtby': '作者', 'footer-course': '为海淀凯文学校 2025–2026《人工智能导论》课程制作', 'footer-source': '查看源代码', 'footer-issue': '反馈问题',
       'reset-all': '↺ 全部重置',
       'click-adds': '点击添加:', 'k-label': 'k:', 'dataset-label': '数据集:',
       'embed-title': '复制可粘贴到 LMS(Canvas、Moodle、Schoology)或任意网页的 <iframe> 代码。嵌入模式会去掉页头和说明,只显示交互区。',
@@ -519,18 +535,18 @@
     });
     document.querySelectorAll('.lang-switch button').forEach(b =>
       b.classList.toggle('active', b.dataset.lang === lang));
-    try { localStorage.setItem('knn-lang', lang); } catch (_) {}
+    try { localStorage.setItem('lang', lang); } catch (_) {}
   }
   document.querySelectorAll('.lang-switch button').forEach(b =>
     b.addEventListener('click', () => setLang(b.dataset.lang)));
   let initialLang = 'en';
-  try { initialLang = localStorage.getItem('knn-lang') || 'en'; } catch (_) {}
+  try { initialLang = localStorage.getItem('lang') || 'en'; } catch (_) {}
   setLang(initialLang);
 
   function setTheme(t) {
     document.body.classList.toggle('dark-mode', t === 'dark');
     const btn = document.getElementById('themeToggle');
-    if (btn) btn.textContent = t === 'dark' ? '☀' : '🌙';
+    if (btn) btn.textContent = t === 'dark' ? '☀️' : '🌙';
     try { localStorage.setItem('theme', t); } catch (_) {}
   }
   let initialTheme = 'light';
@@ -802,7 +818,6 @@
   });
   $('showBoundary').addEventListener('change', render);
   $('showNeighbors').addEventListener('change', render);
-  $('weightedChk').addEventListener('change', render);
 
   // hard reset to defaults.
   $('hardReset').addEventListener('click', () => {
@@ -1110,8 +1125,10 @@
 </script>
   <footer class="site-footer" style="margin-top:36px; border-top:1px solid var(--border,#e5e7eb); padding:20px 24px; text-align:center; color:var(--muted,#6b7280); font-size:0.82rem; line-height:1.7;">
     <p style="margin:0 0 6px;"><a href="#top" data-i18n="footer-top" style="color:var(--accent,#0891b2); text-decoration:none;">↑ Back to top</a></p>
-    <p style="margin:0;"><span data-i18n="footer-builtby">Built by</span> Logan Dixon · <span data-i18n="footer-course">Made for the 2025–26 Intro to AI course, Haidian Kaiwen Academy</span></p>
+    <p style="margin:0;"><span data-i18n="footer-builtby">Built by</span> Logan Dixon · <span data-i18n="footer-course">Made for the 2025–2026 Intro to AI course, Haidian Kaiwen Academy</span></p>
     <p style="margin:6px 0 0;"><a href="https://github.com/lmdixon23/my_dev_projects/tree/main/ai_playgrounds" data-i18n="footer-source" style="color:var(--accent,#0891b2);">View source</a> · <a href="https://github.com/lmdixon23/my_dev_projects/blob/main/LICENSE" style="color:var(--accent,#0891b2);">MIT</a> · <a href="https://github.com/lmdixon23/my_dev_projects/issues" data-i18n="footer-issue" style="color:var(--accent,#0891b2);">Report an issue</a> · © 2026 Logan Dixon</p>
   </footer>
+  <!-- Privacy-friendly analytics — GoatCounter, cookieless. -->
+  <script data-goatcounter="https://lmdixon23.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>
