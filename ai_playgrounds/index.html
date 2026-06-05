@@ -160,6 +160,11 @@
   .meta p { margin: 0 0 10px; }
   .meta .to-top { margin-bottom: 22px; }
   .meta a { color: var(--accent); }
+  /* ===== Shared a11y tokens (review fix F4: consistent keyboard focus) ===== */
+  a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px;
+  }
+  .card:focus-visible { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 2px; }
 </style>
 </head>
 <body>

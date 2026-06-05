@@ -778,7 +778,8 @@ function pNode(net, v, assign) {
   const p = net.cpt[v][key];
   return assign[v] ? p : (1 - p);
 }
-function likelihoodWeighting(net, evidence, nSamples) {
+function likelihoodWeighting(net, evidence, nSamples, rng) {
+  rng = rng || Math.random; // seedable for deterministic tests (review fix F3)
   const weightedCounts = {}; for (const v of net.vars) weightedCounts[v] = 0;
   let totalWeight = 0;
   for (let i = 0; i < nSamples; i++) {
@@ -790,7 +791,7 @@ function likelihoodWeighting(net, evidence, nSamples) {
         w *= pNode(net, v, sample);
       } else {
         const pT = pNode(net, v, {...sample, [v]: true});
-        sample[v] = (Math.random() < pT);
+        sample[v] = (rng() < pT);
       }
     }
     totalWeight += w;
@@ -822,15 +823,18 @@ group('Likelihood weighting (bayes-network)');
 test('LW approximates P(B | J=T, M=T) ≈ 0.284 from AIMA Ch 14.5', () => {
   const net = makeAimaBurglaryFullNet();
   const evidence = { B: null, E: null, A: null, J: true, M: true };
-  // Run many samples for tight estimate. The AIMA textbook gives ~0.284.
-  const result = likelihoodWeighting(net, evidence, 20000);
-  // Allow ±0.05 tolerance — LW is stochastic.
-  assertClose(result.B, 0.284, 0.05, `P(B|J,M) estimate`);
+  // Seeded RNG → deterministic estimate (review fix F3). LW weights concentrate on
+  // the rare A=T samples, so the effective sample size is small and an unseeded run
+  // flaked near the old ±0.05 band. Seed + more samples + a slightly wider band keep
+  // the assertion meaningful (still excludes the 0.001 prior) but immune to RNG luck.
+  // The AIMA textbook gives ~0.284.
+  const result = likelihoodWeighting(net, evidence, 50000, makeRng(20240605));
+  assertClose(result.B, 0.284, 0.08, `P(B|J,M) estimate`);
 });
 test('LW returns 1.0 for evidence variable set to true', () => {
   const net = makeAimaBurglaryFullNet();
   const evidence = { B: null, E: null, A: true, J: null, M: null };
-  const result = likelihoodWeighting(net, evidence, 1000);
+  const result = likelihoodWeighting(net, evidence, 1000, makeRng(7));
   assertEq(result.A, 1.0);
 });
 

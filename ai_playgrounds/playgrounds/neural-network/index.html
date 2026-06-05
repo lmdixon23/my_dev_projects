@@ -156,6 +156,13 @@
   .bento-cell > :first-child { margin-top: 0 !important; }
   .tp-scrub { min-width: 0; }
   @media (max-width: 860px) { .bento { grid-template-columns: 1fr; gap: 12px; } }
+  /* ===== Shared a11y + contrast tokens (review fixes: F4 keyboard focus, F6 banner contrast) ===== */
+  button:focus-visible, a:focus-visible, select:focus-visible,
+  input:focus-visible, textarea:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px;
+  }
+  .tldr { background: linear-gradient(rgba(0,0,0,0.22), rgba(0,0,0,0.22)), var(--accent); }
+  .tldr strong { color: #fff; }
 </style>
 </head>
 <body>
@@ -370,33 +377,6 @@
   </div><!-- /.bento-main -->
   </div><!-- /.bento -->
 
-  <!-- Worksheet/lab mode. 3 questions per applet with instant check. -->
-  <details class="worksheet" style="margin-top:8px;">
-    <summary style="cursor:pointer; padding:8px 12px; background:var(--soft); border:1px solid var(--border); border-radius:6px; font-family:-apple-system,system-ui,sans-serif; font-size:0.88rem; color:var(--accent); font-weight:600;">
-      <span data-i18n="ws-summary">📝 Worksheet (3 questions)</span>
-    </summary>
-    <div style="margin-top:8px; padding:12px 14px; background:var(--card); border:1px solid var(--border); border-radius:6px; font-size:0.88rem; line-height:1.5;">
-      <div class="ws-q" id="ws1">
-        <p style="margin:0 0 4px;"><strong>Q1.</strong> Moons dataset, h1=0, h2=0, linear activation. Train. Final loss is closest to:</p>
-        <input id="ws1ans" type="text" placeholder="0 / 0.3 / NaN" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
-        <button class="step-btn" id="ws1btn">Check</button>
-        <span id="ws1fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
-      </div>
-      <div class="ws-q" id="ws2" style="margin-top:10px;">
-        <p style="margin:0 0 4px;"><strong>Q2.</strong> Same dataset, h1=6, activation=ReLU. After training, final loss is closest to:</p>
-        <input id="ws2ans" type="text" placeholder="0 / 0.3 / NaN" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
-        <button class="step-btn" id="ws2btn">Check</button>
-        <span id="ws2fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
-      </div>
-      <div class="ws-q" id="ws3" style="margin-top:10px;">
-        <p style="margin:0 0 4px;"><strong>Q3.</strong> Moons, h1=6 h2=4, activation=linear (no non-linearity). Compared to 1 linear layer (h1=0), the capacity is:</p>
-        <input id="ws3ans" type="text" placeholder="same / more / less" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
-        <button class="step-btn" id="ws3btn">Check</button>
-        <span id="ws3fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
-      </div>
-    </div>
-  </details>
-
   <!-- Lesson tour. Ordered scenarios that step students through the key ideas. -->
   <details class="lesson-tour" style="margin-top:12px;">
     <summary style="cursor:pointer; padding:8px 12px; background:var(--soft); border:1px solid var(--border); border-radius:6px; font-family:-apple-system,system-ui,sans-serif; font-size:0.88rem; color:var(--accent); font-weight:600;">
@@ -404,7 +384,7 @@
     </summary>
     <div style="margin-top:8px; padding:12px 14px; background:var(--card); border:1px solid var(--border); border-radius:6px;">
       <div style="display:flex; align-items:baseline; gap:10px; margin-bottom:6px;">
-        <strong style="color:var(--accent);">Step <span id="tourPos">1/5</span>:</strong>
+        <strong style="color:var(--accent);"><span data-i18n="tour-step">Step</span> <span id="tourPos">1/5</span>:</strong>
         <strong id="tourName" style="font-family:-apple-system,system-ui,sans-serif;">—</strong>
       </div>
       <p id="tourDesc" style="margin:0 0 8px; color:var(--fg); font-size:0.88rem; line-height:1.5;">—</p>
@@ -412,6 +392,33 @@
         <button class="step-btn secondary" id="tourPrev" data-i18n="tour-prev">← Prev</button>
         <button class="step-btn" id="tourApply" data-i18n="tour-apply">▶ Apply this scenario</button>
         <button class="step-btn secondary" id="tourNext" data-i18n="tour-next">Next →</button>
+      </div>
+    </div>
+  </details>
+
+  <!-- Worksheet/lab mode. 3 questions per applet with instant check. -->
+  <details class="worksheet" style="margin-top:8px;">
+    <summary style="cursor:pointer; padding:8px 12px; background:var(--soft); border:1px solid var(--border); border-radius:6px; font-family:-apple-system,system-ui,sans-serif; font-size:0.88rem; color:var(--accent); font-weight:600;">
+      <span data-i18n="ws-summary">📝 Worksheet (3 questions)</span>
+    </summary>
+    <div style="margin-top:8px; padding:12px 14px; background:var(--card); border:1px solid var(--border); border-radius:6px; font-size:0.88rem; line-height:1.5;">
+      <div class="ws-q" id="ws1">
+        <p style="margin:0 0 4px;"><strong>Q1.</strong> <span data-i18n="ws1q">Moons dataset, h1=0, h2=0, linear activation. Train. Final loss is closest to:</span></p>
+        <input id="ws1ans" type="text" placeholder="0 / 0.3 / NaN" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+        <button class="step-btn" id="ws1btn" data-i18n="ws-check">Check</button>
+        <span id="ws1fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
+      </div>
+      <div class="ws-q" id="ws2" style="margin-top:10px;">
+        <p style="margin:0 0 4px;"><strong>Q2.</strong> <span data-i18n="ws2q">Same dataset, h1=6, activation=ReLU. After training, final loss is closest to:</span></p>
+        <input id="ws2ans" type="text" placeholder="0 / 0.3 / NaN" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+        <button class="step-btn" id="ws2btn" data-i18n="ws-check">Check</button>
+        <span id="ws2fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
+      </div>
+      <div class="ws-q" id="ws3" style="margin-top:10px;">
+        <p style="margin:0 0 4px;"><strong>Q3.</strong> <span data-i18n="ws3q">Moons, h1=6 h2=4, activation=linear (no non-linearity). Compared to 1 linear layer (h1=0), the capacity is:</span></p>
+        <input id="ws3ans" type="text" placeholder="same / more / less" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+        <button class="step-btn" id="ws3btn" data-i18n="ws-check">Check</button>
+        <span id="ws3fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
       </div>
     </div>
   </details>
@@ -548,8 +555,32 @@
       'stat-acc': 'Train accuracy', 'stat-param': 'Parameters',
       'jump-link': '↓ Read the explanation',
       'tour-summary': '📚 Lesson tour (5 steps)',
+      'tour-step': 'Step',
       'tour-prev': '← Prev', 'tour-next': 'Next →', 'tour-apply': '▶ Apply this scenario',
       'ws-summary': '📝 Worksheet (3 questions)',
+      'ws-check': 'Check',
+      // --- F1: worksheet question prompts (data-i18n spans) ---
+      'ws1q': 'Moons dataset, h1=0, h2=0, linear activation. Train. Final loss is closest to:',
+      'ws2q': 'Same dataset, h1=6, activation=ReLU. After training, final loss is closest to:',
+      'ws3q': 'Moons, h1=6 h2=4, activation=linear (no non-linearity). Compared to 1 linear layer (h1=0), the capacity is:',
+      // --- F1: lesson-tour scenarios (0-based index: tour{i}name / tour{i}desc) ---
+      'tour0name': 'Linear can split linearly-separable data',
+      'tour0desc': "Blobs dataset (two clouds), no hidden layer (h1=0, h2=0), linear activation. The network is just logistic regression — and that's enough. Watch the loss drop fast.",
+      'tour1name': 'Moons: linear fails, network needs depth',
+      'tour1desc': 'Switch to moons. Same linear setup. Loss plateaus around 0.3+ — no straight line can separate them. The model lacks the capacity. This is the canonical pitch for hidden layers.',
+      'tour2name': 'Add ReLU + one hidden layer → moons solved',
+      'tour2desc': 'Moons, one hidden layer of 6 ReLU units. Network now bends. Loss drops to near zero. The non-linearity, not just depth, is what bought you the curve.',
+      'tour3name': 'Stack with linear activation collapses',
+      'tour3desc': 'Moons, h1=6 h2=4, but activation = linear. Two linear layers compose to ONE linear layer — math says so. Loss plateaus again. Depth without non-linearity is wasted parameters.',
+      'tour4name': 'XOR — the textbook non-linear task',
+      'tour4desc': 'XOR dataset: opposite corners are the same class. Provably unsolvable by any linear model since Minsky 1969. With ReLU + 2 hidden layers, train and watch the decision boundary become 4 wedges.',
+      // --- F1: worksheet answer-feedback (ws{n}ok / ws{n}no) ---
+      'ws1ok': 'Correct (~0.3+). A linear model is just logistic regression — it can only draw straight lines. The moons are nonlinearly separable, so the best a linear classifier can do is misclassify some — loss plateaus around 0.3.',
+      'ws1no': "Try 0.3. With h1=0 + linear activation, the model is logistic regression, which can't curve. Loss plateaus well above zero.",
+      'ws2ok': 'Right. h1=6 ReLU is just enough capacity to bend the boundary into the moon shape. Loss drops to near zero (or actual zero if data is fully separable). Non-linearity is the unlock — depth alone with linear activation would not help.',
+      'ws2no': 'Try 0 (near zero). ReLU + a hidden layer gives the network enough capacity to learn the curved boundary.',
+      'ws3ok': 'Correct. Two linear layers compose to ONE linear layer — math: A·(B·x) = (A·B)·x. Stacking depth without non-linearity is mathematically equivalent to a single layer, just with more parameters wastefully reparameterizing it.',
+      'ws3no': "Try 'same'. f(x) = W₂(W₁x) = (W₂W₁)x — composition of linear maps is linear. Depth alone gains nothing.",
       // tooltip translations for main selectors + slider labels.
       'dataset-sel-title': 'Test problem. XOR forces non-linearity; blobs work with a single line.',
       'act-sel-title': "Non-linearity applied after each hidden layer. 'linear' collapses depth into a single line.",
@@ -607,8 +638,32 @@
       'stat-acc': '训练准确率', 'stat-param': '参数数量',
       'jump-link': '↓ 阅读说明',
       'tour-summary': '📚 课程导览(5 步)',
+      'tour-step': '步骤',
       'tour-prev': '← 上一步', 'tour-next': '下一步 →', 'tour-apply': '▶ 应用此场景',
       'ws-summary': '📝 练习题(3 题)',
+      'ws-check': '核对',
+      // --- F1: 练习题题干(data-i18n span)---
+      'ws1q': '双月数据集,h1=0、h2=0,线性激活。训练。最终损失最接近:',
+      'ws2q': '同一数据集,h1=6,激活函数=ReLU。训练后,最终损失最接近:',
+      'ws3q': '双月,h1=6、h2=4,激活函数=线性(无非线性)。与 1 个线性层(h1=0)相比,容量是:',
+      // --- F1: 课程导览场景(0 起始索引:tour{i}name / tour{i}desc)---
+      'tour0name': '线性模型可以分开线性可分的数据',
+      'tour0desc': '两团数据集(两片点云),无隐藏层(h1=0、h2=0),线性激活。此时网络就是逻辑回归——而这已经够了。观察损失迅速下降。',
+      'tour1name': '双月:线性失败,网络需要深度',
+      'tour1desc': '切换到双月。相同的线性设置。损失在 0.3 上下停滞——没有直线能把它们分开。模型缺乏容量。这正是引入隐藏层的经典理由。',
+      'tour2name': '加入 ReLU + 一个隐藏层 → 双月被解决',
+      'tour2desc': '双月,一个含 6 个 ReLU 单元的隐藏层。网络现在会弯曲了。损失降到接近零。让你得到曲线的是非线性,而不只是深度。',
+      'tour3name': '用线性激活堆叠会塌缩',
+      'tour3desc': '双月,h1=6、h2=4,但激活函数=线性。两个线性层复合成一个线性层——数学如此。损失再次停滞。没有非线性的深度只是浪费参数。',
+      'tour4name': '异或——教科书式的非线性任务',
+      'tour4desc': '异或数据集:对角的两个角属于同一类。自 Minsky 1969 起就被证明任何线性模型都无法解决。用 ReLU + 2 个隐藏层,训练并观察决策边界变成 4 个楔形区域。',
+      // --- F1: 练习题答案反馈(ws{n}ok / ws{n}no)---
+      'ws1ok': '正确(约 0.3 以上)。线性模型就是逻辑回归——只能画直线。双月是非线性可分的,所以线性分类器最多只能错分一部分——损失停滞在 0.3 上下。',
+      'ws1no': '试试 0.3。当 h1=0 且激活为线性时,模型是逻辑回归,无法弯曲。损失会停滞在远高于零处。',
+      'ws2ok': '对。h1=6 的 ReLU 恰好提供了足够的容量,把边界弯成双月形状。损失降到接近零(若数据完全可分则为真正的零)。非线性才是关键——只有深度而激活为线性是没用的。',
+      'ws2no': '试试 0(接近零)。ReLU + 一个隐藏层给了网络足够的容量来学习弯曲的边界。',
+      'ws3ok': '正确。两个线性层复合成一个线性层——数学上:A·(B·x) = (A·B)·x。没有非线性的深度堆叠在数学上等价于单层,只是用更多参数做了多余的重新参数化。',
+      'ws3no': '试试"same"。f(x) = W₂(W₁x) = (W₂W₁)x——线性映射的复合仍是线性。仅有深度毫无收益。',
       // 主要选择器与滑块的提示翻译。
       'dataset-sel-title': '测试问题。异或要求非线性;双团数据用一条直线即可。',
       'act-sel-title': '每个隐层之后施加的非线性。"线性"会让深度坍塌为一条直线。',
@@ -651,7 +706,13 @@
     try { localStorage.setItem('lang', lang); } catch (_) {}
   }
   document.querySelectorAll('.lang-switch button').forEach(b =>
-    b.addEventListener('click', () => setLang(b.dataset.lang)));
+    b.addEventListener('click', () => {
+      setLang(b.dataset.lang);
+      // F1: re-render the tour in the new language. Safe here — this click handler
+      // only runs post-init, after LESSON_TOUR (a late `const`) is initialized, so
+      // there is no temporal-dead-zone risk (unlike calling it from inside setLang).
+      try { if (typeof renderTour === 'function') renderTour(); } catch (_) {}
+    }));
   let initialLang = 'en';
   try { initialLang = localStorage.getItem('lang') || 'en'; } catch (_) {}
   setLang(initialLang);
@@ -1599,8 +1660,11 @@
   function renderTour() {
     if (!$('tourName')) return;
     const s = LESSON_TOUR[tourIdx];
-    $('tourName').textContent = s.name;
-    $('tourDesc').textContent = s.description;
+    // F1 bilingual: look up tour{i}name / tour{i}desc with English inline fallback.
+    const L = (document.documentElement.lang || 'en');
+    const S = STRINGS[L] || STRINGS.en;
+    $('tourName').textContent = S['tour' + tourIdx + 'name'] || s.name;
+    $('tourDesc').textContent = S['tour' + tourIdx + 'desc'] || s.description;
     $('tourPos').textContent = `${tourIdx + 1}/${LESSON_TOUR.length}`;
     $('tourPrev').disabled = (tourIdx === 0);
     $('tourNext').disabled = (tourIdx === LESSON_TOUR.length - 1);
@@ -1611,27 +1675,32 @@
   renderTour();
 
   // Worksheet/lab mode — 3 questions with instant ✓/✗ feedback.
+  // F1 bilingual feedback helper: ws{n}ok / ws{n}no with English inline fallback.
+  function wsMsg(key, en) {
+    const L = (document.documentElement.lang || 'en');
+    return (STRINGS[L] && STRINGS[L][key]) || en;
+  }
   const WORKSHEET = [
     { check: ans => {
         const ok = ans.includes('0.3') || ans.includes('.3') || ans.includes('plateau') || ans.includes('high');
         return { ok,
           msg: ok
-            ? "Correct (~0.3+). A linear model is just logistic regression — it can only draw straight lines. The moons are nonlinearly separable, so the best a linear classifier can do is misclassify some — loss plateaus around 0.3."
-            : "Try 0.3. With h1=0 + linear activation, the model is logistic regression, which can't curve. Loss plateaus well above zero." };
+            ? wsMsg('ws1ok', "Correct (~0.3+). A linear model is just logistic regression — it can only draw straight lines. The moons are nonlinearly separable, so the best a linear classifier can do is misclassify some — loss plateaus around 0.3.")
+            : wsMsg('ws1no', "Try 0.3. With h1=0 + linear activation, the model is logistic regression, which can't curve. Loss plateaus well above zero.") };
       } },
     { check: ans => {
         const ok = ans.trim() === '0' || ans.includes('near') || ans.includes('~0') || ans.includes('zero');
         return { ok,
           msg: ok
-            ? "Right. h1=6 ReLU is just enough capacity to bend the boundary into the moon shape. Loss drops to near zero (or actual zero if data is fully separable). Non-linearity is the unlock — depth alone with linear activation wouldn't help."
-            : "Try 0 (near zero). ReLU + a hidden layer gives the network enough capacity to learn the curved boundary." };
+            ? wsMsg('ws2ok', "Right. h1=6 ReLU is just enough capacity to bend the boundary into the moon shape. Loss drops to near zero (or actual zero if data is fully separable). Non-linearity is the unlock — depth alone with linear activation wouldn't help.")
+            : wsMsg('ws2no', "Try 0 (near zero). ReLU + a hidden layer gives the network enough capacity to learn the curved boundary.") };
       } },
     { check: ans => {
         const ok = ans.includes('same');
         return { ok,
           msg: ok
-            ? "Correct. Two linear layers compose to ONE linear layer — math: A·(B·x) = (A·B)·x. Stacking depth without non-linearity is mathematically equivalent to a single layer, just with more parameters wastefully reparameterizing it."
-            : "Try 'same'. f(x) = W₂(W₁x) = (W₂W₁)x — composition of linear maps is linear. Depth alone gains nothing." };
+            ? wsMsg('ws3ok', "Correct. Two linear layers compose to ONE linear layer — math: A·(B·x) = (A·B)·x. Stacking depth without non-linearity is mathematically equivalent to a single layer, just with more parameters wastefully reparameterizing it.")
+            : wsMsg('ws3no', "Try 'same'. f(x) = W₂(W₁x) = (W₂W₁)x — composition of linear maps is linear. Depth alone gains nothing.") };
       } },
   ];
   WORKSHEET.forEach((q, i) => {

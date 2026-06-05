@@ -142,6 +142,13 @@
   body.embed-mode article.essay,
   body.embed-mode .jump-anchor { display: none !important; }
   body.embed-mode .interactive { padding: 12px; border-bottom: none; }
+  /* ===== Shared a11y + contrast tokens (review fixes: F4 keyboard focus, F6 banner contrast) ===== */
+  button:focus-visible, a:focus-visible, select:focus-visible,
+  input:focus-visible, textarea:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px;
+  }
+  .tldr { background: linear-gradient(rgba(0,0,0,0.22), rgba(0,0,0,0.22)), var(--accent); }
+  .tldr strong { color: #fff; }
 </style>
 </head>
 <body>
@@ -335,7 +342,7 @@
     </summary>
     <div style="margin-top:8px; padding:12px 14px; background:var(--card); border:1px solid var(--border); border-radius:6px;">
       <div style="display:flex; align-items:baseline; gap:10px; margin-bottom:6px;">
-        <strong style="color:var(--accent);">Step <span id="tourPos">1/5</span>:</strong>
+        <strong style="color:var(--accent);"><span data-i18n="tour-step">Step</span> <span id="tourPos">1/5</span>:</strong>
         <strong id="tourName" style="font-family:-apple-system,system-ui,sans-serif;">—</strong>
       </div>
       <p id="tourDesc" style="margin:0 0 8px; color:var(--fg); font-size:0.88rem; line-height:1.5;">—</p>
@@ -354,21 +361,21 @@
     </summary>
     <div style="margin-top:8px; padding:12px 14px; background:var(--card); border:1px solid var(--border); border-radius:6px; font-size:0.88rem; line-height:1.5;">
       <div class="ws-q" id="ws1">
-        <p style="margin:0 0 4px;"><strong>Q1.</strong> Set degree=20, n=20, λ=0, sine truth. The Train MSE is approximately:</p>
+        <p style="margin:0 0 4px;"><strong>Q1.</strong> <span data-i18n="ws1q">Set degree=20, n=20, λ=0, sine truth. The train MSE is approximately:</span></p>
         <input id="ws1ans" type="text" placeholder="zero / high" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
-        <button class="step-btn" id="ws1btn">Check</button>
+        <button class="step-btn" id="ws1btn" data-i18n="ws-check">Check</button>
         <span id="ws1fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
       </div>
       <div class="ws-q" id="ws2" style="margin-top:10px;">
-        <p style="margin:0 0 4px;"><strong>Q2.</strong> Same settings as Q1. The Test MSE (vs Train MSE) is:</p>
+        <p style="margin:0 0 4px;"><strong>Q2.</strong> <span data-i18n="ws2q">Same settings as Q1. The test MSE (vs train MSE) is:</span></p>
         <input id="ws2ans" type="text" placeholder="much higher / similar / lower" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
-        <button class="step-btn" id="ws2btn">Check</button>
+        <button class="step-btn" id="ws2btn" data-i18n="ws-check">Check</button>
         <span id="ws2fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
       </div>
       <div class="ws-q" id="ws3" style="margin-top:10px;">
-        <p style="margin:0 0 4px;"><strong>Q3.</strong> Keep degree=20. Now raise λ from 0 to 0.5. Test MSE goes:</p>
+        <p style="margin:0 0 4px;"><strong>Q3.</strong> <span data-i18n="ws3q">Keep degree=20. Now raise λ from 0 to 0.5. Test MSE goes:</span></p>
         <input id="ws3ans" type="text" placeholder="up / down / same" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
-        <button class="step-btn" id="ws3btn">Check</button>
+        <button class="step-btn" id="ws3btn" data-i18n="ws-check">Check</button>
         <span id="ws3fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
       </div>
     </div>
@@ -513,8 +520,31 @@
       'train-mse': 'Train MSE', 'test-mse': 'Test MSE (held out)',
       'jump-link': '↓ Read the explanation',
       'tour-summary': '📚 Lesson tour (5 steps)',
+      'tour-step': 'Step',
       'tour-prev': '← Prev', 'tour-next': 'Next →', 'tour-apply': '▶ Apply this scenario',
       'ws-summary': '📝 Worksheet (3 questions)',
+      'ws-check': 'Check',
+      'ws1q': 'Set degree=20, n=20, λ=0, sine truth. The train MSE is approximately:',
+      'ws2q': 'Same settings as Q1. The test MSE (vs train MSE) is:',
+      'ws3q': 'Keep degree=20. Now raise λ from 0 to 0.5. Test MSE goes:',
+      // --- F1: lesson-tour scenarios (0-based index: tour{i}name / tour{i}desc) ---
+      'tour0name': 'Underfit (degree 1, sine truth)',
+      'tour0desc': "Polynomial of degree 1 trying to fit a sine. Train AND test error are both high — this is high bias. The model literally can't bend enough.",
+      'tour1name': 'Sweet spot (degree 5)',
+      'tour1desc': 'Same truth, degree 5. Train and test are both low and close together. This is the bias-variance balance point we always want.',
+      'tour2name': 'Severe overfit (degree 20, n=20)',
+      'tour2desc': 'Degree 20 with only 20 training points. Train error → 0 (the curve passes through every dot). Test error explodes. Classic overfitting.',
+      'tour3name': 'Ridge fixes the overfit',
+      'tour3desc': 'Still degree 20, but now λ=0.5. The penalty shrinks the wild high-order coefficients. Test error drops dramatically without changing the model class.',
+      'tour4name': 'More data also fixes it',
+      'tour4desc': 'Degree 20, λ=0, but n=100 instead of 20. With more data, even a high-capacity model can\'t memorize — it has to generalize. Use the CV curve toggle.',
+      // --- F1: worksheet answer-feedback (ws{n}ok / ws{n}no) ---
+      'ws1ok': 'Correct. A degree-20 polynomial has 21 free parameters; with only 20 training points, it has enough freedom to literally pass through every dot. Train MSE ≈ 0.',
+      'ws1no': "Try 'zero' or 'near zero'. 21 free coefficients can fit 20 arbitrary points exactly — degrees of freedom math.",
+      'ws2ok': 'Yes. Train ≈ 0, test explodes — that gap IS overfitting. The wild oscillations needed to pass through every train point miss the test points completely.',
+      'ws2no': "Hint: zero train error + held-out test error are very different. Try 'much higher'.",
+      'ws3ok': 'Correct. Ridge (L2) penalty λ‖w‖² shrinks large coefficients. The degree-20 polynomial still has 21 params, but they are now small — the curve is forced to be smooth and generalizes much better.',
+      'ws3no': "Try 'down'. λ penalizes large weights, killing the high-frequency wiggles that overfit.",
       // tooltip translations for main sliders + selectors.
       'deg-slider-title': 'Model capacity. Higher degree = more wiggle room = easier to overfit.',
       'lam-slider-title': 'Regularization strength. With Ridge, adds λ‖w‖² to the loss; with Lasso, adds λ‖w‖₁. Set λ=0 to disable.',
@@ -558,8 +588,31 @@
       'train-mse': '训练 MSE', 'test-mse': '测试 MSE(留出集)',
       'jump-link': '↓ 阅读说明',
       'tour-summary': '📚 课程导览(5 步)',
+      'tour-step': '步骤',
       'tour-prev': '← 上一步', 'tour-next': '下一步 →', 'tour-apply': '▶ 应用此场景',
       'ws-summary': '📝 练习题(3 题)',
+      'ws-check': '核对',
+      'ws1q': '设 degree=20、n=20、λ=0、正弦真值。训练 MSE 大约是:',
+      'ws2q': '与 Q1 相同的设置。测试 MSE(相对训练 MSE)是:',
+      'ws3q': '保持 degree=20。现在把 λ 从 0 提高到 0.5。测试 MSE 会:',
+      // --- F1: 课程导览场景(0 起始索引:tour{i}name / tour{i}desc)---
+      'tour0name': '欠拟合(1 次,正弦真值)',
+      'tour0desc': '用 1 次多项式去拟合正弦。训练误差和测试误差都很高——这是高偏差。模型根本弯不够。',
+      'tour1name': '甜点区(5 次)',
+      'tour1desc': '同样的真值,5 次。训练和测试都很低且彼此接近。这正是我们一直想要的偏差-方差平衡点。',
+      'tour2name': '严重过拟合(20 次,n=20)',
+      'tour2desc': '20 次多项式而只有 20 个训练点。训练误差 → 0(曲线穿过每一个点)。测试误差暴涨。典型的过拟合。',
+      'tour3name': '岭回归修复过拟合',
+      'tour3desc': '仍是 20 次,但现在 λ=0.5。惩罚项把剧烈的高次系数缩小。测试误差大幅下降,而模型类别没有改变。',
+      'tour4name': '更多数据同样能修复',
+      'tour4desc': '20 次,λ=0,但 n=100 而非 20。数据更多时,即使高容量模型也无法死记硬背——它必须泛化。可打开 CV 曲线开关。',
+      // --- F1: 练习题答案反馈(ws{n}ok / ws{n}no)---
+      'ws1ok': '正确。20 次多项式有 21 个自由参数;只有 20 个训练点时,它有足够的自由度精确穿过每一个点。训练 MSE ≈ 0。',
+      'ws1no': '试试"zero"或"near zero"。21 个自由系数可以精确拟合 20 个任意点——自由度的数学。',
+      'ws2ok': '对。训练 ≈ 0,测试暴涨——这个差距就是过拟合。为穿过每个训练点所需的剧烈振荡完全错过了测试点。',
+      'ws2no': '提示:零训练误差和留出测试误差差别很大。试试"much higher"。',
+      'ws3ok': '正确。岭回归(L2)惩罚 λ‖w‖² 缩小大系数。20 次多项式仍有 21 个参数,但现在它们都很小——曲线被迫平滑,泛化得好得多。',
+      'ws3no': '试试"down"。λ 惩罚大权重,扼杀那些造成过拟合的高频摆动。',
       // 主要滑块和选择器的提示翻译。
       'deg-slider-title': '模型容量。次数越高,摆动空间越大,越容易过拟合。',
       'lam-slider-title': '正则化强度。岭回归在损失中加入 λ‖w‖²;套索加入 λ‖w‖₁。设 λ=0 关闭正则化。',
@@ -590,7 +643,13 @@
     try { localStorage.setItem('lang', lang); } catch (_) {}
   }
   document.querySelectorAll('.lang-switch button').forEach(b =>
-    b.addEventListener('click', () => setLang(b.dataset.lang)));
+    b.addEventListener('click', () => {
+      setLang(b.dataset.lang);
+      // F1: re-render the tour in the new language. Safe here — this click handler
+      // only runs post-init, after LESSON_TOUR (a late `const`) is initialized, so
+      // there is no temporal-dead-zone risk (unlike calling it from inside setLang).
+      try { if (typeof renderTour === 'function') renderTour(); } catch (_) {}
+    }));
   let initialLang = 'en';
   try { initialLang = localStorage.getItem('lang') || 'en'; } catch (_) {}
   setLang(initialLang);
@@ -1031,8 +1090,11 @@
   function renderTour() {
     if (!$('tourName')) return;
     const s = LESSON_TOUR[tourIdx];
-    $('tourName').textContent = s.name;
-    $('tourDesc').textContent = s.description;
+    // F1 bilingual: look up tour{i}name / tour{i}desc with English inline fallback.
+    const L = (document.documentElement.lang || 'en');
+    const S = STRINGS[L] || STRINGS.en;
+    $('tourName').textContent = S['tour' + tourIdx + 'name'] || s.name;
+    $('tourDesc').textContent = S['tour' + tourIdx + 'desc'] || s.description;
     $('tourPos').textContent = `${tourIdx + 1}/${LESSON_TOUR.length}`;
     $('tourPrev').disabled = (tourIdx === 0);
     $('tourNext').disabled = (tourIdx === LESSON_TOUR.length - 1);
@@ -1043,27 +1105,32 @@
   renderTour();
 
   // Worksheet/lab mode — 3 questions with instant ✓/✗ feedback.
+  // F1 bilingual feedback helper: ws{n}ok / ws{n}no with English inline fallback.
+  function wsMsg(key, en) {
+    const L = (document.documentElement.lang || 'en');
+    return (STRINGS[L] && STRINGS[L][key]) || en;
+  }
   const WORKSHEET = [
     { check: ans => {
         const ok = ans.includes('zero') || ans.includes('0') || ans.includes('near');
         return { ok,
           msg: ok
-            ? "Correct. A degree-20 polynomial has 21 free parameters; with only 20 training points, it has enough freedom to literally pass through every dot. Train MSE ≈ 0."
-            : "Try 'zero' or 'near zero'. 21 free coefficients can fit 20 arbitrary points exactly — degrees of freedom math." };
+            ? wsMsg('ws1ok', "Correct. A degree-20 polynomial has 21 free parameters; with only 20 training points, it has enough freedom to literally pass through every dot. Train MSE ≈ 0.")
+            : wsMsg('ws1no', "Try 'zero' or 'near zero'. 21 free coefficients can fit 20 arbitrary points exactly — degrees of freedom math.") };
       } },
     { check: ans => {
         const ok = ans.includes('higher') || ans.includes('much') || ans.includes('worse') || ans.includes('big');
         return { ok,
           msg: ok
-            ? "Yes. Train ≈ 0, Test explodes — that gap IS overfitting. The wild oscillations needed to pass through every train point miss the test points completely."
-            : "Hint: zero train error + held-out test error are very different. Try 'much higher'." };
+            ? wsMsg('ws2ok', "Yes. Train ≈ 0, Test explodes — that gap IS overfitting. The wild oscillations needed to pass through every train point miss the test points completely.")
+            : wsMsg('ws2no', "Hint: zero train error + held-out test error are very different. Try 'much higher'.") };
       } },
     { check: ans => {
         const ok = ans.includes('down') || ans.includes('decrease') || ans.includes('drop');
         return { ok,
           msg: ok
-            ? "Correct. Ridge (L2) penalty λ‖w‖² shrinks large coefficients. The degree-20 polynomial still has 21 params, but they're now small — the curve is forced to be smooth and generalizes much better."
-            : "Try 'down'. λ penalizes large weights, killing the high-frequency wiggles that overfit." };
+            ? wsMsg('ws3ok', "Correct. Ridge (L2) penalty λ‖w‖² shrinks large coefficients. The degree-20 polynomial still has 21 params, but they're now small — the curve is forced to be smooth and generalizes much better.")
+            : wsMsg('ws3no', "Try 'down'. λ penalizes large weights, killing the high-frequency wiggles that overfit.") };
       } },
   ];
   WORKSHEET.forEach((q, i) => {

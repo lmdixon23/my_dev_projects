@@ -140,6 +140,13 @@
   body.dark-mode .header-png { background: var(--card); color: var(--fg); }
   /* ===== Slider styling — native themed control via accent-color (consistent across browsers) ===== */
   input[type="range"] { accent-color: var(--accent); height: 28px; cursor: pointer; }
+  /* ===== Shared a11y + contrast tokens (review fixes: F4 keyboard focus, F6 banner contrast) ===== */
+  button:focus-visible, a:focus-visible, select:focus-visible,
+  input:focus-visible, textarea:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px;
+  }
+  .tldr { background: linear-gradient(rgba(0,0,0,0.22), rgba(0,0,0,0.22)), var(--accent); }
+  .tldr strong { color: #fff; }
 </style>
 </head>
 <body>
@@ -296,7 +303,7 @@
     </summary>
     <div style="margin-top:8px; padding:12px 14px; background:var(--card); border:1px solid var(--border); border-radius:6px;">
       <div style="display:flex; align-items:baseline; gap:10px; margin-bottom:6px;">
-        <strong style="color:var(--accent);">Step <span id="tourPos">1/4</span>:</strong>
+        <strong style="color:var(--accent);"><span data-i18n="tour-step">Step</span> <span id="tourPos">1/4</span>:</strong>
         <strong id="tourName" style="font-family:-apple-system,system-ui,sans-serif;">—</strong>
       </div>
       <p id="tourDesc" style="margin:0 0 8px; color:var(--fg); font-size:0.88rem; line-height:1.5;">—</p>
@@ -315,21 +322,21 @@
     </summary>
     <div style="margin-top:8px; padding:12px 14px; background:var(--card); border:1px solid var(--border); border-radius:6px; font-size:0.88rem; line-height:1.5;">
       <div class="ws-q" id="ws1">
-        <p style="margin:0 0 4px;"><strong>Q1.</strong> Load <em>two blobs</em>, k=1. Add a test point right in the middle, between the blobs. Which class does k=1 assign? (Answer: <code>blue</code> or <code>red</code> — depending on the single nearest training point.)</p>
+        <p style="margin:0 0 4px;"><strong>Q1.</strong> <span data-i18n="ws1q">Load <em>two blobs</em>, k=1. Add a test point right in the middle, between the blobs. Which class does k=1 assign? (Answer: <code>blue</code> or <code>red</code> — depending on the single nearest training point.)</span></p>
         <input id="ws1ans" type="text" placeholder="your answer" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
-        <button class="step-btn" id="ws1btn">Check</button>
+        <button class="step-btn" id="ws1btn" data-i18n="ws-check">Check</button>
         <span id="ws1fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
       </div>
       <div class="ws-q" id="ws2" style="margin-top:10px;">
-        <p style="margin:0 0 4px;"><strong>Q2.</strong> Same dataset, switch to k=25. Compared to k=1, the decision boundary becomes:</p>
+        <p style="margin:0 0 4px;"><strong>Q2.</strong> <span data-i18n="ws2q">Same dataset, switch to k=25. Compared to k=1, the decision boundary becomes:</span></p>
         <input id="ws2ans" type="text" placeholder="smoother / wigglier / same" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
-        <button class="step-btn" id="ws2btn">Check</button>
+        <button class="step-btn" id="ws2btn" data-i18n="ws-check">Check</button>
         <span id="ws2fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
       </div>
       <div class="ws-q" id="ws3" style="margin-top:10px;">
-        <p style="margin:0 0 4px;"><strong>Q3.</strong> Switch distance metric to Manhattan. The boundaries between classes are now made of:</p>
+        <p style="margin:0 0 4px;"><strong>Q3.</strong> <span data-i18n="ws3q">Switch distance metric to Manhattan. The boundaries between classes are now made of:</span></p>
         <input id="ws3ans" type="text" placeholder="curves / straight lines / steps" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
-        <button class="step-btn" id="ws3btn">Check</button>
+        <button class="step-btn" id="ws3btn" data-i18n="ws-check">Check</button>
         <span id="ws3fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
       </div>
     </div>
@@ -435,6 +442,28 @@
       'embed-title': 'Copy an <iframe> snippet you can paste into an LMS (Canvas, Moodle, Schoology) or any HTML page. The embed strips the header and essay so only the interactive area shows.',
       'csv-title': 'Download the training points as a CSV file (x, y, class). Open in Excel/Sheets for follow-up homework.',
       'ws-summary': '📝 Worksheet (3 questions)',
+      'ws-check': 'Check',
+      'tour-step': 'Step',
+      // --- F1: worksheet question prompts (data-i18n spans) ---
+      'ws1q': 'Load two blobs, k=1. Add a test point right in the middle, between the blobs. Which class does k=1 assign? (Answer: blue or red — depending on the single nearest training point.)',
+      'ws2q': 'Same dataset, switch to k=25. Compared to k=1, the decision boundary becomes:',
+      'ws3q': 'Switch distance metric to Manhattan. The boundaries between classes are now made of:',
+      // --- F1: lesson-tour scenarios (0-based index: tour{i}name / tour{i}desc) ---
+      'tour0name': 'Two blobs, k=5',
+      'tour0desc': 'The easy case. Two well-separated Gaussian blobs. With k=5 and Euclidean distance, the boundary is a near-straight line between the clusters.',
+      'tour1name': 'k=1 vs k=25 (bias-variance)',
+      'tour1desc': 'Two-moons dataset. k=1 perfectly fits training points but the boundary is jagged. k=25 over-smooths and misclassifies the moon tips. The middle of the k-range is the bias-variance sweet spot.',
+      'tour2name': 'Distance metric matters',
+      'tour2desc': 'Same moons dataset. Switch the metric from Euclidean (round) to Manhattan (diamond) to Chebyshev (square). Each produces a visibly distinct boundary shape — the "neighborhood" definition changes everything.',
+      'tour3name': 'Why standardize? (axis scale)',
+      'tour3desc': 'Spiral dataset. Drag the X-axis scale slider up to 3× — watch the boundary tilt. KNN is sensitive to which feature has the larger magnitude. Real ML pipelines normalize features first (z-score or min-max).',
+      // --- F1: worksheet answer-feedback (ws{n}ok / ws{n}no) ---
+      'ws1ok': "Correct concept. k=1 picks the single closest training point — whichever class it is wins, even if all the other neighbors disagree. That's the high-variance failure mode.",
+      'ws1no': "Try 'blue' or 'red'. k=1 just copies the label of the single nearest training point — it doesn't average.",
+      'ws2ok': 'Right. Higher k = more votes averaged = smoother boundary. This is bias-variance: lower variance, but higher bias if k is too large.',
+      'ws2no': "Try 'smoother'. Averaging 25 neighbors washes out individual noise; k=1's wiggle disappears.",
+      'ws3ok': "Yes. Manhattan distance contours are diamonds (rotated squares), so equidistant lines run at 45° — boundaries look 'stepped' / axis-aligned compared to Euclidean's circles.",
+      'ws3no': "Hint: Manhattan = |Δx| + |Δy|. The unit ball is a diamond. Try 'stepped' or 'axis-aligned'.",
       // tooltip translations for the main controls.
       'class-a-title': 'Future clicks on the canvas add Class A points (blue circles).',
       'class-b-title': 'Future clicks on the canvas add Class B points (orange triangles).',
@@ -482,6 +511,28 @@
       'embed-title': '复制可粘贴到 LMS(Canvas、Moodle、Schoology)或任意网页的 <iframe> 代码。嵌入模式会去掉页头和说明,只显示交互区。',
       'csv-title': '把训练点导出为 CSV 文件(x, y, 类别)。可在 Excel/Sheets 中打开做后续作业。',
       'ws-summary': '📝 练习题(3 题)',
+      'ws-check': '核对',
+      'tour-step': '步骤',
+      // --- F1: 练习题题干(data-i18n span)---
+      'ws1q': '加载"两团数据",k=1。在两团之间正中央添加一个测试点。k=1 会把它判为哪一类?(答案:blue 或 red——取决于唯一的最近训练点。)',
+      'ws2q': '同一数据集,切换到 k=25。与 k=1 相比,决策边界会变得:',
+      'ws3q': '把距离度量切换为曼哈顿。此时各类之间的边界是由什么构成的:',
+      // --- F1: 课程导览场景(0 起始索引:tour{i}name / tour{i}desc)---
+      'tour0name': '两团数据,k=5',
+      'tour0desc': '最简单的情况。两团分离良好的高斯数据。当 k=5 且使用欧几里得距离时,边界是两簇之间近乎笔直的一条线。',
+      'tour1name': 'k=1 对比 k=25(偏差-方差)',
+      'tour1desc': '双月数据集。k=1 完美拟合训练点,但边界参差不齐。k=25 过度平滑,把月牙的尖端判错。k 取值居中处才是偏差-方差的最佳平衡点。',
+      'tour2name': '距离度量很重要',
+      'tour2desc': '同一双月数据集。把度量从欧几里得(圆形)切换到曼哈顿(菱形)再到切比雪夫(方形)。每种都会产生明显不同的边界形状——"邻域"的定义改变了一切。',
+      'tour3name': '为何要标准化?(坐标轴尺度)',
+      'tour3desc': '螺旋数据集。把 X 轴尺度滑块拉到 3×——观察边界倾斜。KNN 对哪个特征数值更大很敏感。真实的机器学习流程会先对特征做归一化(z-score 或 min-max)。',
+      // --- F1: 练习题答案反馈(ws{n}ok / ws{n}no)---
+      'ws1ok': '概念正确。k=1 选取唯一最近的训练点——无论它是哪一类都获胜,即使其他所有邻居都不同意。这正是高方差的失败模式。',
+      'ws1no': '试试"blue"或"red"。k=1 只是照搬唯一最近训练点的标签——它不做平均。',
+      'ws2ok': '对。k 越大 = 平均的票数越多 = 边界越平滑。这就是偏差-方差:方差更低,但 k 过大时偏差更高。',
+      'ws2no': '试试"smoother"。对 25 个邻居取平均会抹平个别噪声;k=1 的抖动随之消失。',
+      'ws3ok': '没错。曼哈顿距离的等距线是菱形(旋转的正方形),因此等距线沿 45° 方向——与欧几里得的圆形相比,边界看起来呈"阶梯状"/轴对齐。',
+      'ws3no': '提示:曼哈顿 = |Δx| + |Δy|。其单位球是菱形。试试"stepped"或"axis-aligned"。',
       // 主要控件的提示翻译。
       'class-a-title': '后续点击画布将添加 A 类点(蓝色圆圈)。',
       'class-b-title': '后续点击画布将添加 B 类点(橙色三角形)。',
@@ -538,10 +589,22 @@
     try { localStorage.setItem('lang', lang); } catch (_) {}
   }
   document.querySelectorAll('.lang-switch button').forEach(b =>
-    b.addEventListener('click', () => setLang(b.dataset.lang)));
+    b.addEventListener('click', () => {
+      setLang(b.dataset.lang);
+      // F1: re-render the tour in the new language. Safe here — this click handler
+      // only runs post-init, after LESSON_TOUR (a late `const`) is initialized, so
+      // there is no temporal-dead-zone risk (unlike calling it from inside setLang).
+      try { if (typeof renderTour === 'function') renderTour(); } catch (_) {}
+    }));
   let initialLang = 'en';
   try { initialLang = localStorage.getItem('lang') || 'en'; } catch (_) {}
   setLang(initialLang);
+  // F1: worksheet/feedback i18n helper — returns the localized string for `key`,
+  // falling back to the supplied English `en` when the key is missing in a language.
+  function wsMsg(key, en) {
+    const lang = document.documentElement.lang || 'en';
+    return (STRINGS[lang] && STRINGS[lang][key]) || en;
+  }
 
   function setTheme(t) {
     document.body.classList.toggle('dark-mode', t === 'dark');
@@ -928,8 +991,12 @@
   function renderTour() {
     if (!$('tourName')) return;
     const s = LESSON_TOUR[tourIdx];
-    $('tourName').textContent = s.name;
-    $('tourDesc').textContent = s.description;
+    // F1: localized scenario name/description with graceful English fallback to the
+    // inline LESSON_TOUR strings (which remain the source-of-truth fallback).
+    const lang = document.documentElement.lang || 'en';
+    const L = STRINGS[lang] || {};
+    $('tourName').textContent = L['tour' + tourIdx + 'name'] || s.name;
+    $('tourDesc').textContent = L['tour' + tourIdx + 'desc'] || s.description;
     $('tourPos').textContent = `${tourIdx + 1}/${LESSON_TOUR.length}`;
     $('tourPrev').disabled = (tourIdx === 0);
     $('tourNext').disabled = (tourIdx === LESSON_TOUR.length - 1);
@@ -947,22 +1014,22 @@
         const valid = ans === 'blue' || ans === 'red';
         return { ok: valid,
           msg: valid
-            ? "Correct concept. k=1 picks the single closest training point — whichever class it is wins, even if all the other neighbors disagree. That's the high-variance failure mode."
-            : "Try 'blue' or 'red'. k=1 just copies the label of the single nearest training point — it doesn't average." };
+            ? wsMsg('ws1ok', "Correct concept. k=1 picks the single closest training point — whichever class it is wins, even if all the other neighbors disagree. That's the high-variance failure mode.")
+            : wsMsg('ws1no', "Try 'blue' or 'red'. k=1 just copies the label of the single nearest training point — it doesn't average.") };
       } },
     { check: ans => {
         const ok = ans.includes('smooth');
         return { ok,
           msg: ok
-            ? "Right. Higher k = more votes averaged = smoother boundary. This is bias-variance: lower variance, but higher bias if k is too large."
-            : "Try 'smoother'. Averaging 25 neighbors washes out individual noise; k=1's wiggle disappears." };
+            ? wsMsg('ws2ok', "Right. Higher k = more votes averaged = smoother boundary. This is bias-variance: lower variance, but higher bias if k is too large.")
+            : wsMsg('ws2no', "Try 'smoother'. Averaging 25 neighbors washes out individual noise; k=1's wiggle disappears.") };
       } },
     { check: ans => {
         const ok = ans.includes('step') || ans.includes('axis') || ans.includes('45') || ans.includes('diagonal');
         return { ok,
           msg: ok
-            ? "Yes. Manhattan distance contours are diamonds (rotated squares), so equidistant lines run at 45° — boundaries look 'stepped' / axis-aligned compared to Euclidean's circles."
-            : "Hint: Manhattan = |Δx| + |Δy|. The unit ball is a diamond. Try 'stepped' or 'axis-aligned'." };
+            ? wsMsg('ws3ok', "Yes. Manhattan distance contours are diamonds (rotated squares), so equidistant lines run at 45° — boundaries look 'stepped' / axis-aligned compared to Euclidean's circles.")
+            : wsMsg('ws3no', "Hint: Manhattan = |Δx| + |Δy|. The unit ball is a diamond. Try 'stepped' or 'axis-aligned'.") };
       } },
   ];
   WORKSHEET.forEach((q, i) => {

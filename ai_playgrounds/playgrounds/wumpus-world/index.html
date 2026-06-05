@@ -170,6 +170,13 @@
   body.embed-mode article.essay,
   body.embed-mode .jump-anchor { display: none !important; }
   body.embed-mode .interactive { padding: 12px; border-bottom: none; }
+  /* ===== Shared a11y + contrast tokens (review fixes: F4 keyboard focus, F6 banner contrast) ===== */
+  button:focus-visible, a:focus-visible, select:focus-visible,
+  input:focus-visible, textarea:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px;
+  }
+  .tldr { background: linear-gradient(rgba(0,0,0,0.22), rgba(0,0,0,0.22)), var(--accent); }
+  .tldr strong { color: #fff; }
 </style>
 </head>
 <body>
@@ -318,33 +325,6 @@
   </div><!-- /.bento-cell analysis -->
 </div><!-- /.bento -->
 
-  <!-- Worksheet/lab mode. 3 questions per applet with instant check. -->
-  <details class="worksheet" style="margin-top:8px;">
-    <summary style="cursor:pointer; padding:8px 12px; background:var(--soft); border:1px solid var(--border); border-radius:6px; font-family:-apple-system,system-ui,sans-serif; font-size:0.88rem; color:var(--accent); font-weight:600;">
-      <span data-i18n="ws-summary">📝 Worksheet (3 questions)</span>
-    </summary>
-    <div style="margin-top:8px; padding:12px 14px; background:var(--card); border:1px solid var(--border); border-radius:6px; font-size:0.88rem; line-height:1.5;">
-      <div class="ws-q" id="ws1">
-        <p style="margin:0 0 4px;"><strong>Q1.</strong> "Pure logic" strategy. Generate several new worlds and let the agent run. Does the pure-logic agent ALWAYS retrieve the gold?</p>
-        <input id="ws1ans" type="text" placeholder="yes / no" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
-        <button class="step-btn" id="ws1btn">Check</button>
-        <span id="ws1fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
-      </div>
-      <div class="ws-q" id="ws2" style="margin-top:10px;">
-        <p style="margin:0 0 4px;"><strong>Q2.</strong> Switch to "AIMA hybrid" strategy. Compared to pure logic across many runs, the score variance (some win big, some die) is:</p>
-        <input id="ws2ans" type="text" placeholder="lower / higher / same" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
-        <button class="step-btn" id="ws2btn">Check</button>
-        <span id="ws2fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
-      </div>
-      <div class="ws-q" id="ws3" style="margin-top:10px;">
-        <p style="margin:0 0 4px;"><strong>Q3.</strong> What is the per-step score penalty in the AIMA-style scoring (just the magnitude, no sign)?</p>
-        <input id="ws3ans" type="text" placeholder="number" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit; width:80px;">
-        <button class="step-btn" id="ws3btn">Check</button>
-        <span id="ws3fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
-      </div>
-    </div>
-  </details>
-
   <!-- Lesson tour. Ordered scenarios that step students through the key ideas. -->
   <details class="lesson-tour" style="margin-top:12px;">
     <summary style="cursor:pointer; padding:8px 12px; background:var(--soft); border:1px solid var(--border); border-radius:6px; font-family:-apple-system,system-ui,sans-serif; font-size:0.88rem; color:var(--accent); font-weight:600;">
@@ -352,7 +332,7 @@
     </summary>
     <div style="margin-top:8px; padding:12px 14px; background:var(--card); border:1px solid var(--border); border-radius:6px;">
       <div style="display:flex; align-items:baseline; gap:10px; margin-bottom:6px;">
-        <strong style="color:var(--accent);">Step <span id="tourPos">1/5</span>:</strong>
+        <strong style="color:var(--accent);"><span data-i18n="tour-step">Step</span> <span id="tourPos">1/5</span>:</strong>
         <strong id="tourName" style="font-family:-apple-system,system-ui,sans-serif;">—</strong>
       </div>
       <p id="tourDesc" style="margin:0 0 8px; color:var(--fg); font-size:0.88rem; line-height:1.5;">—</p>
@@ -360,6 +340,33 @@
         <button class="step-btn secondary" id="tourPrev" data-i18n="tour-prev">← Prev</button>
         <button class="step-btn" id="tourApply" data-i18n="tour-apply">▶ Apply this scenario</button>
         <button class="step-btn secondary" id="tourNext" data-i18n="tour-next">Next →</button>
+      </div>
+    </div>
+  </details>
+
+  <!-- Worksheet/lab mode. 3 questions per applet with instant check. -->
+  <details class="worksheet" style="margin-top:8px;">
+    <summary style="cursor:pointer; padding:8px 12px; background:var(--soft); border:1px solid var(--border); border-radius:6px; font-family:-apple-system,system-ui,sans-serif; font-size:0.88rem; color:var(--accent); font-weight:600;">
+      <span data-i18n="ws-summary">📝 Worksheet (3 questions)</span>
+    </summary>
+    <div style="margin-top:8px; padding:12px 14px; background:var(--card); border:1px solid var(--border); border-radius:6px; font-size:0.88rem; line-height:1.5;">
+      <div class="ws-q" id="ws1">
+        <p style="margin:0 0 4px;"><strong>Q1.</strong> <span data-i18n="ws1q">"Pure logic" strategy. Generate several new worlds and let the agent run. Does the pure-logic agent ALWAYS retrieve the gold?</span></p>
+        <input id="ws1ans" type="text" placeholder="yes / no" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+        <button class="step-btn" id="ws1btn" data-i18n="ws-check">Check</button>
+        <span id="ws1fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
+      </div>
+      <div class="ws-q" id="ws2" style="margin-top:10px;">
+        <p style="margin:0 0 4px;"><strong>Q2.</strong> <span data-i18n="ws2q">Switch to "AIMA hybrid" strategy. Compared to pure logic across many runs, the score variance (some win big, some die) is:</span></p>
+        <input id="ws2ans" type="text" placeholder="lower / higher / same" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+        <button class="step-btn" id="ws2btn" data-i18n="ws-check">Check</button>
+        <span id="ws2fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
+      </div>
+      <div class="ws-q" id="ws3" style="margin-top:10px;">
+        <p style="margin:0 0 4px;"><strong>Q3.</strong> <span data-i18n="ws3q">What is the per-step score penalty in the AIMA-style scoring (just the magnitude, no sign)?</span></p>
+        <input id="ws3ans" type="text" placeholder="number" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit; width:80px;">
+        <button class="step-btn" id="ws3btn" data-i18n="ws-check">Check</button>
+        <span id="ws3fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
       </div>
     </div>
   </details>
@@ -511,8 +518,30 @@
       's-no-pit': 'not a pit', 's-no-wum': 'not the wumpus', 's-unknown': 'unknown',
       'jump-link': '↓ Read the explanation',
       'tour-summary': '📚 Lesson tour (4 steps)',
+      'tour-step': 'Step',
       'tour-prev': '← Prev', 'tour-next': 'Next →', 'tour-apply': '▶ Apply this scenario',
       'ws-summary': '📝 Worksheet (3 questions)',
+      'ws-check': 'Check',
+      // --- F1: worksheet question prompts (data-i18n spans) ---
+      'ws1q': '"Pure logic" strategy. Generate several new worlds and let the agent run. Does the pure-logic agent ALWAYS retrieve the gold?',
+      'ws2q': 'Switch to "AIMA hybrid" strategy. Compared to pure logic across many runs, the score variance (some win big, some die) is:',
+      'ws3q': 'What is the per-step score penalty in the AIMA-style scoring (just the magnitude, no sign)?',
+      // --- F1: lesson-tour scenarios (0-based index: tour{i}name / tour{i}desc) ---
+      'tour0name': 'Pure logic: safe inference only',
+      'tour0desc': "Default 'Pure logic' strategy on a fresh world. The agent only enters cells it can PROVE are safe from percepts (breeze/stench). When uncertain, it stops. Often climbs out without gold — that's the point.",
+      'tour1name': 'AIMA hybrid: shoot + gamble + climb out',
+      'tour1desc': "Switch to 'AIMA hybrid'. This agent uses the arrow on inferred wumpus locations, and when stuck will gamble on a low-probability cell. Sutton-style risk-taking — sometimes wins big, sometimes dies.",
+      'tour2name': 'Probabilistic: rank by pit-probability',
+      'tour2desc': "'Probabilistic' agent (AIMA Ch 13.6). When forced to gamble, it estimates P(pit) per frontier cell and picks the lowest. The difference from hybrid is informed risk vs. naive risk.",
+      'tour3name': 'Reveal world + read the reasoning log',
+      'tour3desc': "Turn ON 'Reveal hidden world' (teacher view). Now you can see what the agent SHOULD know vs. what it actually knows. Step slowly and watch the reasoning log fill in: 'Breeze at (1,2), so a pit is in {(1,3), (2,2)}'.",
+      // --- F1: worksheet answer-feedback (ws{n}ok / ws{n}no) ---
+      'ws1ok': "Correct. Pure logic only moves to cells it can PROVE are safe from percepts. Many worlds force the agent to gamble (the gold is reachable only through unprovably-safe cells). The pure-logic agent climbs out empty-handed in those worlds — that's the limitation.",
+      'ws1no': "Try 'no'. Sometimes the gold is only reachable through cells the agent can't prove safe. Pure logic climbs out empty-handed in those worlds.",
+      'ws2ok': 'Correct. The hybrid agent takes risks — gambles on uncertain cells, fires the arrow. Sometimes it scores +1000 (gold + climb out); sometimes it dies (−1000). The variance is the price of higher expected value.',
+      'ws2no': "Try 'higher'. Hybrid takes risks: sometimes scores big, sometimes dies. Pure logic is conservative — low variance, low expected value.",
+      'ws3ok': 'Correct. AIMA Wumpus scoring: −1 per action (so 1 is the magnitude), +1000 for grabbing gold, −1000 for dying. The per-step penalty incentivizes finding short paths.',
+      'ws3no': 'Try 1. AIMA standard: −1 per step, +1000 for gold, −1000 for death.',
       'score-bd-label': 'Score breakdown:',
       'replay-label': '⏪ Replay',
       'return-live': 'Jump to latest',
@@ -558,8 +587,30 @@
       's-no-pit': '不是陷阱', 's-no-wum': '不是吴普士', 's-unknown': '未知',
       'jump-link': '↓ 阅读说明',
       'tour-summary': '📚 课程导览(4 步)',
+      'tour-step': '步骤',
       'tour-prev': '← 上一步', 'tour-next': '下一步 →', 'tour-apply': '▶ 应用此场景',
       'ws-summary': '📝 练习题(3 题)',
+      'ws-check': '核对',
+      // --- F1: 练习题题干(data-i18n span)---
+      'ws1q': '"纯逻辑"策略。生成若干个新世界并让智能体运行。纯逻辑智能体总能取回金子吗?',
+      'ws2q': '切换到"AIMA 混合"策略。与纯逻辑相比,多次运行下来,得分的方差(有的赢得多、有的死掉)是:',
+      'ws3q': '在 AIMA 式计分中,每走一步的扣分是多少(只填数值大小,不带符号)?',
+      // --- F1: 课程导览场景(0 起始索引:tour{i}name / tour{i}desc)---
+      'tour0name': '纯逻辑:只做安全推理',
+      'tour0desc': '在全新世界上使用默认的"纯逻辑"策略。智能体只进入能从感知(微风/臭味)中证明为安全的方格。当无法确定时,它就停下。常常空手爬出——这正是要点。',
+      'tour1name': 'AIMA 混合:射箭 + 冒险 + 爬出',
+      'tour1desc': '切换到"AIMA 混合"。这个智能体会朝推断出的 Wumpus 位置射箭,卡住时会在低概率方格上冒险。这是冒险型的策略——有时赢得很多,有时送命。',
+      'tour2name': '概率:按陷阱概率排序',
+      'tour2desc': '"概率"智能体(AIMA 第 13.6 节)。被迫冒险时,它对每个前沿方格估计 P(陷阱),选概率最低的。与混合策略的区别在于:有依据的冒险 对比 盲目的冒险。',
+      'tour3name': '显示真实世界 + 阅读推理日志',
+      'tour3desc': '打开"显示隐藏的真实世界"(教师视角)。现在你能看到智能体本应知道什么与它实际知道什么的对比。慢慢单步,看推理日志逐步填充:"在 (1,2) 感到微风,所以陷阱位于 {(1,3), (2,2)}"。',
+      // --- F1: 练习题答案反馈(ws{n}ok / ws{n}no)---
+      'ws1ok': '正确。纯逻辑只移动到能从感知中证明为安全的方格。许多世界会迫使智能体冒险(金子只能经由无法证明安全的方格到达)。在那些世界里纯逻辑智能体空手爬出——这就是它的局限。',
+      'ws1no': '试试"no"。有时金子只能经由智能体无法证明安全的方格到达。在那些世界里纯逻辑会空手爬出。',
+      'ws2ok': '正确。混合智能体会冒险——在不确定的方格上赌一把、射出箭。有时得 +1000(取金 + 爬出);有时送命(−1000)。方差是换取更高期望收益所付出的代价。',
+      'ws2no': '试试"higher"。混合策略会冒险:有时得分很高,有时送命。纯逻辑较保守——方差低、期望收益也低。',
+      'ws3ok': '正确。AIMA Wumpus 计分:每个动作 −1(所以数值大小是 1),抓到金子 +1000,死亡 −1000。每步扣分促使智能体寻找更短的路径。',
+      'ws3no': '试试 1。AIMA 标准:每步 −1,取金 +1000,死亡 −1000。',
       'score-bd-label': '得分分解:',
       'replay-label': '⏪ 回放',
       'return-live': '跳到最新',
@@ -581,10 +632,22 @@
     try { localStorage.setItem('lang', lang); } catch (_) {}
   }
   document.querySelectorAll('.lang-switch button').forEach(b =>
-    b.addEventListener('click', () => setLang(b.dataset.lang)));
+    b.addEventListener('click', () => {
+      setLang(b.dataset.lang);
+      // F1: re-render the tour in the new language. Safe here — this click handler
+      // only runs post-init, after LESSON_TOUR (a late `const`) is initialized, so
+      // there is no temporal-dead-zone risk (unlike calling it from inside setLang).
+      try { if (typeof renderTour === 'function') renderTour(); } catch (_) {}
+    }));
   let initialLang = 'en';
   try { initialLang = localStorage.getItem('lang') || 'en'; } catch (_) {}
   setLang(initialLang);
+  // F1: worksheet/feedback i18n helper — returns the localized string for `key`,
+  // falling back to the supplied English `en` when the key is missing in a language.
+  function wsMsg(key, en) {
+    const lang = document.documentElement.lang || 'en';
+    return (STRINGS[lang] && STRINGS[lang][key]) || en;
+  }
 
   function setTheme(t) {
     document.body.classList.toggle('dark-mode', t === 'dark');
@@ -1663,8 +1726,12 @@
   function renderTour() {
     if (!$('tourName')) return;
     const s = LESSON_TOUR[tourIdx];
-    $('tourName').textContent = s.name;
-    $('tourDesc').textContent = s.description;
+    // F1: localized scenario name/description with graceful English fallback to the
+    // inline LESSON_TOUR strings (which remain the source-of-truth fallback).
+    const lang = document.documentElement.lang || 'en';
+    const L = STRINGS[lang] || {};
+    $('tourName').textContent = L['tour' + tourIdx + 'name'] || s.name;
+    $('tourDesc').textContent = L['tour' + tourIdx + 'desc'] || s.description;
     $('tourPos').textContent = `${tourIdx + 1}/${LESSON_TOUR.length}`;
     $('tourPrev').disabled = (tourIdx === 0);
     $('tourNext').disabled = (tourIdx === LESSON_TOUR.length - 1);
@@ -1680,23 +1747,23 @@
         const ok = ans === 'no' || ans.includes('no');
         return { ok,
           msg: ok
-            ? "Correct. Pure logic only moves to cells it can PROVE are safe from percepts. Many worlds force the agent to gamble (the gold is reachable only through unprovably-safe cells). The pure-logic agent climbs out empty-handed in those worlds — that's the limitation."
-            : "Try 'no'. Sometimes the gold is only reachable through cells the agent can't prove safe. Pure logic climbs out empty-handed in those worlds." };
+            ? wsMsg('ws1ok', "Correct. Pure logic only moves to cells it can PROVE are safe from percepts. Many worlds force the agent to gamble (the gold is reachable only through unprovably-safe cells). The pure-logic agent climbs out empty-handed in those worlds — that's the limitation.")
+            : wsMsg('ws1no', "Try 'no'. Sometimes the gold is only reachable through cells the agent can't prove safe. Pure logic climbs out empty-handed in those worlds.") };
       } },
     { check: ans => {
         const ok = ans.includes('higher') || ans.includes('more') || ans.includes('larger') || ans.includes('greater');
         return { ok,
           msg: ok
-            ? "Correct. The hybrid agent takes risks — gambles on uncertain cells, fires the arrow. Sometimes it scores +1000 (gold + climb out); sometimes it dies (−1000). The variance is the price of higher expected value."
-            : "Try 'higher'. Hybrid takes risks: sometimes scores big, sometimes dies. Pure logic is conservative — low variance, low expected value." };
+            ? wsMsg('ws2ok', "Correct. The hybrid agent takes risks — gambles on uncertain cells, fires the arrow. Sometimes it scores +1000 (gold + climb out); sometimes it dies (−1000). The variance is the price of higher expected value.")
+            : wsMsg('ws2no', "Try 'higher'. Hybrid takes risks: sometimes scores big, sometimes dies. Pure logic is conservative — low variance, low expected value.") };
       } },
     { check: ans => {
         const v = parseInt(ans, 10);
         const ok = v === 1;
         return { ok,
           msg: ok
-            ? "Correct. AIMA Wumpus scoring: −1 per action (so 1 is the magnitude), +1000 for grabbing gold, −1000 for dying. The per-step penalty incentivizes finding short paths."
-            : "Try 1. AIMA standard: −1 per step, +1000 for gold, −1000 for death." };
+            ? wsMsg('ws3ok', "Correct. AIMA Wumpus scoring: −1 per action (so 1 is the magnitude), +1000 for grabbing gold, −1000 for dying. The per-step penalty incentivizes finding short paths.")
+            : wsMsg('ws3no', "Try 1. AIMA standard: −1 per step, +1000 for gold, −1000 for death.") };
       } },
   ];
   WORKSHEET.forEach((q, i) => {

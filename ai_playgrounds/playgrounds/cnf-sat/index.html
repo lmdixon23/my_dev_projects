@@ -198,6 +198,13 @@
   body.embed-mode article.essay,
   body.embed-mode .jump-anchor { display: none !important; }
   body.embed-mode .interactive { padding: 12px; border-bottom: none; }
+  /* ===== Shared a11y + contrast tokens (review fixes: F4 keyboard focus, F6 banner contrast) ===== */
+  button:focus-visible, a:focus-visible, select:focus-visible,
+  input:focus-visible, textarea:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px;
+  }
+  .tldr { background: linear-gradient(rgba(0,0,0,0.22), rgba(0,0,0,0.22)), var(--accent); }
+  .tldr strong { color: #fff; }
 </style>
 </head>
 <body>
@@ -336,33 +343,6 @@ P</textarea>
     <div id="resolveOut" style="margin-top:8px;"></div>
   </div>
 
-  <!-- Worksheet/lab mode. 3 questions per applet with instant check. -->
-  <details class="worksheet" style="margin-top:8px;">
-    <summary style="cursor:pointer; padding:8px 12px; background:var(--soft); border:1px solid var(--border); border-radius:6px; font-family:-apple-system,system-ui,sans-serif; font-size:0.88rem; color:var(--accent); font-weight:600;">
-      <span data-i18n="ws-summary">📝 Worksheet (3 questions)</span>
-    </summary>
-    <div style="margin-top:8px; padding:12px 14px; background:var(--card); border:1px solid var(--border); border-radius:6px; font-size:0.88rem; line-height:1.5;">
-      <div class="ws-q" id="ws1">
-        <p style="margin:0 0 4px;"><strong>Q1.</strong> Load the Modus ponens example and click Convert. How many satisfying assignments does the SAT enumeration find?</p>
-        <input id="ws1ans" type="text" placeholder="number" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit; width:80px;">
-        <button class="step-btn" id="ws1btn">Check</button>
-        <span id="ws1fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
-      </div>
-      <div class="ws-q" id="ws2" style="margin-top:10px;">
-        <p style="margin:0 0 4px;"><strong>Q2.</strong> Load the XOR UNSAT example. How many satisfying assignments?</p>
-        <input id="ws2ans" type="text" placeholder="number" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit; width:80px;">
-        <button class="step-btn" id="ws2btn">Check</button>
-        <span id="ws2fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
-      </div>
-      <div class="ws-q" id="ws3" style="margin-top:10px;">
-        <p style="margin:0 0 4px;"><strong>Q3.</strong> Modus ponens KB. In the query box, type <code>Q</code> and click "Prove by resolution". Does it succeed (empty clause derived)?</p>
-        <input id="ws3ans" type="text" placeholder="yes / no" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
-        <button class="step-btn" id="ws3btn">Check</button>
-        <span id="ws3fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
-      </div>
-    </div>
-  </details>
-
   <!-- Lesson tour. Ordered scenarios that step students through the key ideas. -->
   <details class="lesson-tour" style="margin-top:12px;">
     <summary style="cursor:pointer; padding:8px 12px; background:var(--soft); border:1px solid var(--border); border-radius:6px; font-family:-apple-system,system-ui,sans-serif; font-size:0.88rem; color:var(--accent); font-weight:600;">
@@ -370,7 +350,7 @@ P</textarea>
     </summary>
     <div style="margin-top:8px; padding:12px 14px; background:var(--card); border:1px solid var(--border); border-radius:6px;">
       <div style="display:flex; align-items:baseline; gap:10px; margin-bottom:6px;">
-        <strong style="color:var(--accent);">Step <span id="tourPos">1/5</span>:</strong>
+        <strong style="color:var(--accent);"><span data-i18n="tour-step">Step</span> <span id="tourPos">1/5</span>:</strong>
         <strong id="tourName" style="font-family:-apple-system,system-ui,sans-serif;">—</strong>
       </div>
       <p id="tourDesc" style="margin:0 0 8px; color:var(--fg); font-size:0.88rem; line-height:1.5;">—</p>
@@ -378,6 +358,33 @@ P</textarea>
         <button class="step-btn secondary" id="tourPrev" data-i18n="tour-prev">← Prev</button>
         <button class="step-btn" id="tourApply" data-i18n="tour-apply">▶ Apply this scenario</button>
         <button class="step-btn secondary" id="tourNext" data-i18n="tour-next">Next →</button>
+      </div>
+    </div>
+  </details>
+
+  <!-- Worksheet/lab mode. 3 questions per applet with instant check. -->
+  <details class="worksheet" style="margin-top:8px;">
+    <summary style="cursor:pointer; padding:8px 12px; background:var(--soft); border:1px solid var(--border); border-radius:6px; font-family:-apple-system,system-ui,sans-serif; font-size:0.88rem; color:var(--accent); font-weight:600;">
+      <span data-i18n="ws-summary">📝 Worksheet (3 questions)</span>
+    </summary>
+    <div style="margin-top:8px; padding:12px 14px; background:var(--card); border:1px solid var(--border); border-radius:6px; font-size:0.88rem; line-height:1.5;">
+      <div class="ws-q" id="ws1">
+        <p style="margin:0 0 4px;"><strong>Q1.</strong> <span data-i18n="ws1q">Load the Modus ponens example and click Convert. How many satisfying assignments does the SAT enumeration find?</span></p>
+        <input id="ws1ans" type="text" placeholder="number" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit; width:80px;">
+        <button class="step-btn" id="ws1btn" data-i18n="ws-check">Check</button>
+        <span id="ws1fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
+      </div>
+      <div class="ws-q" id="ws2" style="margin-top:10px;">
+        <p style="margin:0 0 4px;"><strong>Q2.</strong> <span data-i18n="ws2q">Load the XOR UNSAT example. How many satisfying assignments?</span></p>
+        <input id="ws2ans" type="text" placeholder="number" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit; width:80px;">
+        <button class="step-btn" id="ws2btn" data-i18n="ws-check">Check</button>
+        <span id="ws2fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
+      </div>
+      <div class="ws-q" id="ws3" style="margin-top:10px;">
+        <p style="margin:0 0 4px;"><strong>Q3.</strong> <span data-i18n="ws3q">Modus ponens KB. In the query box, type <code>Q</code> and click "Prove by resolution". Does it succeed (empty clause derived)?</span></p>
+        <input id="ws3ans" type="text" placeholder="yes / no" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+        <button class="step-btn" id="ws3btn" data-i18n="ws-check">Check</button>
+        <span id="ws3fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
       </div>
     </div>
   </details>
@@ -526,8 +533,32 @@ P</textarea>
       'prove-title': 'Negate the query, add to the KB, run resolution refutation. Empty clause = KB entails the query.',
       'jump-link': '↓ Read the explanation',
       'tour-summary': '📚 Lesson tour (5 steps)',
+      'tour-step': 'Step',
       'tour-prev': '← Prev', 'tour-next': 'Next →', 'tour-apply': '▶ Apply this scenario',
       'ws-summary': '📝 Worksheet (3 questions)',
+      'ws-check': 'Check',
+      // --- F1: worksheet question prompts (data-i18n spans) ---
+      'ws1q': 'Load the Modus ponens example and click Convert. How many satisfying assignments does the SAT enumeration find?',
+      'ws2q': 'Load the XOR UNSAT example. How many satisfying assignments?',
+      'ws3q': 'Modus ponens KB. In the query box, type <code>Q</code> and click "Prove by resolution". Does it succeed (empty clause derived)?',
+      // --- F1: lesson-tour scenarios (0-based index: tour{i}name / tour{i}desc) ---
+      'tour0name': 'Modus ponens (SAT, simple)',
+      'tour0desc': "P → Q and P. CNF is already two clauses. SAT enumeration finds 1 model: {P=T, Q=T}. Then prove Q by resolution — the empty clause appears in one step.",
+      'tour1name': 'Biconditional → CNF rewrite (Wumpus rule)',
+      'tour1desc': "B11 ↔ (P12 ∨ P21). Watch the rewrite pipeline: ↔ becomes two implications, → becomes ∨, ¬ distributes, then ∨ distributes over ∧. The single sentence expands into multiple clauses.",
+      'tour2name': '3-coloring a triangle (SAT)',
+      'tour2desc': "Three nodes, three colors, edges form a triangle. SAT enumeration finds the 6 valid colorings (3! permutations). This is graph coloring as propositional logic.",
+      'tour3name': 'XOR triangle (UNSAT)',
+      'tour3desc': "Each pair must differ AND all three must be true. No assignment satisfies all clauses. SAT returns UNSAT — every row of the truth table fails.",
+      'tour4name': 'Prove by resolution refutation',
+      'tour4desc': "Use the modus-ponens KB, query Q. The prover negates Q (adds ¬Q), resolves with P→Q and P, derives the empty clause. KB ⊨ Q is proved. Try changing the query to R (should fail).",
+      // --- F1: worksheet answer-feedback (ws{n}ok / ws{n}no) ---
+      'ws1ok': "Correct. P→Q, P → forces P=T, Q=T. Exactly one of the 4 truth-table rows satisfies the KB.",
+      'ws1no': "Try 1. The KB {P→Q, P} forces both P=T and Q=T — only one row in the truth table works.",
+      'ws2ok': "Correct. UNSAT means no assignment satisfies all clauses. SAT enumeration tries all 2³ = 8 rows and rejects every one.",
+      'ws2no': "Try 0. UNSAT means literally no satisfying assignment exists — that's what makes it unsatisfiable.",
+      'ws3ok': "Right. Negate Q (¬Q), add to KB, resolve with P→Q to get ¬P, then resolve ¬P with the fact P to get the empty clause. KB ⊨ Q is proved.",
+      'ws3no': "Try 'yes'. Q follows from {P→Q, P} by modus ponens, which resolution can derive: ¬Q + (¬P∨Q) → ¬P, then ¬P + P → empty clause.",
       // tooltip translations for main button + example buttons.
       'convert-btn-title': 'Parse, convert to CNF, brute-force every assignment.',
       'ex-mp-title': 'Modus ponens: P→Q, P, conclude Q.',
@@ -566,8 +597,32 @@ P</textarea>
       'prove-title': '把查询取反加入 KB,运行归结反驳。出现空子句 = KB 蕴含查询。',
       'jump-link': '↓ 阅读说明',
       'tour-summary': '📚 课程导览(5 步)',
+      'tour-step': '步骤',
       'tour-prev': '← 上一步', 'tour-next': '下一步 →', 'tour-apply': '▶ 应用此场景',
       'ws-summary': '📝 练习题(3 题)',
+      'ws-check': '核对',
+      // --- F1: 练习题题干(data-i18n span)---
+      'ws1q': '加载"肯定前件"示例并点击"转换"。SAT 枚举找到多少个满足赋值?',
+      'ws2q': '加载"异或不可满足"示例。有多少个满足赋值?',
+      'ws3q': '肯定前件知识库。在查询框中输入 <code>Q</code> 并点击"用归结证明"。它能成功吗(推出空子句)?',
+      // --- F1: 课程导览场景(0 起始索引:tour{i}name / tour{i}desc)---
+      'tour0name': '肯定前件(可满足,简单)',
+      'tour0desc': 'P → Q 与 P。合取范式已经是两个子句。SAT 枚举找到 1 个模型:{P=T, Q=T}。然后用归结证明 Q——一步就得到空子句。',
+      'tour1name': '双条件 → 合取范式重写(吴普士规则)',
+      'tour1desc': 'B11 ↔ (P12 ∨ P21)。观察重写流程:↔ 变为两个蕴含,→ 变为 ∨,¬ 推进去,然后 ∨ 对 ∧ 分配。这一条语句展开成多个子句。',
+      'tour2name': '三角形三染色(可满足)',
+      'tour2desc': '三个节点,三种颜色,边构成一个三角形。SAT 枚举找到 6 种合法染色(3! 种排列)。这是用命题逻辑表达的图染色。',
+      'tour3name': '异或三角形(不可满足)',
+      'tour3desc': '每一对都必须不同,而且三者都必须为真。没有任何赋值能满足所有子句。SAT 返回 UNSAT——真值表的每一行都失败。',
+      'tour4name': '用归结反驳证明',
+      'tour4desc': '使用肯定前件知识库,查询 Q。证明器对 Q 取反(加入 ¬Q),与 P→Q 和 P 归结,推出空子句。KB ⊨ Q 得证。试把查询改成 R(应当失败)。',
+      // --- F1: 练习题答案反馈(ws{n}ok / ws{n}no)---
+      'ws1ok': '正确。P→Q、P → 强制 P=T、Q=T。4 行真值表中恰好有一行满足该知识库。',
+      'ws1no': '试试 1。知识库 {P→Q, P} 同时强制 P=T 与 Q=T——真值表中只有一行成立。',
+      'ws2ok': '正确。UNSAT 表示没有任何赋值满足所有子句。SAT 枚举尝试全部 2³ = 8 行,每一行都被拒绝。',
+      'ws2no': '试试 0。UNSAT 意味着确实不存在任何满足赋值——这正是它不可满足的原因。',
+      'ws3ok': '对。对 Q 取反(¬Q)加入知识库,与 P→Q 归结得到 ¬P,再把 ¬P 与事实 P 归结得到空子句。KB ⊨ Q 得证。',
+      'ws3no': "试试 'yes'。Q 由 {P→Q, P} 经肯定前件得出,归结也能推导:¬Q + (¬P∨Q) → ¬P,再 ¬P + P → 空子句。",
       // 主按钮与示例按钮的提示翻译。
       'convert-btn-title': '解析,转换为合取范式,对每个赋值进行暴力检查。',
       'ex-mp-title': '肯定前件:P→Q,P,得 Q。',
@@ -593,7 +648,13 @@ P</textarea>
     try { localStorage.setItem('lang', lang); } catch (_) {}
   }
   document.querySelectorAll('.lang-switch button').forEach(b =>
-    b.addEventListener('click', () => setLang(b.dataset.lang)));
+    b.addEventListener('click', () => {
+      setLang(b.dataset.lang);
+      // F1: re-render the tour in the new language. Safe here — this click handler
+      // only runs post-init, after LESSON_TOUR (a late `const`) is initialized, so
+      // there is no temporal-dead-zone risk (unlike calling it from inside setLang).
+      try { if (typeof renderTour === 'function') renderTour(); } catch (_) {}
+    }));
   let initialLang = 'en';
   try { initialLang = localStorage.getItem('lang') || 'en'; } catch (_) {}
   setLang(initialLang);
@@ -1410,8 +1471,11 @@ P</textarea>
   function renderTour() {
     if (!$('tourName')) return;
     const s = LESSON_TOUR[tourIdx];
-    $('tourName').textContent = s.name;
-    $('tourDesc').textContent = s.description;
+    // F1 bilingual: look up tour{i}name / tour{i}desc with English inline fallback.
+    const L = (document.documentElement.lang || 'en');
+    const S = STRINGS[L] || STRINGS.en;
+    $('tourName').textContent = S['tour' + tourIdx + 'name'] || s.name;
+    $('tourDesc').textContent = S['tour' + tourIdx + 'desc'] || s.description;
     $('tourPos').textContent = `${tourIdx + 1}/${LESSON_TOUR.length}`;
     $('tourPrev').disabled = (tourIdx === 0);
     $('tourNext').disabled = (tourIdx === LESSON_TOUR.length - 1);
@@ -1421,28 +1485,33 @@ P</textarea>
   $('tourNext').addEventListener('click', () => { if (tourIdx < LESSON_TOUR.length - 1) { tourIdx++; renderTour(); } });
   renderTour();
 
+  // F1: worksheet feedback strings are bilingual; fall back to inline English.
+  function wsMsg(key, en) {
+    const L = (document.documentElement.lang || 'en');
+    return (STRINGS[L] && STRINGS[L][key]) || en;
+  }
   // Worksheet/lab mode — 3 questions with instant ✓/✗ feedback.
   const WORKSHEET = [
     { check: ans => {
         const ok = ans.trim() === '1';
         return { ok,
           msg: ok
-            ? "Correct. P→Q, P → forces P=T, Q=T. Exactly one of the 4 truth-table rows satisfies the KB."
-            : "Try 1. The KB {P→Q, P} forces both P=T and Q=T — only one row in the truth table works." };
+            ? wsMsg('ws1ok', "Correct. P→Q, P → forces P=T, Q=T. Exactly one of the 4 truth-table rows satisfies the KB.")
+            : wsMsg('ws1no', "Try 1. The KB {P→Q, P} forces both P=T and Q=T — only one row in the truth table works.") };
       } },
     { check: ans => {
         const ok = ans.trim() === '0';
         return { ok,
           msg: ok
-            ? "Correct. UNSAT means no assignment satisfies all clauses. SAT enumeration tries all 2³ = 8 rows and rejects every one."
-            : "Try 0. UNSAT means literally no satisfying assignment exists — that's what makes it unsatisfiable." };
+            ? wsMsg('ws2ok', "Correct. UNSAT means no assignment satisfies all clauses. SAT enumeration tries all 2³ = 8 rows and rejects every one.")
+            : wsMsg('ws2no', "Try 0. UNSAT means literally no satisfying assignment exists — that's what makes it unsatisfiable.") };
       } },
     { check: ans => {
         const ok = ans.includes('yes');
         return { ok,
           msg: ok
-            ? "Right. Negate Q (¬Q), add to KB, resolve with P→Q to get ¬P, then resolve ¬P with the fact P to get the empty clause. KB ⊨ Q is proved."
-            : "Try 'yes'. Q follows from {P→Q, P} by modus ponens, which resolution can derive: ¬Q + (¬P∨Q) → ¬P, then ¬P + P → empty clause." };
+            ? wsMsg('ws3ok', "Right. Negate Q (¬Q), add to KB, resolve with P→Q to get ¬P, then resolve ¬P with the fact P to get the empty clause. KB ⊨ Q is proved.")
+            : wsMsg('ws3no', "Try 'yes'. Q follows from {P→Q, P} by modus ponens, which resolution can derive: ¬Q + (¬P∨Q) → ¬P, then ¬P + P → empty clause.") };
       } },
   ];
   WORKSHEET.forEach((q, i) => {

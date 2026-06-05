@@ -220,6 +220,13 @@
   /* embed mode: keep the new opt-in tools available but never auto-shown; the
      panels are display:none until opted-in, so no extra rule needed beyond the
      existing chrome strip. */
+  /* ===== Shared a11y + contrast tokens (review fixes: F4 keyboard focus, F6 banner contrast) ===== */
+  button:focus-visible, a:focus-visible, select:focus-visible,
+  input:focus-visible, textarea:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px;
+  }
+  .tldr { background: linear-gradient(rgba(0,0,0,0.22), rgba(0,0,0,0.22)), var(--accent); }
+  .tldr strong { color: #fff; }
 </style>
 </head>
 <body>
@@ -549,39 +556,6 @@
     </div>
   </details>
 
-  <!-- Worksheet/lab mode. 3 questions per applet with instant check. -->
-  <details class="worksheet" style="margin-top:8px;">
-    <summary style="cursor:pointer; padding:8px 12px; background:var(--soft); border:1px solid var(--border); border-radius:6px; font-family:-apple-system,system-ui,sans-serif; font-size:0.88rem; color:var(--accent); font-weight:600;">
-      <span data-i18n="ws-summary">📝 Worksheet (4 questions)</span>
-    </summary>
-    <div style="margin-top:8px; padding:12px 14px; background:var(--card); border:1px solid var(--border); border-radius:6px; font-size:0.88rem; line-height:1.5;">
-      <div class="ws-q" id="ws1">
-        <p style="margin:0 0 4px;"><strong>Q1.</strong> Cross image, Identity kernel. The output image is:</p>
-        <input id="ws1ans" type="text" placeholder="same as input / inverted / blank" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
-        <button class="step-btn" id="ws1btn">Check</button>
-        <span id="ws1fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
-      </div>
-      <div class="ws-q" id="ws2" style="margin-top:10px;">
-        <p style="margin:0 0 4px;"><strong>Q2.</strong> Cross image, Sobel-X kernel. Which part of the cross lights up brightest?</p>
-        <input id="ws2ans" type="text" placeholder="vertical bar / horizontal bar / center" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
-        <button class="step-btn" id="ws2btn">Check</button>
-        <span id="ws2fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
-      </div>
-      <div class="ws-q" id="ws3" style="margin-top:10px;">
-        <p style="margin:0 0 4px;"><strong>Q3.</strong> Switch to "Conv → conv" mode (two stacked 3×3 kernels). The effective receptive field becomes:</p>
-        <input id="ws3ans" type="text" placeholder="3×3 / 5×5 / 9×9" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
-        <button class="step-btn" id="ws3btn">Check</button>
-        <span id="ws3fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
-      </div>
-      <div class="ws-q" id="ws4" style="margin-top:10px;">
-        <p style="margin:0 0 4px;"><strong>Q4.</strong> Turn on 🎯 Learn the filter, set the target to Sobel-X, and click Train. Starting from a random kernel, what happens to the 9 numbers as the loss falls?</p>
-        <input id="ws4ans" type="text" placeholder="they stay random / they become Sobel-X / they grow forever" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
-        <button class="step-btn" id="ws4btn">Check</button>
-        <span id="ws4fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
-      </div>
-    </div>
-  </details>
-
   <!-- Lesson tour. Ordered scenarios that step students through the key ideas. -->
   <details class="lesson-tour" style="margin-top:12px;">
     <summary style="cursor:pointer; padding:8px 12px; background:var(--soft); border:1px solid var(--border); border-radius:6px; font-family:-apple-system,system-ui,sans-serif; font-size:0.88rem; color:var(--accent); font-weight:600;">
@@ -589,7 +563,7 @@
     </summary>
     <div style="margin-top:8px; padding:12px 14px; background:var(--card); border:1px solid var(--border); border-radius:6px;">
       <div style="display:flex; align-items:baseline; gap:10px; margin-bottom:6px;">
-        <strong style="color:var(--accent);">Step <span id="tourPos">1/5</span>:</strong>
+        <strong style="color:var(--accent);"><span data-i18n="tour-step">Step</span> <span id="tourPos">1/5</span>:</strong>
         <strong id="tourName" style="font-family:-apple-system,system-ui,sans-serif;">—</strong>
       </div>
       <p id="tourDesc" style="margin:0 0 8px; color:var(--fg); font-size:0.88rem; line-height:1.5;">—</p>
@@ -597,6 +571,39 @@
         <button class="step-btn secondary" id="tourPrev" data-i18n="tour-prev">← Prev</button>
         <button class="step-btn" id="tourApply" data-i18n="tour-apply">▶ Apply this scenario</button>
         <button class="step-btn secondary" id="tourNext" data-i18n="tour-next">Next →</button>
+      </div>
+    </div>
+  </details>
+
+  <!-- Worksheet/lab mode. 3 questions per applet with instant check. -->
+  <details class="worksheet" style="margin-top:8px;">
+    <summary style="cursor:pointer; padding:8px 12px; background:var(--soft); border:1px solid var(--border); border-radius:6px; font-family:-apple-system,system-ui,sans-serif; font-size:0.88rem; color:var(--accent); font-weight:600;">
+      <span data-i18n="ws-summary">📝 Worksheet (4 questions)</span>
+    </summary>
+    <div style="margin-top:8px; padding:12px 14px; background:var(--card); border:1px solid var(--border); border-radius:6px; font-size:0.88rem; line-height:1.5;">
+      <div class="ws-q" id="ws1">
+        <p style="margin:0 0 4px;"><strong>Q1.</strong> <span data-i18n="ws1q">Cross image, Identity kernel. The output image is:</span></p>
+        <input id="ws1ans" type="text" placeholder="same as input / inverted / blank" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+        <button class="step-btn" id="ws1btn" data-i18n="ws-check">Check</button>
+        <span id="ws1fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
+      </div>
+      <div class="ws-q" id="ws2" style="margin-top:10px;">
+        <p style="margin:0 0 4px;"><strong>Q2.</strong> <span data-i18n="ws2q">Cross image, Sobel-X kernel. Which part of the cross lights up brightest?</span></p>
+        <input id="ws2ans" type="text" placeholder="vertical bar / horizontal bar / center" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+        <button class="step-btn" id="ws2btn" data-i18n="ws-check">Check</button>
+        <span id="ws2fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
+      </div>
+      <div class="ws-q" id="ws3" style="margin-top:10px;">
+        <p style="margin:0 0 4px;"><strong>Q3.</strong> <span data-i18n="ws3q">Switch to "Conv → conv" mode (two stacked 3×3 kernels). The effective receptive field becomes:</span></p>
+        <input id="ws3ans" type="text" placeholder="3×3 / 5×5 / 9×9" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+        <button class="step-btn" id="ws3btn" data-i18n="ws-check">Check</button>
+        <span id="ws3fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
+      </div>
+      <div class="ws-q" id="ws4" style="margin-top:10px;">
+        <p style="margin:0 0 4px;"><strong>Q4.</strong> <span data-i18n="ws4q">Turn on 🎯 Learn the filter, set the target to Sobel-X, and click Train. Starting from a random kernel, what happens to the 9 numbers as the loss falls?</span></p>
+        <input id="ws4ans" type="text" placeholder="they stay random / they become Sobel-X / they grow forever" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+        <button class="step-btn" id="ws4btn" data-i18n="ws-check">Check</button>
+        <span id="ws4fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
       </div>
     </div>
   </details>
@@ -786,8 +793,34 @@
       'k2-hint': 'Default = Sobel-Y. Stacks with kernel 1 above to give a 5×5 effective receptive field.',
       'jump-link': '↓ Read the explanation',
       'tour-summary': '📚 Lesson tour (5 steps)',
+      'tour-step': 'Step',
       'tour-prev': '← Prev', 'tour-next': 'Next →', 'tour-apply': '▶ Apply this scenario',
       'ws-summary': '📝 Worksheet (4 questions)',
+      'ws-check': 'Check',
+      'ws1q': 'Cross image, Identity kernel. The output image is:',
+      'ws2q': 'Cross image, Sobel-X kernel. Which part of the cross lights up brightest?',
+      'ws3q': 'Switch to "Conv → conv" mode (two stacked 3×3 kernels). The effective receptive field becomes:',
+      'ws4q': 'Turn on 🎯 Learn the filter, set the target to Sobel-X, and click Train. Starting from a random kernel, what happens to the 9 numbers as the loss falls?',
+      // --- F1: lesson-tour scenarios (0-based index: tour{i}name / tour{i}desc) ---
+      'tour0name': 'Identity kernel = no change',
+      'tour0desc': 'Cross image, Identity kernel. Output looks identical to input. Sanity check: the [[0,0,0],[0,1,0],[0,0,0]] kernel passes the center pixel through unchanged.',
+      'tour1name': 'Sobel-X finds vertical edges',
+      'tour1desc': "Cross image, Sobel-X. Output lights up where pixels change horizontally — i.e., on the vertical bar of the cross. This is what 'edge detection' literally means.",
+      'tour2name': 'Sobel-Y finds horizontal edges',
+      'tour2desc': 'Same image, Sobel-Y. Now the horizontal bar lights up instead. The kernel is rotated 90°. Two filters, two complementary features.',
+      'tour3name': 'Conv → max-pool downsamples',
+      'tour3desc': "Switch to 'Conv + max-pool'. Output is now 16×16 (downsampled). Pooling keeps the strongest activation in each 2×2 block — translation tolerance comes from here.",
+      'tour4name': 'Stacked convs grow receptive field',
+      'tour4desc': "Switch to 'Conv → conv'. Two 3×3 kernels stacked = a 5×5 effective receptive field. Try the default (Sobel-X then Sobel-Y) — this approximates a corner detector. Real CNNs stack dozens of layers.",
+      // --- F1: worksheet answer-feedback (ws{n}ok / ws{n}no) ---
+      'ws1ok': 'Correct. The Identity kernel [[0,0,0],[0,1,0],[0,0,0]] multiplies the center pixel by 1 and everyone else by 0. The output is exactly the input — a useful sanity check.',
+      'ws1no': "Try 'same as input'. Identity kernel preserves the center pixel and zeros out the rest of the neighborhood — output = input.",
+      'ws2ok': 'Correct. Sobel-X detects horizontal *changes* in intensity — which happen at the edges of vertical lines. The vertical bar of the cross lights up because that\'s where pixel values change horizontally.',
+      'ws2no': "Try 'vertical bar'. Sobel-X kernel = [[-1,0,1],[-2,0,2],[-1,0,1]] computes ∂I/∂x — large where pixels change horizontally, which is at vertical edges.",
+      'ws3ok': 'Correct. Stacked 3×3 convs grow the receptive field by 2 cells per layer: 3 → 5 → 7. Two 3×3 layers see a 5×5 input patch with FEWER parameters than one 5×5 kernel (18 vs 25). This is why CNN architectures stack small kernels.',
+      'ws3no': 'Try 5×5. Each 3×3 conv adds 2 to the receptive field width (1 on each side). Stacking two 3×3s sees 5×5.',
+      'ws4ok': 'Correct. Gradient descent nudges all 9 kernel values toward the Sobel-X target. As the MSE loss falls, the random kernel converges to the edge-detector — exactly how a CNN learns its filters during training.',
+      'ws4no': "Try 'they converge toward Sobel-X' or 'they learn the edge detector'. Gradient descent computes how each of the 9 weights should change to reduce the loss, then updates them — step by step the random kernel becomes the target.",
       // Learn-the-filter mode.
       'learn-toggle': '🎯 Learn the filter',
       'learn-target-label': 'Target:',
@@ -878,8 +911,34 @@
       'k2-hint': '默认为 Sobel-Y。与上方第一个核堆叠,给出 5×5 的有效感受野。',
       'jump-link': '↓ 阅读说明',
       'tour-summary': '📚 课程导览(5 步)',
+      'tour-step': '步骤',
       'tour-prev': '← 上一步', 'tour-next': '下一步 →', 'tour-apply': '▶ 应用此场景',
       'ws-summary': '📝 练习题(4 题)',
+      'ws-check': '核对',
+      'ws1q': '十字图像,单位(Identity)卷积核。输出图像是:',
+      'ws2q': '十字图像,Sobel-X 卷积核。十字的哪一部分最亮?',
+      'ws3q': '切换到 "Conv → conv" 模式(两个堆叠的 3×3 卷积核)。有效感受野变为:',
+      'ws4q': '打开 🎯 Learn the filter(学习卷积核),把目标设为 Sobel-X,点击 Train。从随机卷积核开始,随着损失下降,这 9 个数字会怎样?',
+      // --- F1: 课程导览场景(0 起始索引:tour{i}name / tour{i}desc)---
+      'tour0name': '恒等卷积核 = 不改变',
+      'tour0desc': '十字图像,恒等(Identity)卷积核。输出看上去与输入完全相同。完整性检查:[[0,0,0],[0,1,0],[0,0,0]] 卷积核原样保留中心像素。',
+      'tour1name': 'Sobel-X 找出竖直边缘',
+      'tour1desc': '十字图像,Sobel-X。输出在像素沿水平方向变化处亮起——也就是十字的竖直条上。这正是"边缘检测"字面上的含义。',
+      'tour2name': 'Sobel-Y 找出水平边缘',
+      'tour2desc': '同一图像,Sobel-Y。现在亮起的换成了水平条。卷积核旋转了 90°。两个过滤器,两个互补的特征。',
+      'tour3name': '卷积 → 最大池化降采样',
+      'tour3desc': '切换到"卷积 + 最大池化"。输出现在是 16×16(已降采样)。池化保留每个 2×2 块中最强的激活——平移容忍性正源于此。',
+      'tour4name': '堆叠卷积扩大感受野',
+      'tour4desc': '切换到"卷积 → 卷积"。两个 3×3 卷积核堆叠 = 5×5 的有效感受野。试试默认配置(先 Sobel-X 再 Sobel-Y)——这近似一个角点检测器。真实 CNN 会堆叠几十层。',
+      // --- F1: 练习题答案反馈(ws{n}ok / ws{n}no)---
+      'ws1ok': '正确。恒等卷积核 [[0,0,0],[0,1,0],[0,0,0]] 把中心像素乘以 1,其余全部乘以 0。输出恰好等于输入——一个有用的完整性检查。',
+      'ws1no': '试试"same as input"。恒等卷积核保留中心像素,把邻域其余部分置零——输出 = 输入。',
+      'ws2ok': '正确。Sobel-X 检测强度沿水平方向的*变化*——这发生在竖直线条的边缘处。十字的竖直条亮起,因为那里像素值沿水平方向变化。',
+      'ws2no': '试试"vertical bar"。Sobel-X 卷积核 = [[-1,0,1],[-2,0,2],[-1,0,1]] 计算 ∂I/∂x——在像素沿水平方向变化处取值大,也就是竖直边缘处。',
+      'ws3ok': '正确。堆叠的 3×3 卷积每层让感受野扩大 2 格:3 → 5 → 7。两个 3×3 层看到的是 5×5 的输入块,而参数比一个 5×5 卷积核更少(18 对 25)。这正是 CNN 架构堆叠小卷积核的原因。',
+      'ws3no': '试试 5×5。每个 3×3 卷积让感受野宽度加 2(每侧各 1)。堆叠两个 3×3 就能看到 5×5。',
+      'ws4ok': '正确。梯度下降把全部 9 个卷积核值朝 Sobel-X 目标推动。随着 MSE 损失下降,随机卷积核收敛为边缘检测器——这正是 CNN 在训练中学习其过滤器的方式。',
+      'ws4no': '试试"they converge toward Sobel-X"或"they learn the edge detector"。梯度下降计算这 9 个权重各自应如何改变以降低损失,然后更新它们——随机卷积核一步步变成目标。',
       // 学习卷积核模式。
       'learn-toggle': '🎯 学习卷积核',
       'learn-target-label': '目标:',
@@ -940,7 +999,13 @@
     try { localStorage.setItem('lang', lang); } catch (_) {}
   }
   document.querySelectorAll('.lang-switch button').forEach(b =>
-    b.addEventListener('click', () => setLang(b.dataset.lang)));
+    b.addEventListener('click', () => {
+      setLang(b.dataset.lang);
+      // F1: re-render the tour in the new language. Safe here — this click handler
+      // only runs post-init, after LESSON_TOUR (a late `const`) is initialized, so
+      // there is no temporal-dead-zone risk (unlike calling it from inside setLang).
+      try { if (typeof renderTour === 'function') renderTour(); } catch (_) {}
+    }));
   let initialLang = 'en';
   try { initialLang = localStorage.getItem('lang') || 'en'; } catch (_) {}
   setLang(initialLang);
@@ -1793,8 +1858,11 @@
   function renderTour() {
     if (!$('tourName')) return;
     const s = LESSON_TOUR[tourIdx];
-    $('tourName').textContent = s.name;
-    $('tourDesc').textContent = s.description;
+    // F1 bilingual: look up tour{i}name / tour{i}desc with English inline fallback.
+    const L = (document.documentElement.lang || 'en');
+    const S = STRINGS[L] || STRINGS.en;
+    $('tourName').textContent = S['tour' + tourIdx + 'name'] || s.name;
+    $('tourDesc').textContent = S['tour' + tourIdx + 'desc'] || s.description;
     $('tourPos').textContent = `${tourIdx + 1}/${LESSON_TOUR.length}`;
     $('tourPrev').disabled = (tourIdx === 0);
     $('tourNext').disabled = (tourIdx === LESSON_TOUR.length - 1);
@@ -1805,34 +1873,39 @@
   renderTour();
 
   // Worksheet/lab mode — 3 questions with instant ✓/✗ feedback.
+  // F1 bilingual feedback helper: ws{n}ok / ws{n}no with English inline fallback.
+  function wsMsg(key, en) {
+    const L = (document.documentElement.lang || 'en');
+    return (STRINGS[L] && STRINGS[L][key]) || en;
+  }
   const WORKSHEET = [
     { check: ans => {
         const ok = ans.includes('same') || ans.includes('input') || ans.includes('unchanged');
         return { ok,
           msg: ok
-            ? "Correct. The Identity kernel [[0,0,0],[0,1,0],[0,0,0]] multiplies the center pixel by 1 and everyone else by 0. The output is exactly the input — a useful sanity check."
-            : "Try 'same as input'. Identity kernel preserves the center pixel and zeros out the rest of the neighborhood — output = input." };
+            ? wsMsg('ws1ok', "Correct. The Identity kernel [[0,0,0],[0,1,0],[0,0,0]] multiplies the center pixel by 1 and everyone else by 0. The output is exactly the input — a useful sanity check.")
+            : wsMsg('ws1no', "Try 'same as input'. Identity kernel preserves the center pixel and zeros out the rest of the neighborhood — output = input.") };
       } },
     { check: ans => {
         const ok = ans.includes('vertical');
         return { ok,
           msg: ok
-            ? "Correct. Sobel-X detects horizontal *changes* in intensity — which happen at the edges of vertical lines. The vertical bar of the cross lights up because that's where pixel values change horizontally."
-            : "Try 'vertical bar'. Sobel-X kernel = [[-1,0,1],[-2,0,2],[-1,0,1]] computes ∂I/∂x — large where pixels change horizontally, which is at vertical edges." };
+            ? wsMsg('ws2ok', "Correct. Sobel-X detects horizontal *changes* in intensity — which happen at the edges of vertical lines. The vertical bar of the cross lights up because that's where pixel values change horizontally.")
+            : wsMsg('ws2no', "Try 'vertical bar'. Sobel-X kernel = [[-1,0,1],[-2,0,2],[-1,0,1]] computes ∂I/∂x — large where pixels change horizontally, which is at vertical edges.") };
       } },
     { check: ans => {
         const ok = ans.includes('5');
         return { ok,
           msg: ok
-            ? "Correct. Stacked 3×3 convs grow the receptive field by 2 cells per layer: 3 → 5 → 7. Two 3×3 layers see a 5×5 input patch with FEWER parameters than one 5×5 kernel (18 vs 25). This is why CNN architectures stack small kernels."
-            : "Try 5×5. Each 3×3 conv adds 2 to the receptive field width (1 on each side). Stacking two 3×3s sees 5×5." };
+            ? wsMsg('ws3ok', "Correct. Stacked 3×3 convs grow the receptive field by 2 cells per layer: 3 → 5 → 7. Two 3×3 layers see a 5×5 input patch with FEWER parameters than one 5×5 kernel (18 vs 25). This is why CNN architectures stack small kernels.")
+            : wsMsg('ws3no', "Try 5×5. Each 3×3 conv adds 2 to the receptive field width (1 on each side). Stacking two 3×3s sees 5×5.") };
       } },
     { check: ans => {
         const ok = ans.includes('sobel') || ans.includes('edge') || ans.includes('target') || ans.includes('converge') || ans.includes('learn');
         return { ok,
           msg: ok
-            ? "Correct. Gradient descent nudges all 9 kernel values toward the Sobel-X target. As the MSE loss falls, the random kernel converges to the edge-detector — exactly how a CNN learns its filters during training."
-            : "Try 'they converge toward Sobel-X' or 'they learn the edge detector'. Gradient descent computes how each of the 9 weights should change to reduce the loss, then updates them — step by step the random kernel becomes the target." };
+            ? wsMsg('ws4ok', "Correct. Gradient descent nudges all 9 kernel values toward the Sobel-X target. As the MSE loss falls, the random kernel converges to the edge-detector — exactly how a CNN learns its filters during training.")
+            : wsMsg('ws4no', "Try 'they converge toward Sobel-X' or 'they learn the edge detector'. Gradient descent computes how each of the 9 weights should change to reduce the loss, then updates them — step by step the random kernel becomes the target.") };
       } },
   ];
   WORKSHEET.forEach((q, i) => {
