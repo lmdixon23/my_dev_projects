@@ -352,19 +352,31 @@
     <div style="margin-top:8px; padding:12px 14px; background:var(--card); border:1px solid var(--border); border-radius:6px; font-size:0.88rem; line-height:1.5;">
       <div class="ws-q" id="ws1">
         <p style="margin:0 0 4px;"><strong>Q1.</strong> <span data-i18n="ws1q">"Pure logic" strategy. Generate several new worlds and let the agent run. Does the pure-logic agent ALWAYS retrieve the gold?</span></p>
-        <input id="ws1ans" type="text" placeholder="yes / no" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+        <div class="ws-opts" style="display:flex; flex-direction:column; gap:4px; margin:4px 0;">
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws1" value="0"> <span data-i18n="ws1o0">Yes — once it has the safety rules, the logic always finds a proven-safe path to the gold.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws1" value="1"> <span data-i18n="ws1o1">No — in many worlds the gold is only reachable through cells it can't prove safe, so it climbs out empty-handed.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws1" value="2"> <span data-i18n="ws1o2">Yes — it just keeps exploring until every cell is visited, so it never misses the gold.</span></label>
+        </div>
         <button class="step-btn" id="ws1btn" data-i18n="ws-check">Check</button>
         <span id="ws1fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
       </div>
       <div class="ws-q" id="ws2" style="margin-top:10px;">
         <p style="margin:0 0 4px;"><strong>Q2.</strong> <span data-i18n="ws2q">Switch to "AIMA hybrid" strategy. Compared to pure logic across many runs, the score variance (some win big, some die) is:</span></p>
-        <input id="ws2ans" type="text" placeholder="lower / higher / same" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+        <div class="ws-opts" style="display:flex; flex-direction:column; gap:4px; margin:4px 0;">
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws2" value="0"> <span data-i18n="ws2o0">Lower — taking the arrow shot and gambling removes uncertainty, so outcomes get more consistent.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws2" value="1"> <span data-i18n="ws2o1">Same — the scoring rules don't change, so the spread of scores is identical.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws2" value="2"> <span data-i18n="ws2o2">Higher — gambling on uncertain cells means it sometimes wins big and sometimes dies.</span></label>
+        </div>
         <button class="step-btn" id="ws2btn" data-i18n="ws-check">Check</button>
         <span id="ws2fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
       </div>
       <div class="ws-q" id="ws3" style="margin-top:10px;">
         <p style="margin:0 0 4px;"><strong>Q3.</strong> <span data-i18n="ws3q">What is the per-step score penalty in the AIMA-style scoring (just the magnitude, no sign)?</span></p>
-        <input id="ws3ans" type="text" placeholder="number" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit; width:80px;">
+        <div class="ws-opts" style="display:flex; flex-direction:column; gap:4px; margin:4px 0;">
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws3" value="0"> <span data-i18n="ws3o0">1 — each action costs −1, which rewards finding short paths.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws3" value="1"> <span data-i18n="ws3o1">10 — that's the per-step penalty (it matches the arrow cost).</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws3" value="2"> <span data-i18n="ws3o2">1000 — every step costs the same as dying.</span></label>
+        </div>
         <button class="step-btn" id="ws3btn" data-i18n="ws-check">Check</button>
         <span id="ws3fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
       </div>
@@ -522,10 +534,21 @@
       'tour-prev': '← Prev', 'tour-next': 'Next →', 'tour-apply': '▶ Apply this scenario',
       'ws-summary': '📝 Worksheet (3 questions)',
       'ws-check': 'Check',
+      'ws-pick': 'Pick an answer first.',
       // --- F1: worksheet question prompts (data-i18n spans) ---
       'ws1q': '"Pure logic" strategy. Generate several new worlds and let the agent run. Does the pure-logic agent ALWAYS retrieve the gold?',
       'ws2q': 'Switch to "AIMA hybrid" strategy. Compared to pure logic across many runs, the score variance (some win big, some die) is:',
       'ws3q': 'What is the per-step score penalty in the AIMA-style scoring (just the magnitude, no sign)?',
+      // --- MCQ option text (data-i18n spans) ---
+      'ws1o0': 'Yes — once it has the safety rules, the logic always finds a proven-safe path to the gold.',
+      'ws1o1': "No — in many worlds the gold is only reachable through cells it can't prove safe, so it climbs out empty-handed.",
+      'ws1o2': 'Yes — it just keeps exploring until every cell is visited, so it never misses the gold.',
+      'ws2o0': 'Lower — taking the arrow shot and gambling removes uncertainty, so outcomes get more consistent.',
+      'ws2o1': "Same — the scoring rules don't change, so the spread of scores is identical.",
+      'ws2o2': 'Higher — gambling on uncertain cells means it sometimes wins big and sometimes dies.',
+      'ws3o0': '1 — each action costs −1, which rewards finding short paths.',
+      'ws3o1': '10 — that\'s the per-step penalty (it matches the arrow cost).',
+      'ws3o2': '1000 — every step costs the same as dying.',
       // --- F1: lesson-tour scenarios (0-based index: tour{i}name / tour{i}desc) ---
       'tour0name': 'Pure logic: safe inference only',
       'tour0desc': "Default 'Pure logic' strategy on a fresh world. The agent only enters cells it can PROVE are safe from percepts (breeze/stench). When uncertain, it stops. Often climbs out without gold — that's the point.",
@@ -591,10 +614,21 @@
       'tour-prev': '← 上一步', 'tour-next': '下一步 →', 'tour-apply': '▶ 应用此场景',
       'ws-summary': '📝 练习题(3 题)',
       'ws-check': '核对',
+      'ws-pick': '请先选择一个答案。',
       // --- F1: 练习题题干(data-i18n span)---
       'ws1q': '"纯逻辑"策略。生成若干个新世界并让智能体运行。纯逻辑智能体总能取回金子吗?',
       'ws2q': '切换到"AIMA 混合"策略。与纯逻辑相比,多次运行下来,得分的方差(有的赢得多、有的死掉)是:',
       'ws3q': '在 AIMA 式计分中,每走一步的扣分是多少(只填数值大小,不带符号)?',
+      // --- MCQ 选项文本(data-i18n span)---
+      'ws1o0': '能——只要掌握了安全规则,逻辑总能找到一条已证明安全的路径取到金子。',
+      'ws1o1': '不能——在许多世界里,金子只能经由无法证明安全的方格到达,因此它只能空手爬出。',
+      'ws1o2': '能——它会一直探索到访问完每个方格,所以绝不会错过金子。',
+      'ws2o0': '更低——射箭并冒险消除了不确定性,因此结果更稳定一致。',
+      'ws2o1': '相同——计分规则没有改变,所以得分的分布完全一样。',
+      'ws2o2': '更高——在不确定的方格上冒险意味着它有时赢得多、有时送命。',
+      'ws3o0': '1——每个动作扣 −1,这促使智能体寻找更短的路径。',
+      'ws3o1': '10——这是每步的扣分(与射箭的代价相同)。',
+      'ws3o2': '1000——每走一步的代价都和死亡一样。',
       // --- F1: 课程导览场景(0 起始索引:tour{i}name / tour{i}desc)---
       'tour0name': '纯逻辑:只做安全推理',
       'tour0desc': '在全新世界上使用默认的"纯逻辑"策略。智能体只进入能从感知(微风/臭味)中证明为安全的方格。当无法确定时,它就停下。常常空手爬出——这正是要点。',
@@ -1742,37 +1776,33 @@
   renderTour();
 
   // Worksheet/lab mode — 3 questions with instant ✓/✗ feedback.
+  // MCQ: each question is graded by the selected radio's index, not typed text.
+  // `correct` is the index of the right option (language-agnostic). ok/no are the
+  // existing bilingual feedback keys, with an English inline fallback via wsMsg.
   const WORKSHEET = [
-    { check: ans => {
-        const ok = ans === 'no' || ans.includes('no');
-        return { ok,
-          msg: ok
-            ? wsMsg('ws1ok', "Correct. Pure logic only moves to cells it can PROVE are safe from percepts. Many worlds force the agent to gamble (the gold is reachable only through unprovably-safe cells). The pure-logic agent climbs out empty-handed in those worlds — that's the limitation.")
-            : wsMsg('ws1no', "Try 'no'. Sometimes the gold is only reachable through cells the agent can't prove safe. Pure logic climbs out empty-handed in those worlds.") };
-      } },
-    { check: ans => {
-        const ok = ans.includes('higher') || ans.includes('more') || ans.includes('larger') || ans.includes('greater');
-        return { ok,
-          msg: ok
-            ? wsMsg('ws2ok', "Correct. The hybrid agent takes risks — gambles on uncertain cells, fires the arrow. Sometimes it scores +1000 (gold + climb out); sometimes it dies (−1000). The variance is the price of higher expected value.")
-            : wsMsg('ws2no', "Try 'higher'. Hybrid takes risks: sometimes scores big, sometimes dies. Pure logic is conservative — low variance, low expected value.") };
-      } },
-    { check: ans => {
-        const v = parseInt(ans, 10);
-        const ok = v === 1;
-        return { ok,
-          msg: ok
-            ? wsMsg('ws3ok', "Correct. AIMA Wumpus scoring: −1 per action (so 1 is the magnitude), +1000 for grabbing gold, −1000 for dying. The per-step penalty incentivizes finding short paths.")
-            : wsMsg('ws3no', "Try 1. AIMA standard: −1 per step, +1000 for gold, −1000 for death.") };
-      } },
+    { correct: 1,
+      ok:  ['ws1ok', "Correct. Pure logic only moves to cells it can PROVE are safe from percepts. Many worlds force the agent to gamble (the gold is reachable only through unprovably-safe cells). The pure-logic agent climbs out empty-handed in those worlds — that's the limitation."],
+      no:  ['ws1no', "Try 'no'. Sometimes the gold is only reachable through cells the agent can't prove safe. Pure logic climbs out empty-handed in those worlds."] },
+    { correct: 2,
+      ok:  ['ws2ok', "Correct. The hybrid agent takes risks — gambles on uncertain cells, fires the arrow. Sometimes it scores +1000 (gold + climb out); sometimes it dies (−1000). The variance is the price of higher expected value."],
+      no:  ['ws2no', "Try 'higher'. Hybrid takes risks: sometimes scores big, sometimes dies. Pure logic is conservative — low variance, low expected value."] },
+    { correct: 0,
+      ok:  ['ws3ok', "Correct. AIMA Wumpus scoring: −1 per action (so 1 is the magnitude), +1000 for grabbing gold, −1000 for dying. The per-step penalty incentivizes finding short paths."],
+      no:  ['ws3no', "Try 1. AIMA standard: −1 per step, +1000 for gold, −1000 for death."] },
   ];
   WORKSHEET.forEach((q, i) => {
     const n = i + 1;
     $(`ws${n}btn`).addEventListener('click', () => {
-      const ans = (($(`ws${n}ans`).value) || '').trim().toLowerCase();
-      const { ok, msg } = q.check(ans);
       const fb = $(`ws${n}fb`);
-      fb.textContent = (ok ? '✓ ' : '✗ ') + msg;
+      const picked = document.querySelector(`input[name="ws${n}"]:checked`);
+      if (!picked) {
+        fb.textContent = wsMsg('ws-pick', 'Pick an answer first.');
+        fb.style.color = 'var(--muted)';
+        return;
+      }
+      const ok = Number(picked.value) === q.correct;
+      const [key, en] = ok ? q.ok : q.no;
+      fb.textContent = (ok ? '✓ ' : '✗ ') + wsMsg(key, en);
       fb.style.color = ok ? '#16a34a' : '#dc2626';
     });
   });

@@ -210,8 +210,8 @@
         <div class="control-row">
           <label data-i18n="prob-label">Problem:</label>
           <select id="probSel" data-i18n-title="prob-sel-title" title="The optimization target. Each problem has its own neighbor function.">
-            <option value="tsp" selected data-i18n="opt-tsp">Traveling Salesman (12 cities)</option>
-            <option value="queens" data-i18n="opt-queens">N-Queens (n=8, minimize attacks)</option>
+            <option value="tsp" selected data-i18n="opt-tsp">Traveling salesman (12 cities)</option>
+            <option value="queens" data-i18n="opt-queens">N-queens (n=8, minimize attacks)</option>
             <option value="landscape" data-i18n="opt-landscape">2D function landscape (5 minima)</option>
           </select>
           <label data-i18n="algo-label">Algorithm:</label>
@@ -221,9 +221,9 @@
             <option value="stochastic" data-i18n="opt-stochastic">Stochastic HC</option>
             <option value="firstchoice" data-i18n="opt-firstchoice">First-choice HC</option>
             <option value="restart" data-i18n="opt-restart">Random-restart HC</option>
-            <option value="sa" data-i18n="opt-sa">Simulated Annealing</option>
-            <option value="tabu" data-i18n="opt-tabu">Tabu Search</option>
-            <option value="ga" data-i18n="opt-ga">Genetic Algorithm</option>
+            <option value="sa" data-i18n="opt-sa">Simulated annealing</option>
+            <option value="tabu" data-i18n="opt-tabu">Tabu search</option>
+            <option value="ga" data-i18n="opt-ga">Genetic algorithm</option>
           </select>
           <span id="gaControls" style="display:none; margin-left:8px;">
             <label data-i18n="ga-pop-label" data-i18n-title="ga-pop-title"
@@ -336,19 +336,31 @@
           <div style="margin-top:8px; padding:12px 14px; background:var(--card); border:1px solid var(--border); border-radius:6px; font-size:0.88rem; line-height:1.5;">
             <div class="ws-q" id="ws1">
               <p style="margin:0 0 4px;"><strong>Q1.</strong> <span data-i18n="ws1q">TSP, steepest-ascent HC. Run to convergence several times from different restarts. Does it always find the SAME (global-optimum) solution?</span></p>
-              <input id="ws1ans" type="text" placeholder="yes / no" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+              <div class="ws-opts" style="display:flex; flex-direction:column; gap:4px; margin:4px 0;">
+                <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws1" value="0"> <span data-i18n="ws1o0">Yes — steepest-ascent always climbs to the single best tour, no matter where it starts.</span></label>
+                <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws1" value="1"> <span data-i18n="ws1o1">No — it's greedy and stops at a local optimum, so different starts land on different tours.</span></label>
+                <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws1" value="2"> <span data-i18n="ws1o2">Yes — once the cost stops dropping, that's a proof the tour is globally optimal.</span></label>
+              </div>
               <button class="step-btn" id="ws1btn" data-i18n="ws-check">Check</button>
               <span id="ws1fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
             </div>
             <div class="ws-q" id="ws2" style="margin-top:10px;">
               <p style="margin:0 0 4px;"><strong>Q2.</strong> <span data-i18n="ws2q">Same TSP. Switch to random-restart HC. After several minutes, "best ever" cost is:</span></p>
-              <input id="ws2ans" type="text" placeholder="better / worse / same" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+              <div class="ws-opts" style="display:flex; flex-direction:column; gap:4px; margin:4px 0;">
+                <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws2" value="0"> <span data-i18n="ws2o0">Better (lower) — restarts sample many local optima and keep the best one found.</span></label>
+                <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws2" value="1"> <span data-i18n="ws2o1">Worse (higher) — restarting throws away progress, so it never improves on a single climb.</span></label>
+                <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws2" value="2"> <span data-i18n="ws2o2">The same — every climb reaches the same optimum, so restarts change nothing.</span></label>
+              </div>
               <button class="step-btn" id="ws2btn" data-i18n="ws-check">Check</button>
               <span id="ws2fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
             </div>
             <div class="ws-q" id="ws3" style="margin-top:10px;">
               <p style="margin:0 0 4px;"><strong>Q3.</strong> <span data-i18n="ws3q">Simulated annealing. As temperature T cools toward zero, the algorithm behavior becomes:</span></p>
-              <input id="ws3ans" type="text" placeholder="more random / greedier / unchanged" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+              <div class="ws-opts" style="display:flex; flex-direction:column; gap:4px; margin:4px 0;">
+                <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws3" value="0"> <span data-i18n="ws3o0">More random — low T means it accepts almost any move, good or bad.</span></label>
+                <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws3" value="1"> <span data-i18n="ws3o1">Unchanged — temperature only affects speed, not which moves get accepted.</span></label>
+                <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws3" value="2"> <span data-i18n="ws3o2">Greedier — as T→0 the chance of accepting a worse move goes to zero, so it degenerates to greedy HC.</span></label>
+              </div>
               <button class="step-btn" id="ws3btn" data-i18n="ws-check">Check</button>
               <span id="ws3fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
             </div>
@@ -481,17 +493,17 @@
       'return-live': 'Jump to latest',
       'tldr-strong': 'The big idea',
       'tldr-body': 'Six local-search algorithms on three classic problems. Greedy methods get stuck in local optima; simulated annealing escapes by sometimes accepting worse moves.',
-      'opt-tsp': 'Traveling Salesman (12 cities)',
-      'opt-queens': 'N-Queens (n=8, minimize attacks)',
+      'opt-tsp': 'Traveling salesman (12 cities)',
+      'opt-queens': 'N-queens (n=8, minimize attacks)',
       'opt-landscape': '2D function landscape (5 minima)',
       'opt-simple': 'Simple HC (first improvement)',
       'opt-steepest': 'Steepest-ascent HC',
       'opt-stochastic': 'Stochastic HC',
       'opt-firstchoice': 'First-choice HC',
       'opt-restart': 'Random-restart HC',
-      'opt-sa': 'Simulated Annealing',
-      'opt-tabu': 'Tabu Search',
-      'opt-ga': 'Genetic Algorithm',
+      'opt-sa': 'Simulated annealing',
+      'opt-tabu': 'Tabu search',
+      'opt-ga': 'Genetic algorithm',
       'ga-pop-label': 'Pop:', 'ga-mut-label': 'Mut:',
       'ga-pop-title': "Population size. Larger populations explore more diversity per generation but slow each generation down. Each 'step' here = one generation (evaluate → select → crossover → mutate).",
       'ga-mut-title': 'Mutation rate per gene. Too low = premature convergence; too high = random search.',
@@ -505,10 +517,21 @@
       'tour-prev': '← Prev', 'tour-next': 'Next →', 'tour-apply': '▶ Apply this scenario',
       'ws-summary': '📝 Worksheet (3 questions)',
       'ws-check': 'Check',
+      'ws-pick': 'Pick an answer first.',
       // Worksheet question prompts (bilingual; English inline span is the fallback).
       'ws1q': 'TSP, steepest-ascent HC. Run to convergence several times from different restarts. Does it always find the SAME (global-optimum) solution?',
       'ws2q': 'Same TSP. Switch to random-restart HC. After several minutes, "best ever" cost is:',
       'ws3q': 'Simulated annealing. As temperature T cools toward zero, the algorithm behavior becomes:',
+      // MCQ option text (bilingual; English inline span is the fallback).
+      'ws1o0': 'Yes — steepest-ascent always climbs to the single best tour, no matter where it starts.',
+      'ws1o1': "No — it's greedy and stops at a local optimum, so different starts land on different tours.",
+      'ws1o2': "Yes — once the cost stops dropping, that's a proof the tour is globally optimal.",
+      'ws2o0': 'Better (lower) — restarts sample many local optima and keep the best one found.',
+      'ws2o1': 'Worse (higher) — restarting throws away progress, so it never improves on a single climb.',
+      'ws2o2': 'The same — every climb reaches the same optimum, so restarts change nothing.',
+      'ws3o0': 'More random — low T means it accepts almost any move, good or bad.',
+      'ws3o1': 'Unchanged — temperature only affects speed, not which moves get accepted.',
+      'ws3o2': 'Greedier — as T→0 the chance of accepting a worse move goes to zero, so it degenerates to greedy HC.',
       // Lesson-tour scenario names + descriptions (0-based; English fallback kept inline in LESSON_TOUR).
       'tour0name': 'Steepest-ascent on TSP gets stuck',
       'tour0desc': "TSP, 12 cities, steepest-ascent. Press Run. It improves rapidly, then plateaus at a local optimum that's clearly not the shortest tour. Greedy ≠ optimal.",
@@ -570,10 +593,21 @@
       'tour-prev': '← 上一步', 'tour-next': '下一步 →', 'tour-apply': '▶ 应用此场景',
       'ws-summary': '📝 练习题(3 题)',
       'ws-check': '核对',
+      'ws-pick': '请先选择一个答案。',
       // 练习题题干(双语;英文内联 span 作为回退)。
       'ws1q': 'TSP,最陡上升爬山。从不同的重启多次运行至收敛。它每次都能找到相同的(全局最优)解吗?',
       'ws2q': '同一个 TSP。改用随机重启爬山。几分钟后,"历史最佳"代价是:',
       'ws3q': '模拟退火。当温度 T 冷却趋近于零时,算法的行为会变得:',
+      // MCQ 选项文本(双语;英文内联 span 作为回退)。
+      'ws1o0': '能——无论从哪里出发,最陡上升总能爬到那个唯一的最优路线。',
+      'ws1o1': '不能——它是贪心的,会停在某个局部最优,所以不同起点会落到不同的路线。',
+      'ws1o2': '能——一旦代价不再下降,就证明该路线是全局最优的。',
+      'ws2o0': '更好(更低)——重启会采样许多局部最优,并保留找到的最佳结果。',
+      'ws2o1': '更差(更高)——重启会丢掉已有进展,所以不可能优于单次爬升。',
+      'ws2o2': '一样——每次爬升都到达同一个最优,所以重启没有任何改变。',
+      'ws3o0': '更随机——低温意味着它几乎接受任何移动,无论好坏。',
+      'ws3o1': '不变——温度只影响速度,而不影响哪些移动会被接受。',
+      'ws3o2': '更贪心——当 T→0 时,接受更差移动的概率趋于零,于是退化为贪心爬山。',
       // 课程导览的场景名称与描述(0 起始;英文回退保留在 LESSON_TOUR 内联)。
       'tour0name': '最陡上升爬山在 TSP 上卡住',
       'tour0desc': 'TSP,12 个城市,最陡上升。点击运行。它迅速改进,然后在一个明显不是最短路线的局部最优处停滞。贪心 ≠ 最优。',
@@ -701,9 +735,9 @@
     stochastic: 'Stochastic HC: pick a random IMPROVING neighbor proportionally to how much it improves. Avoids ties.',
     firstchoice: 'First-choice HC: generate random neighbors until one improves. Useful when neighbor count is huge.',
     restart: 'Random-restart: run steepest-ascent; when stuck, restart from random. Eventually finds the global optimum.',
-    sa: 'Simulated Annealing: accept worsening moves with probability exp(-ΔE/T). Cool T over time.',
-    tabu: 'Tabu Search: always move to the best neighbor — even if worse — but keep a short memory of recent states to forbid cycling back. Memory is the only thing pulling it out of local optima.',
-    ga: 'Genetic Algorithm: population-based. Each "step" = one generation. Tournament-select parents, crossover, mutate, elite-preserve top 2. The reported state is the best-of-generation. Diverges from all other algorithms here in that the search is parallel across many individuals.',
+    sa: 'Simulated annealing: accept worsening moves with probability exp(-ΔE/T). Cool T over time.',
+    tabu: 'Tabu search: always move to the best neighbor — even if worse — but keep a short memory of recent states to forbid cycling back. Memory is the only thing pulling it out of local optima.',
+    ga: 'Genetic algorithm: population-based. Each "step" = one generation. Tournament-select parents, crossover, mutate, elite-preserve top 2. The reported state is the best-of-generation. Diverges from all other algorithms here in that the search is parallel across many individuals.',
   };
   $('algoSel').addEventListener('change', e => $('algoHelp').textContent = HELP[e.target.value]);
   $('t0').addEventListener('input', () => $('t0V').textContent = (+$('t0').value).toFixed(1));
@@ -1483,36 +1517,33 @@
     const L = (document.documentElement.lang || 'en');
     return (STRINGS[L] && STRINGS[L][key]) || en;
   }
+  // MCQ: each question is graded by the selected radio's index, not typed text.
+  // `correct` is the index of the right option (language-agnostic). ok/no are the
+  // existing bilingual feedback keys, with an English inline fallback via wsMsg.
   const WORKSHEET = [
-    { check: ans => {
-        const ok = ans === 'no' || ans.includes('no');
-        return { ok,
-          msg: ok
-            ? wsMsg('ws1ok', "Correct. Steepest-ascent HC is greedy: it stops at any local optimum. Different starting tours converge to different local optima. This is the central limitation of pure HC.")
-            : wsMsg('ws1no', "Try 'no'. HC stops at the first local optimum it reaches — different random restarts hit different local optima.") };
-      } },
-    { check: ans => {
-        const ok = ans.includes('better') || ans.includes('lower') || ans.includes('improv');
-        return { ok,
-          msg: ok
-            ? wsMsg('ws2ok', "Right. Random-restart HC takes the BEST result across many independent climbs. With enough restarts, you sample multiple basins of attraction and the global best becomes likely.")
-            : wsMsg('ws2no', "Try 'better'. Random restarts sample multiple local optima — the best one wins.") };
-      } },
-    { check: ans => {
-        const ok = ans.includes('greedi') || ans.includes('greed');
-        return { ok,
-          msg: ok
-            ? wsMsg('ws3ok', "Correct. SA acceptance prob = exp(-Δ/T). As T→0, exp(-Δ/T) → 0 for any worsening Δ, so the algorithm only accepts improvements — pure greedy hill-climbing. Early on (large T), it accepts almost anything.")
-            : wsMsg('ws3no', "Try 'greedier'. Low T means the Boltzmann acceptance probability for worse moves approaches zero — SA degenerates to greedy HC at T=0.") };
-      } },
+    { correct: 1,
+      ok:  ['ws1ok', "Correct. Steepest-ascent HC is greedy: it stops at any local optimum. Different starting tours converge to different local optima. This is the central limitation of pure HC."],
+      no:  ['ws1no', "Try 'no'. HC stops at the first local optimum it reaches — different random restarts hit different local optima."] },
+    { correct: 0,
+      ok:  ['ws2ok', "Right. Random-restart HC takes the BEST result across many independent climbs. With enough restarts, you sample multiple basins of attraction and the global best becomes likely."],
+      no:  ['ws2no', "Try 'better'. Random restarts sample multiple local optima — the best one wins."] },
+    { correct: 2,
+      ok:  ['ws3ok', "Correct. SA acceptance prob = exp(-Δ/T). As T→0, exp(-Δ/T) → 0 for any worsening Δ, so the algorithm only accepts improvements — pure greedy hill-climbing. Early on (large T), it accepts almost anything."],
+      no:  ['ws3no', "Try 'greedier'. Low T means the Boltzmann acceptance probability for worse moves approaches zero — SA degenerates to greedy HC at T=0."] },
   ];
   WORKSHEET.forEach((q, i) => {
     const n = i + 1;
     $(`ws${n}btn`).addEventListener('click', () => {
-      const ans = (($(`ws${n}ans`).value) || '').trim().toLowerCase();
-      const { ok, msg } = q.check(ans);
       const fb = $(`ws${n}fb`);
-      fb.textContent = (ok ? '✓ ' : '✗ ') + msg;
+      const picked = document.querySelector(`input[name="ws${n}"]:checked`);
+      if (!picked) {
+        fb.textContent = wsMsg('ws-pick', 'Pick an answer first.');
+        fb.style.color = 'var(--muted)';
+        return;
+      }
+      const ok = Number(picked.value) === q.correct;
+      const [key, en] = ok ? q.ok : q.no;
+      fb.textContent = (ok ? '✓ ' : '✗ ') + wsMsg(key, en);
       fb.style.color = ok ? '#16a34a' : '#dc2626';
     });
   });

@@ -21,9 +21,16 @@
   .case:last-child { border-bottom: none; }
   .pass { color: var(--good); }
   .fail { color: var(--bad); font-weight: 700; }
+  .case.skipped { color: var(--muted); opacity: 0.75; }
+  .case.skipped .skip-tag { color: var(--muted); font-weight: 700; }
+  .case.skipped .reason { font-style: italic; }
   .summary { padding: 12px 16px; border-radius: 8px; font-weight: 600; margin-bottom: 14px; }
   .summary.all-pass { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
   .summary.some-fail { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+  .toolbar { margin-bottom: 14px; }
+  .btn { font: inherit; cursor: pointer; background: var(--accent); color: white; border: none;
+         border-radius: 6px; padding: 8px 14px; font-weight: 600; }
+  .btn:hover { filter: brightness(1.08); }
   details > summary { cursor: pointer; padding: 4px 0; color: var(--muted); font-size: 0.82rem; }
   pre { background: var(--soft); padding: 6px 10px; border-radius: 4px; overflow-x: auto;
         font-size: 0.78rem; line-height: 1.4; }
@@ -40,6 +47,7 @@ this file and the applet implementations is a maintenance signal — if a test f
 an applet change, decide whether the spec or the implementation is wrong.</p>
 
 <div id="summary" class="summary">Running…</div>
+<div class="toolbar"><button id="download" class="btn" type="button">⬇ Download results (JSON)</button></div>
 <div id="output"></div>
 
 <script>
@@ -63,6 +71,12 @@ function test(desc, fn) {
   } catch (e) {
     currentGroup.cases.push({ desc, pass: false, msg: e.message + '\n' + (e.stack || '') });
   }
+}
+function skip(desc, reason) {
+  // Honest-coverage path: a skipped case is neither pass nor fail. It is recorded so the
+  // report can surface known gaps explicitly instead of silently omitting them, and it is
+  // excluded from the pass-rate denominator (pass / (pass + fail)).
+  currentGroup.cases.push({ desc, skip: true, msg: reason || '' });
 }
 function assert(cond, msg) { if (!cond) throw new Error('assertion failed: ' + (msg || '')); }
 function assertEq(actual, expected, msg) {
@@ -839,37 +853,96 @@ test('LW returns 1.0 for evidence variable set to true', () => {
 });
 
 // =========================================================================
+// GROUP: UNCOVERED APPLETS — explicitly skipped so the report is honest about
+// coverage instead of silently omitting these applets (see review F2).
+// =========================================================================
+group('Uncovered applets (no algorithmic tests yet)');
+const UNCOVERED_REASON = 'no algorithmic coverage yet — see review F2';
+skip('neural-network', UNCOVERED_REASON);
+skip('cnf-sat', UNCOVERED_REASON);
+skip('wumpus-world', UNCOVERED_REASON);
+skip('bayes-classifier', UNCOVERED_REASON);
+
+// =========================================================================
 // RENDER RESULTS
 // =========================================================================
+const esc = (s) => String(s).replace(/[<>&]/g, ch => ({'<':'&lt;','>':'&gt;','&':'&amp;'})[ch]);
 const output = document.getElementById('output');
 const summary = document.getElementById('summary');
-let totalPass = 0, totalFail = 0;
+let totalPass = 0, totalFail = 0, totalSkipped = 0;
 for (const g of groups) {
   const div = document.createElement('div');
   div.className = 'group';
-  let html = `<h2>${g.name}</h2>`;
+  let html = `<h2>${esc(g.name)}</h2>`;
   for (const c of g.cases) {
-    if (c.pass) {
+    if (c.skip) {
+      totalSkipped++;
+      html += `<div class="case skipped"><span class="skip-tag">○ SKIP</span> ${esc(c.desc)}` +
+              (c.msg ? ` <span class="reason">— ${esc(c.msg)}</span>` : '') +
+              `</div>`;
+    } else if (c.pass) {
       totalPass++;
-      html += `<div class="case"><span class="pass">✓</span> ${c.desc}</div>`;
+      html += `<div class="case"><span class="pass">✓</span> ${esc(c.desc)}</div>`;
     } else {
       totalFail++;
-      html += `<div class="case"><span class="fail">✗</span> ${c.desc}` +
-              (c.msg ? `<details><summary>error</summary><pre>${c.msg.replace(/[<>&]/g, ch => ({'<':'&lt;','>':'&gt;','&':'&amp;'})[ch])}</pre></details>` : '') +
+      html += `<div class="case"><span class="fail">✗</span> ${esc(c.desc)}` +
+              (c.msg ? `<details><summary>error</summary><pre>${esc(c.msg)}</pre></details>` : '') +
               `</div>`;
     }
   }
   div.innerHTML = html;
   output.appendChild(div);
 }
-const total = totalPass + totalFail;
+// Pass-rate is computed over NON-skipped cases only: pass / (pass + fail). Skipped cases
+// are reported separately and never inflate the pass count.
+const ran = totalPass + totalFail;
 if (totalFail === 0) {
   summary.className = 'summary all-pass';
-  summary.textContent = `All ${total} tests pass.`;
+  summary.textContent = `All ${ran} tests pass` +
+    (totalSkipped ? ` · ${totalSkipped} skipped` : '') + '.';
 } else {
   summary.className = 'summary some-fail';
-  summary.textContent = `${totalPass}/${total} pass · ${totalFail} fail.`;
+  summary.textContent = `${totalPass}/${ran} pass · ${totalFail} fail` +
+    (totalSkipped ? ` · ${totalSkipped} skipped` : '') + '.';
 }
+
+// =========================================================================
+// DOWNLOAD RESULTS (G1) — build the report client-side on demand and download it
+// as a Blob. The report is never committed to the repo; it is regenerated per run.
+// =========================================================================
+function buildResults() {
+  return {
+    suite: 'AI Playgrounds — Unit Tests',
+    lang: document.documentElement.lang || null,   // G3: embed page lang in the report
+    generatedAt: new Date().toISOString(),
+    totals: {
+      pass: totalPass,
+      fail: totalFail,
+      skipped: totalSkipped,
+      ran: ran,
+      passRate: ran > 0 ? totalPass / ran : null,   // over non-skipped cases only
+    },
+    groups: groups.map(g => ({
+      name: g.name,
+      cases: g.cases.map(c => ({
+        desc: c.desc,
+        status: c.skip ? 'skip' : (c.pass ? 'pass' : 'fail'),
+        ...(c.msg ? { msg: c.msg } : {}),
+      })),
+    })),
+  };
+}
+document.getElementById('download').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(buildResults(), null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'results.json';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+});
 </script>
 
 <p class="note">

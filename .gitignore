@@ -180,6 +180,9 @@ $RECYCLE.BIN/
 # Generated smoke/eval reports (regenerable; numbers drift with seeds)
 **/reports/
 
+# Eval-harness test results (generated on demand via the Download button; never committed)
+ai_playgrounds/tests/results*.json
+
 # Generated vector-store / index artifacts (rebuilt by the smoke pipeline)
 ai_engineering/rag_assistant/index/
 

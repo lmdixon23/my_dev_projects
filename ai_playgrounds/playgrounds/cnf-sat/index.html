@@ -370,19 +370,31 @@ P</textarea>
     <div style="margin-top:8px; padding:12px 14px; background:var(--card); border:1px solid var(--border); border-radius:6px; font-size:0.88rem; line-height:1.5;">
       <div class="ws-q" id="ws1">
         <p style="margin:0 0 4px;"><strong>Q1.</strong> <span data-i18n="ws1q">Load the Modus ponens example and click Convert. How many satisfying assignments does the SAT enumeration find?</span></p>
-        <input id="ws1ans" type="text" placeholder="number" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit; width:80px;">
+        <div class="ws-opts" style="display:flex; flex-direction:column; gap:4px; margin:4px 0;">
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws1" value="0"> <span data-i18n="ws1o0">0 — the clauses contradict each other, so nothing satisfies them.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws1" value="1"> <span data-i18n="ws1o1">1 — forcing P=T and Q=T leaves exactly one satisfying row.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws1" value="2"> <span data-i18n="ws1o2">4 — all four truth-table rows for two variables satisfy it.</span></label>
+        </div>
         <button class="step-btn" id="ws1btn" data-i18n="ws-check">Check</button>
         <span id="ws1fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
       </div>
       <div class="ws-q" id="ws2" style="margin-top:10px;">
         <p style="margin:0 0 4px;"><strong>Q2.</strong> <span data-i18n="ws2q">Load the XOR UNSAT example. How many satisfying assignments?</span></p>
-        <input id="ws2ans" type="text" placeholder="number" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit; width:80px;">
+        <div class="ws-opts" style="display:flex; flex-direction:column; gap:4px; margin:4px 0;">
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws2" value="0"> <span data-i18n="ws2o0">1 — there is always at least one satisfying assignment.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws2" value="1"> <span data-i18n="ws2o1">3 — the satisfying rows are the ones with an odd number of trues.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws2" value="2"> <span data-i18n="ws2o2">0 — UNSAT means no assignment satisfies every clause.</span></label>
+        </div>
         <button class="step-btn" id="ws2btn" data-i18n="ws-check">Check</button>
         <span id="ws2fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
       </div>
       <div class="ws-q" id="ws3" style="margin-top:10px;">
         <p style="margin:0 0 4px;"><strong>Q3.</strong> <span data-i18n="ws3q">Modus ponens KB. In the query box, type <code>Q</code> and click "Prove by resolution". Does it succeed (empty clause derived)?</span></p>
-        <input id="ws3ans" type="text" placeholder="yes / no" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+        <div class="ws-opts" style="display:flex; flex-direction:column; gap:4px; margin:4px 0;">
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws3" value="0"> <span data-i18n="ws3o0">Yes — negating Q and resolving derives the empty clause.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws3" value="1"> <span data-i18n="ws3o1">No — resolution can only check satisfiability, not prove entailment.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws3" value="2"> <span data-i18n="ws3o2">No — Q does not follow from the knowledge base.</span></label>
+        </div>
         <button class="step-btn" id="ws3btn" data-i18n="ws-check">Check</button>
         <span id="ws3fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
       </div>
@@ -537,10 +549,20 @@ P</textarea>
       'tour-prev': '← Prev', 'tour-next': 'Next →', 'tour-apply': '▶ Apply this scenario',
       'ws-summary': '📝 Worksheet (3 questions)',
       'ws-check': 'Check',
+      'ws-pick': 'Pick an answer first.',
       // --- F1: worksheet question prompts (data-i18n spans) ---
       'ws1q': 'Load the Modus ponens example and click Convert. How many satisfying assignments does the SAT enumeration find?',
+      'ws1o0': '0 — the clauses contradict each other, so nothing satisfies them.',
+      'ws1o1': '1 — forcing P=T and Q=T leaves exactly one satisfying row.',
+      'ws1o2': '4 — all four truth-table rows for two variables satisfy it.',
       'ws2q': 'Load the XOR UNSAT example. How many satisfying assignments?',
+      'ws2o0': '1 — there is always at least one satisfying assignment.',
+      'ws2o1': '3 — the satisfying rows are the ones with an odd number of trues.',
+      'ws2o2': '0 — UNSAT means no assignment satisfies every clause.',
       'ws3q': 'Modus ponens KB. In the query box, type <code>Q</code> and click "Prove by resolution". Does it succeed (empty clause derived)?',
+      'ws3o0': 'Yes — negating Q and resolving derives the empty clause.',
+      'ws3o1': 'No — resolution can only check satisfiability, not prove entailment.',
+      'ws3o2': 'No — Q does not follow from the knowledge base.',
       // --- F1: lesson-tour scenarios (0-based index: tour{i}name / tour{i}desc) ---
       'tour0name': 'Modus ponens (SAT, simple)',
       'tour0desc': "P → Q and P. CNF is already two clauses. SAT enumeration finds 1 model: {P=T, Q=T}. Then prove Q by resolution — the empty clause appears in one step.",
@@ -601,10 +623,20 @@ P</textarea>
       'tour-prev': '← 上一步', 'tour-next': '下一步 →', 'tour-apply': '▶ 应用此场景',
       'ws-summary': '📝 练习题(3 题)',
       'ws-check': '核对',
+      'ws-pick': '请先选择一个答案。',
       // --- F1: 练习题题干(data-i18n span)---
       'ws1q': '加载"肯定前件"示例并点击"转换"。SAT 枚举找到多少个满足赋值?',
+      'ws1o0': '0——这些子句相互矛盾,没有任何赋值能满足它们。',
+      'ws1o1': '1——强制 P=T 且 Q=T,恰好只剩一行满足赋值。',
+      'ws1o2': '4——两个变量的真值表四行全都满足。',
       'ws2q': '加载"异或不可满足"示例。有多少个满足赋值?',
+      'ws2o0': '1——总是至少存在一个满足赋值。',
+      'ws2o1': '3——满足的行就是真值个数为奇数的那些行。',
+      'ws2o2': '0——不可满足意味着没有任何赋值能满足全部子句。',
       'ws3q': '肯定前件知识库。在查询框中输入 <code>Q</code> 并点击"用归结证明"。它能成功吗(推出空子句)?',
+      'ws3o0': '能——否定 Q 后进行归结,可推出空子句。',
+      'ws3o1': '不能——归结只能判定可满足性,无法证明蕴含。',
+      'ws3o2': '不能——Q 并不能从知识库中推出。',
       // --- F1: 课程导览场景(0 起始索引:tour{i}name / tour{i}desc)---
       'tour0name': '肯定前件(可满足,简单)',
       'tour0desc': 'P → Q 与 P。合取范式已经是两个子句。SAT 枚举找到 1 个模型:{P=T, Q=T}。然后用归结证明 Q——一步就得到空子句。',
@@ -1491,36 +1523,33 @@ P</textarea>
     return (STRINGS[L] && STRINGS[L][key]) || en;
   }
   // Worksheet/lab mode — 3 questions with instant ✓/✗ feedback.
+  // MCQ: each question is graded by the selected radio's index, not typed text.
+  // `correct` is the index of the right option (language-agnostic). ok/no are the
+  // existing bilingual feedback keys, with an English inline fallback via wsMsg.
   const WORKSHEET = [
-    { check: ans => {
-        const ok = ans.trim() === '1';
-        return { ok,
-          msg: ok
-            ? wsMsg('ws1ok', "Correct. P→Q, P → forces P=T, Q=T. Exactly one of the 4 truth-table rows satisfies the KB.")
-            : wsMsg('ws1no', "Try 1. The KB {P→Q, P} forces both P=T and Q=T — only one row in the truth table works.") };
-      } },
-    { check: ans => {
-        const ok = ans.trim() === '0';
-        return { ok,
-          msg: ok
-            ? wsMsg('ws2ok', "Correct. UNSAT means no assignment satisfies all clauses. SAT enumeration tries all 2³ = 8 rows and rejects every one.")
-            : wsMsg('ws2no', "Try 0. UNSAT means literally no satisfying assignment exists — that's what makes it unsatisfiable.") };
-      } },
-    { check: ans => {
-        const ok = ans.includes('yes');
-        return { ok,
-          msg: ok
-            ? wsMsg('ws3ok', "Right. Negate Q (¬Q), add to KB, resolve with P→Q to get ¬P, then resolve ¬P with the fact P to get the empty clause. KB ⊨ Q is proved.")
-            : wsMsg('ws3no', "Try 'yes'. Q follows from {P→Q, P} by modus ponens, which resolution can derive: ¬Q + (¬P∨Q) → ¬P, then ¬P + P → empty clause.") };
-      } },
+    { correct: 1,
+      ok:  ['ws1ok', "Correct. P→Q, P → forces P=T, Q=T. Exactly one of the 4 truth-table rows satisfies the KB."],
+      no:  ['ws1no', "Try 1. The KB {P→Q, P} forces both P=T and Q=T — only one row in the truth table works."] },
+    { correct: 2,
+      ok:  ['ws2ok', "Correct. UNSAT means no assignment satisfies all clauses. SAT enumeration tries all 2³ = 8 rows and rejects every one."],
+      no:  ['ws2no', "Try 0. UNSAT means literally no satisfying assignment exists — that's what makes it unsatisfiable."] },
+    { correct: 0,
+      ok:  ['ws3ok', "Right. Negate Q (¬Q), add to KB, resolve with P→Q to get ¬P, then resolve ¬P with the fact P to get the empty clause. KB ⊨ Q is proved."],
+      no:  ['ws3no', "Try 'yes'. Q follows from {P→Q, P} by modus ponens, which resolution can derive: ¬Q + (¬P∨Q) → ¬P, then ¬P + P → empty clause."] },
   ];
   WORKSHEET.forEach((q, i) => {
     const n = i + 1;
     $(`ws${n}btn`).addEventListener('click', () => {
-      const ans = (($(`ws${n}ans`).value) || '').trim().toLowerCase();
-      const { ok, msg } = q.check(ans);
       const fb = $(`ws${n}fb`);
-      fb.textContent = (ok ? '✓ ' : '✗ ') + msg;
+      const picked = document.querySelector(`input[name="ws${n}"]:checked`);
+      if (!picked) {
+        fb.textContent = wsMsg('ws-pick', 'Pick an answer first.');
+        fb.style.color = 'var(--muted)';
+        return;
+      }
+      const ok = Number(picked.value) === q.correct;
+      const [key, en] = ok ? q.ok : q.no;
+      fb.textContent = (ok ? '✓ ' : '✗ ') + wsMsg(key, en);
       fb.style.color = ok ? '#16a34a' : '#dc2626';
     });
   });

@@ -436,19 +436,31 @@
     <div style="margin-top:8px; padding:12px 14px; background:var(--card); border:1px solid var(--border); border-radius:6px; font-size:0.88rem; line-height:1.5;">
       <div class="ws-q" id="ws1">
         <p style="margin:0 0 4px;"><strong>Q1.</strong> <span data-i18n="ws1q">Default grid. Set ε=0. Reset Q-values. Train continuously for ~500 episodes. Does the agent reliably reach the goal?</span></p>
-        <input id="ws1ans" type="text" placeholder="yes / no" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+        <div class="ws-opts" style="display:flex; flex-direction:column; gap:4px; margin:4px 0;">
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws1" value="0"> <span data-i18n="ws1o0">Yes — ε=0 makes it greedy, and greedy always heads straight for the highest reward.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws1" value="1"> <span data-i18n="ws1o1">Yes — 500 episodes is more than enough training time for any setting.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws1" value="2"> <span data-i18n="ws1o2">No — with ε=0 and all Q-values tied at 0, it never explores and can't discover the goal.</span></label>
+        </div>
         <button class="step-btn" id="ws1btn" data-i18n="ws-check">Check</button>
         <span id="ws1fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
       </div>
       <div class="ws-q" id="ws2" style="margin-top:10px;">
         <p style="margin:0 0 4px;"><strong>Q2.</strong> <span data-i18n="ws2q">Set γ=0, ε=0.2. Reset Q. Train. Q-values (green color) appear:</span></p>
-        <input id="ws2ans" type="text" placeholder="everywhere / only adjacent to goal/pit / nowhere" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+        <div class="ws-opts" style="display:flex; flex-direction:column; gap:4px; margin:4px 0;">
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws2" value="0"> <span data-i18n="ws2o0">Only in cells adjacent to the goal/pit — γ=0 means no future reward propagates backward.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws2" value="1"> <span data-i18n="ws2o1">Everywhere — every visited cell still accumulates value over many episodes.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws2" value="2"> <span data-i18n="ws2o2">Nowhere — γ=0 zeroes out every Q-value, so nothing turns green.</span></label>
+        </div>
         <button class="step-btn" id="ws2btn" data-i18n="ws-check">Check</button>
         <span id="ws2fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
       </div>
       <div class="ws-q" id="ws3" style="margin-top:10px;">
         <p style="margin:0 0 4px;"><strong>Q3.</strong> <span data-i18n="ws3q">Default grid, γ=0.9. Compare α=0.05 vs α=0.8 (same training time, slip=0). The α=0.8 Q-values evolve:</span></p>
-        <input id="ws3ans" type="text" placeholder="more stable / less stable / identical" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+        <div class="ws-opts" style="display:flex; flex-direction:column; gap:4px; margin:4px 0;">
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws3" value="0"> <span data-i18n="ws3o0">More stably — a bigger α averages over more updates, smoothing out the noise.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws3" value="1"> <span data-i18n="ws3o1">Less stably — α=0.8 replaces 80% of the old Q each step, so values jump around erratically.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws3" value="2"> <span data-i18n="ws3o2">Identically — α only changes how fast it converges, not how smooth the path is.</span></label>
+        </div>
         <button class="step-btn" id="ws3btn" data-i18n="ws-check">Check</button>
         <span id="ws3fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
       </div>
@@ -646,10 +658,21 @@
       'tour-prev': '← Prev', 'tour-next': 'Next →', 'tour-apply': '▶ Apply this scenario',
       'ws-summary': '📝 Worksheet (3 questions)',
       'ws-check': 'Check',
+      'ws-pick': 'Pick an answer first.',
       // Worksheet question prompts (bilingual; English inline span is the fallback).
       'ws1q': 'Default grid. Set ε=0. Reset Q-values. Train continuously for ~500 episodes. Does the agent reliably reach the goal?',
       'ws2q': 'Set γ=0, ε=0.2. Reset Q. Train. Q-values (green color) appear:',
       'ws3q': 'Default grid, γ=0.9. Compare α=0.05 vs α=0.8 (same training time, slip=0). The α=0.8 Q-values evolve:',
+      // MCQ option text (bilingual; English inline span is the fallback).
+      'ws1o0': 'Yes — ε=0 makes it greedy, and greedy always heads straight for the highest reward.',
+      'ws1o1': 'Yes — 500 episodes is more than enough training time for any setting.',
+      'ws1o2': "No — with ε=0 and all Q-values tied at 0, it never explores and can't discover the goal.",
+      'ws2o0': 'Only in cells adjacent to the goal/pit — γ=0 means no future reward propagates backward.',
+      'ws2o1': 'Everywhere — every visited cell still accumulates value over many episodes.',
+      'ws2o2': 'Nowhere — γ=0 zeroes out every Q-value, so nothing turns green.',
+      'ws3o0': 'More stably — a bigger α averages over more updates, smoothing out the noise.',
+      'ws3o1': 'Less stably — α=0.8 replaces 80% of the old Q each step, so values jump around erratically.',
+      'ws3o2': 'Identically — α only changes how fast it converges, not how smooth the path is.',
       // Lesson-tour scenario names + descriptions (0-based; English fallback kept inline in LESSON_TOUR).
       'tour0name': 'Default: train continuously and watch value spread',
       'tour0desc': "Start with the default grid. Set α=0.1, γ=0.9, ε=0.2. Click Train continuously. Watch high-Q values (green) propagate backward from the goal. The agent has no plan — only Q-values.",
@@ -718,10 +741,21 @@
       'tour-prev': '← 上一步', 'tour-next': '下一步 →', 'tour-apply': '▶ 应用此场景',
       'ws-summary': '📝 练习题(3 题)',
       'ws-check': '核对',
+      'ws-pick': '请先选择一个答案。',
       // 练习题题干(双语;英文内联 span 作为回退)。
       'ws1q': '默认网格。设 ε=0。重置 Q 值。持续训练约 500 个回合。智能体能可靠地到达终点吗?',
       'ws2q': '设 γ=0、ε=0.2。重置 Q。训练。Q 值(绿色)出现在:',
       'ws3q': '默认网格,γ=0.9。比较 α=0.05 与 α=0.8(相同训练时长,slip=0)。α=0.8 时 Q 值的演变:',
+      // MCQ 选项文本(双语;英文内联 span 作为回退)。
+      'ws1o0': '能——ε=0 让它变得贪心,而贪心总会径直奔向最高的奖励。',
+      'ws1o1': '能——对任何设置来说,500 个回合的训练时间都绰绰有余。',
+      'ws1o2': '不能——ε=0 且所有 Q 值都并列为 0 时,它从不探索,无法发现终点。',
+      'ws2o0': '只出现在与终点/陷阱相邻的格子——γ=0 意味着没有未来奖励向后传播。',
+      'ws2o1': '到处都有——经过许多回合,每个访问过的格子都会累积价值。',
+      'ws2o2': '哪里都没有——γ=0 把每个 Q 值都归零,所以什么都不会变绿。',
+      'ws3o0': '更稳定——更大的 α 会对更多次更新求平均,把噪声平滑掉。',
+      'ws3o1': '更不稳定——α=0.8 每步都替换掉旧 Q 的 80%,所以数值剧烈跳动。',
+      'ws3o2': '完全一样——α 只改变收敛的快慢,而不改变路径的平滑程度。',
       // 课程导览的场景名称与描述(0 起始;英文回退保留在 LESSON_TOUR 内联)。
       'tour0name': '默认:持续训练,观察价值扩散',
       'tour0desc': '从默认网格开始。设 α=0.1、γ=0.9、ε=0.2。点击"持续训练"。观察高 Q 值(绿色)从终点向后传播。智能体没有计划——只有 Q 值。',
@@ -1758,36 +1792,33 @@
     const L = (document.documentElement.lang || 'en');
     return (STRINGS[L] && STRINGS[L][key]) || en;
   }
+  // MCQ: each question is graded by the selected radio's index, not typed text.
+  // `correct` is the index of the right option (language-agnostic). ok/no are the
+  // existing bilingual feedback keys, with an English inline fallback via wsMsg.
   const WORKSHEET = [
-    { check: ans => {
-        const ok = ans === 'no' || ans.includes('no');
-        return { ok,
-          msg: ok
-            ? wsMsg('ws1ok', "Correct. With ε=0 the agent always picks the 'greedy' action — but at start all Q-values are 0 (tied), and the policy picks a fixed default direction. The agent wanders deterministically and may never stumble onto the goal. Exploration is mandatory in RL.")
-            : wsMsg('ws1no', "Try 'no'. ε=0 means no exploration. With all Q-values starting at 0, the agent can't discover the goal — it never tries unfamiliar actions.") };
-      } },
-    { check: ans => {
-        const ok = ans.includes('adjacent') || ans.includes('only') || ans.includes('near');
-        return { ok,
-          msg: ok
-            ? wsMsg('ws2ok', "Correct. γ=0 means 'all future reward is worth zero'. Only cells where action leads directly to a +1 or −1 reward get non-zero Q. The rest stay at 0 — no propagation of value backward through state space.")
-            : wsMsg('ws2no', "Try 'only adjacent to goal/pit'. γ=0 kills temporal credit assignment — only the cells one step from terminal rewards get non-zero Q.") };
-      } },
-    { check: ans => {
-        const ok = ans.includes('less') || ans.includes('unstable') || ans.includes('jump') || ans.includes('errat');
-        return { ok,
-          msg: ok
-            ? wsMsg('ws3ok', "Correct. α=0.8 means each TD update REPLACES 80% of the old Q with the new (noisy) target. Q-values jump around erratically. α=0.05 averages many updates smoothly. Trade-off: high α = fast learning + instability; low α = slow + smooth.")
-            : wsMsg('ws3no', "Try 'less stable'. High α makes Q-updates over-react to noisy single-step targets — instability is the cost of fast learning.") };
-      } },
+    { correct: 2,
+      ok:  ['ws1ok', "Correct. With ε=0 the agent always picks the 'greedy' action — but at start all Q-values are 0 (tied), and the policy picks a fixed default direction. The agent wanders deterministically and may never stumble onto the goal. Exploration is mandatory in RL."],
+      no:  ['ws1no', "Try 'no'. ε=0 means no exploration. With all Q-values starting at 0, the agent can't discover the goal — it never tries unfamiliar actions."] },
+    { correct: 0,
+      ok:  ['ws2ok', "Correct. γ=0 means 'all future reward is worth zero'. Only cells where action leads directly to a +1 or −1 reward get non-zero Q. The rest stay at 0 — no propagation of value backward through state space."],
+      no:  ['ws2no', "Try 'only adjacent to goal/pit'. γ=0 kills temporal credit assignment — only the cells one step from terminal rewards get non-zero Q."] },
+    { correct: 1,
+      ok:  ['ws3ok', "Correct. α=0.8 means each TD update REPLACES 80% of the old Q with the new (noisy) target. Q-values jump around erratically. α=0.05 averages many updates smoothly. Trade-off: high α = fast learning + instability; low α = slow + smooth."],
+      no:  ['ws3no', "Try 'less stable'. High α makes Q-updates over-react to noisy single-step targets — instability is the cost of fast learning."] },
   ];
   WORKSHEET.forEach((q, i) => {
     const n = i + 1;
     $(`ws${n}btn`).addEventListener('click', () => {
-      const ans = (($(`ws${n}ans`).value) || '').trim().toLowerCase();
-      const { ok, msg } = q.check(ans);
       const fb = $(`ws${n}fb`);
-      fb.textContent = (ok ? '✓ ' : '✗ ') + msg;
+      const picked = document.querySelector(`input[name="ws${n}"]:checked`);
+      if (!picked) {
+        fb.textContent = wsMsg('ws-pick', 'Pick an answer first.');
+        fb.style.color = 'var(--muted)';
+        return;
+      }
+      const ok = Number(picked.value) === q.correct;
+      const [key, en] = ok ? q.ok : q.no;
+      fb.textContent = (ok ? '✓ ' : '✗ ') + wsMsg(key, en);
       fb.style.color = ok ? '#16a34a' : '#dc2626';
     });
   });

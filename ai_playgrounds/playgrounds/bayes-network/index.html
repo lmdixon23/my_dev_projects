@@ -357,19 +357,31 @@
     <div style="margin-top:8px; padding:12px 14px; background:var(--card); border:1px solid var(--border); border-radius:6px; font-size:0.88rem; line-height:1.5;">
       <div class="ws-q" id="ws1">
         <p style="margin:0 0 4px;"><strong>Q1.</strong> <span data-i18n="ws1q">Burglary network. Click "John &amp; Mary both call". Note P(Burglary). Now click "Both call + earthquake". P(Burglary) goes:</span></p>
-        <input id="ws1ans" type="text" placeholder="up / down / same" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+        <div class="ws-opts" style="display:flex; flex-direction:column; gap:4px; margin:4px 0;">
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws1" value="0"> <span data-i18n="ws1o0">Up — a second alarm cause makes a burglary even more likely.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws1" value="1"> <span data-i18n="ws1o1">Down — the earthquake explains away the alarm, so burglary is less needed.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws1" value="2"> <span data-i18n="ws1o2">Stays the same — burglary and earthquake are independent, so extra evidence can't change it.</span></label>
+        </div>
         <button class="step-btn" id="ws1btn" data-i18n="ws-check">Check</button>
         <span id="ws1fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
       </div>
       <div class="ws-q" id="ws2" style="margin-top:10px;">
         <p style="margin:0 0 4px;"><strong>Q2.</strong> <span data-i18n="ws2q">Switch to Sprinkler network. Set Wet=T. Now ALSO set Rain=T. P(Sprinkler=T) is:</span></p>
-        <input id="ws2ans" type="text" placeholder="higher than prior / lower than just wet / unchanged" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+        <div class="ws-opts" style="display:flex; flex-direction:column; gap:4px; margin:4px 0;">
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws2" value="0"> <span data-i18n="ws2o0">Higher than with wet grass alone — two confirmed causes stack up.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws2" value="1"> <span data-i18n="ws2o1">Lower than with just wet grass — rain explains the wet grass, so the sprinkler is less needed.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws2" value="2"> <span data-i18n="ws2o2">Unchanged — once the grass is wet, learning about rain tells you nothing about the sprinkler.</span></label>
+        </div>
         <button class="step-btn" id="ws2btn" data-i18n="ws-check">Check</button>
         <span id="ws2fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
       </div>
       <div class="ws-q" id="ws3" style="margin-top:10px;">
         <p style="margin:0 0 4px;"><strong>Q3.</strong> <span data-i18n="ws3q">Burglary network, "Both call" evidence. Switch inference method from Exact to Gibbs sampling with 5000 samples. The posterior for P(Burglary) compared to Exact is:</span></p>
-        <input id="ws3ans" type="text" placeholder="exact match / close but noisy / wildly different" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+        <div class="ws-opts" style="display:flex; flex-direction:column; gap:4px; margin:4px 0;">
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws3" value="0"> <span data-i18n="ws3o0">An exact match — Gibbs sampling computes the same posterior as enumeration.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws3" value="1"> <span data-i18n="ws3o1">Close but noisy — Gibbs approximates the posterior, and the estimate wobbles a bit each re-sample.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws3" value="2"> <span data-i18n="ws3o2">Wildly different — sampling methods can't recover this posterior at all.</span></label>
+        </div>
         <button class="step-btn" id="ws3btn" data-i18n="ws-check">Check</button>
         <span id="ws3fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
       </div>
@@ -503,9 +515,20 @@
       'tour-prev': '← Prev', 'tour-next': 'Next →', 'tour-apply': '▶ Apply this scenario',
       'ws-summary': '📝 Worksheet (3 questions)',
       'ws-check': 'Check',
+      'ws-pick': 'Pick an answer first.',
       'ws1q': 'Burglary network. Click "John & Mary both call". Note P(Burglary). Now click "Both call + earthquake". P(Burglary) goes:',
       'ws2q': 'Switch to Sprinkler network. Set Wet=T. Now ALSO set Rain=T. P(Sprinkler=T) is:',
       'ws3q': 'Burglary network, "Both call" evidence. Switch inference method from Exact to Gibbs sampling with 5000 samples. The posterior for P(Burglary) compared to Exact is:',
+      // --- MCQ: worksheet option labels (ws{n}o{i}) ---
+      'ws1o0': 'Up — a second alarm cause makes a burglary even more likely.',
+      'ws1o1': 'Down — the earthquake explains away the alarm, so burglary is less needed.',
+      'ws1o2': 'Stays the same — burglary and earthquake are independent, so extra evidence can\'t change it.',
+      'ws2o0': 'Higher than with wet grass alone — two confirmed causes stack up.',
+      'ws2o1': 'Lower than with just wet grass — rain explains the wet grass, so the sprinkler is less needed.',
+      'ws2o2': 'Unchanged — once the grass is wet, learning about rain tells you nothing about the sprinkler.',
+      'ws3o0': 'An exact match — Gibbs sampling computes the same posterior as enumeration.',
+      'ws3o1': 'Close but noisy — Gibbs approximates the posterior, and the estimate wobbles a bit each re-sample.',
+      'ws3o2': 'Wildly different — sampling methods can\'t recover this posterior at all.',
       // --- F1: lesson-tour scenarios (0-based index: tour{i}name / tour{i}desc) ---
       'tour0name': 'Burglary network: nothing observed',
       'tour0desc': 'Prior beliefs only. P(Burglary) ≈ 0.001, P(Earthquake) ≈ 0.002, P(Alarm) ≈ 0.003. Everything is rare and roughly independent — this is the calm baseline.',
@@ -569,9 +592,20 @@
       'tour-prev': '← 上一步', 'tour-next': '下一步 →', 'tour-apply': '▶ 应用此场景',
       'ws-summary': '📝 练习题(3 题)',
       'ws-check': '核对',
+      'ws-pick': '请先选择一个答案。',
       'ws1q': '入室盗窃(Burglary)网络。点击 "John & Mary both call"。记下 P(Burglary)。再点击 "Both call + earthquake"。此时 P(Burglary) 会:',
       'ws2q': '切换到洒水器(Sprinkler)网络。设 Wet=T。现在再设 Rain=T。P(Sprinkler=T) 会是:',
       'ws3q': '入室盗窃网络,"Both call" 证据。把推理方法从 Exact 切换为 5000 样本的 Gibbs 采样。P(Burglary) 的后验与 Exact 相比:',
+      // --- MCQ:练习题选项(ws{n}o{i})---
+      'ws1o0': '上升——多了一个引发警报的原因,会让入室盗窃更有可能。',
+      'ws1o1': '下降——地震解释消除了警报,因此不再那么需要入室盗窃来解释。',
+      'ws1o2': '保持不变——入室盗窃与地震相互独立,额外的证据无法改变它。',
+      'ws2o0': '比只有草地湿时更高——两个被确认的原因叠加起来。',
+      'ws2o1': '比只有草地湿时更低——下雨解释了草地为何湿,因此不再那么需要洒水器。',
+      'ws2o2': '保持不变——草地一旦湿了,得知是否下雨就再也无法告诉你洒水器的情况。',
+      'ws3o0': '完全一致——Gibbs 采样算出的后验与枚举相同。',
+      'ws3o1': '接近但有噪声——Gibbs 近似后验,每次重新采样估计都会略有波动。',
+      'ws3o2': '相差极大——采样方法根本无法恢复这个后验。',
       // --- F1: 课程导览场景(0 起始索引:tour{i}name / tour{i}desc)---
       'tour0name': '入室盗窃网络:无观测',
       'tour0desc': '只有先验信念。P(Burglary) ≈ 0.001,P(Earthquake) ≈ 0.002,P(Alarm) ≈ 0.003。一切都很罕见且大致独立——这是平静的基线。',
@@ -1458,36 +1492,33 @@
     const L = (document.documentElement.lang || 'en');
     return (STRINGS[L] && STRINGS[L][key]) || en;
   }
+  // MCQ: each question is graded by the selected radio's index, not typed text.
+  // `correct` is the index of the right option (language-agnostic). ok/no are the
+  // existing bilingual feedback keys, with an English inline fallback via wsMsg.
   const WORKSHEET = [
-    { check: ans => {
-        const ok = ans.includes('down') || ans.includes('decrease') || ans.includes('lower') || ans.includes('drop');
-        return { ok,
-          msg: ok
-            ? wsMsg('ws1ok', "Correct. This is 'explaining away' (Pearl) — the earthquake provides an alternative cause for the alarm, so P(Burglary) drops. Two causes compete to explain a common effect, even though they were independent before evidence.")
-            : wsMsg('ws1no', "Try 'down'. The earthquake already explains why the alarm sounded — burglary becomes less needed as an explanation.") };
-      } },
-    { check: ans => {
-        const ok = ans.includes('lower') || ans.includes('drop') || ans.includes('decrease');
-        return { ok,
-          msg: ok
-            ? wsMsg('ws2ok', "Right. Same explaining-away pattern. Wet=T raises P(Sprinkler) above prior. Then learning Rain=T explains the wet grass, so P(Sprinkler) drops back toward (but stays slightly above) prior.")
-            : wsMsg('ws2no', "Try 'lower than just wet'. Rain explains the wetness, so sprinkler is less needed.") };
-      } },
-    { check: ans => {
-        const ok = ans.includes('close') || ans.includes('similar') || ans.includes('noisy') || ans.includes('approx');
-        return { ok,
-          msg: ok
-            ? wsMsg('ws3ok', "Correct. With 5000 samples, Gibbs converges to within ~0.01-0.05 of the exact answer. Re-sample a few times to see the variance — Monte Carlo error scales as 1/√N.")
-            : wsMsg('ws3no', "Try 'close but noisy'. Gibbs sampling approximates the posterior; more samples = less noise. 5000 is usually within ~0.05.") };
-      } },
+    { correct: 1,
+      ok:  ['ws1ok', "Correct. This is 'explaining away' (Pearl) — the earthquake provides an alternative cause for the alarm, so P(Burglary) drops. Two causes compete to explain a common effect, even though they were independent before evidence."],
+      no:  ['ws1no', "Try 'down'. The earthquake already explains why the alarm sounded — burglary becomes less needed as an explanation."] },
+    { correct: 1,
+      ok:  ['ws2ok', "Right. Same explaining-away pattern. Wet=T raises P(Sprinkler) above prior. Then learning Rain=T explains the wet grass, so P(Sprinkler) drops back toward (but stays slightly above) prior."],
+      no:  ['ws2no', "Try 'lower than just wet'. Rain explains the wetness, so sprinkler is less needed."] },
+    { correct: 1,
+      ok:  ['ws3ok', "Correct. With 5000 samples, Gibbs converges to within ~0.01-0.05 of the exact answer. Re-sample a few times to see the variance — Monte Carlo error scales as 1/√N."],
+      no:  ['ws3no', "Try 'close but noisy'. Gibbs sampling approximates the posterior; more samples = less noise. 5000 is usually within ~0.05."] },
   ];
   WORKSHEET.forEach((q, i) => {
     const n = i + 1;
     $(`ws${n}btn`).addEventListener('click', () => {
-      const ans = (($(`ws${n}ans`).value) || '').trim().toLowerCase();
-      const { ok, msg } = q.check(ans);
       const fb = $(`ws${n}fb`);
-      fb.textContent = (ok ? '✓ ' : '✗ ') + msg;
+      const picked = document.querySelector(`input[name="ws${n}"]:checked`);
+      if (!picked) {
+        fb.textContent = wsMsg('ws-pick', 'Pick an answer first.');
+        fb.style.color = 'var(--muted)';
+        return;
+      }
+      const ok = Number(picked.value) === q.correct;
+      const [key, en] = ok ? q.ok : q.no;
+      fb.textContent = (ok ? '✓ ' : '✗ ') + wsMsg(key, en);
       fb.style.color = ok ? '#16a34a' : '#dc2626';
     });
   });

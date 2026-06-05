@@ -362,19 +362,31 @@
     <div style="margin-top:8px; padding:12px 14px; background:var(--card); border:1px solid var(--border); border-radius:6px; font-size:0.88rem; line-height:1.5;">
       <div class="ws-q" id="ws1">
         <p style="margin:0 0 4px;"><strong>Q1.</strong> <span data-i18n="ws1q">Set degree=20, n=20, λ=0, sine truth. The train MSE is approximately:</span></p>
-        <input id="ws1ans" type="text" placeholder="zero / high" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+        <div class="ws-opts" style="display:flex; flex-direction:column; gap:4px; margin:4px 0;">
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws1" value="0"> <span data-i18n="ws1o0">Near zero — 21 free coefficients can pass through all 20 training points.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws1" value="1"> <span data-i18n="ws1o1">High — a degree-20 curve is too wiggly to fit the training points.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws1" value="2"> <span data-i18n="ws1o2">About the same as the test MSE — train and test error always match.</span></label>
+        </div>
         <button class="step-btn" id="ws1btn" data-i18n="ws-check">Check</button>
         <span id="ws1fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
       </div>
       <div class="ws-q" id="ws2" style="margin-top:10px;">
         <p style="margin:0 0 4px;"><strong>Q2.</strong> <span data-i18n="ws2q">Same settings as Q1. The test MSE (vs train MSE) is:</span></p>
-        <input id="ws2ans" type="text" placeholder="much higher / similar / lower" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+        <div class="ws-opts" style="display:flex; flex-direction:column; gap:4px; margin:4px 0;">
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws2" value="0"> <span data-i18n="ws2o0">Lower — fitting the training points perfectly also fits unseen points.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws2" value="1"> <span data-i18n="ws2o1">About the same — train MSE is a reliable estimate of test MSE.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws2" value="2"> <span data-i18n="ws2o2">Much higher — the wild wiggles that hit every train point miss the test points.</span></label>
+        </div>
         <button class="step-btn" id="ws2btn" data-i18n="ws-check">Check</button>
         <span id="ws2fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
       </div>
       <div class="ws-q" id="ws3" style="margin-top:10px;">
         <p style="margin:0 0 4px;"><strong>Q3.</strong> <span data-i18n="ws3q">Keep degree=20. Now raise λ from 0 to 0.5. Test MSE goes:</span></p>
-        <input id="ws3ans" type="text" placeholder="up / down / same" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+        <div class="ws-opts" style="display:flex; flex-direction:column; gap:4px; margin:4px 0;">
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws3" value="0"> <span data-i18n="ws3o0">Up — any penalty on the weights can only hurt accuracy.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws3" value="1"> <span data-i18n="ws3o1">Down — shrinking the coefficients smooths the curve and improves generalization.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws3" value="2"> <span data-i18n="ws3o2">Stays the same — λ changes the weights but not the test error.</span></label>
+        </div>
         <button class="step-btn" id="ws3btn" data-i18n="ws-check">Check</button>
         <span id="ws3fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
       </div>
@@ -524,9 +536,20 @@
       'tour-prev': '← Prev', 'tour-next': 'Next →', 'tour-apply': '▶ Apply this scenario',
       'ws-summary': '📝 Worksheet (3 questions)',
       'ws-check': 'Check',
+      'ws-pick': 'Pick an answer first.',
       'ws1q': 'Set degree=20, n=20, λ=0, sine truth. The train MSE is approximately:',
       'ws2q': 'Same settings as Q1. The test MSE (vs train MSE) is:',
       'ws3q': 'Keep degree=20. Now raise λ from 0 to 0.5. Test MSE goes:',
+      // --- MCQ: worksheet option labels (ws{n}o{i}) ---
+      'ws1o0': 'Near zero — 21 free coefficients can pass through all 20 training points.',
+      'ws1o1': 'High — a degree-20 curve is too wiggly to fit the training points.',
+      'ws1o2': 'About the same as the test MSE — train and test error always match.',
+      'ws2o0': 'Lower — fitting the training points perfectly also fits unseen points.',
+      'ws2o1': 'About the same — train MSE is a reliable estimate of test MSE.',
+      'ws2o2': 'Much higher — the wild wiggles that hit every train point miss the test points.',
+      'ws3o0': 'Up — any penalty on the weights can only hurt accuracy.',
+      'ws3o1': 'Down — shrinking the coefficients smooths the curve and improves generalization.',
+      'ws3o2': 'Stays the same — λ changes the weights but not the test error.',
       // --- F1: lesson-tour scenarios (0-based index: tour{i}name / tour{i}desc) ---
       'tour0name': 'Underfit (degree 1, sine truth)',
       'tour0desc': "Polynomial of degree 1 trying to fit a sine. Train AND test error are both high — this is high bias. The model literally can't bend enough.",
@@ -592,9 +615,20 @@
       'tour-prev': '← 上一步', 'tour-next': '下一步 →', 'tour-apply': '▶ 应用此场景',
       'ws-summary': '📝 练习题(3 题)',
       'ws-check': '核对',
+      'ws-pick': '请先选择一个答案。',
       'ws1q': '设 degree=20、n=20、λ=0、正弦真值。训练 MSE 大约是:',
       'ws2q': '与 Q1 相同的设置。测试 MSE(相对训练 MSE)是:',
       'ws3q': '保持 degree=20。现在把 λ 从 0 提高到 0.5。测试 MSE 会:',
+      // --- MCQ: 练习题选项(ws{n}o{i})---
+      'ws1o0': '接近零——21 个自由系数可以穿过全部 20 个训练点。',
+      'ws1o1': '很高——20 次曲线太过摆动,无法拟合训练点。',
+      'ws1o2': '与测试 MSE 大致相同——训练误差和测试误差总是一致。',
+      'ws2o0': '更低——完美拟合训练点也会拟合未见过的点。',
+      'ws2o1': '大致相同——训练 MSE 是测试 MSE 的可靠估计。',
+      'ws2o2': '高得多——为击中每个训练点而产生的剧烈摆动完全错过了测试点。',
+      'ws3o0': '上升——对权重的任何惩罚只会损害准确率。',
+      'ws3o1': '下降——缩小系数会平滑曲线,改善泛化。',
+      'ws3o2': '保持不变——λ 改变权重,但不改变测试误差。',
       // --- F1: 课程导览场景(0 起始索引:tour{i}name / tour{i}desc)---
       'tour0name': '欠拟合(1 次,正弦真值)',
       'tour0desc': '用 1 次多项式去拟合正弦。训练误差和测试误差都很高——这是高偏差。模型根本弯不够。',
@@ -1110,36 +1144,33 @@
     const L = (document.documentElement.lang || 'en');
     return (STRINGS[L] && STRINGS[L][key]) || en;
   }
+  // MCQ: each question is graded by the selected radio's index, not typed text.
+  // `correct` is the index of the right option (language-agnostic). ok/no are the
+  // existing bilingual feedback keys, with an English inline fallback via wsMsg.
   const WORKSHEET = [
-    { check: ans => {
-        const ok = ans.includes('zero') || ans.includes('0') || ans.includes('near');
-        return { ok,
-          msg: ok
-            ? wsMsg('ws1ok', "Correct. A degree-20 polynomial has 21 free parameters; with only 20 training points, it has enough freedom to literally pass through every dot. Train MSE ≈ 0.")
-            : wsMsg('ws1no', "Try 'zero' or 'near zero'. 21 free coefficients can fit 20 arbitrary points exactly — degrees of freedom math.") };
-      } },
-    { check: ans => {
-        const ok = ans.includes('higher') || ans.includes('much') || ans.includes('worse') || ans.includes('big');
-        return { ok,
-          msg: ok
-            ? wsMsg('ws2ok', "Yes. Train ≈ 0, Test explodes — that gap IS overfitting. The wild oscillations needed to pass through every train point miss the test points completely.")
-            : wsMsg('ws2no', "Hint: zero train error + held-out test error are very different. Try 'much higher'.") };
-      } },
-    { check: ans => {
-        const ok = ans.includes('down') || ans.includes('decrease') || ans.includes('drop');
-        return { ok,
-          msg: ok
-            ? wsMsg('ws3ok', "Correct. Ridge (L2) penalty λ‖w‖² shrinks large coefficients. The degree-20 polynomial still has 21 params, but they're now small — the curve is forced to be smooth and generalizes much better.")
-            : wsMsg('ws3no', "Try 'down'. λ penalizes large weights, killing the high-frequency wiggles that overfit.") };
-      } },
+    { correct: 0,
+      ok:  ['ws1ok', "Correct. A degree-20 polynomial has 21 free parameters; with only 20 training points, it has enough freedom to literally pass through every dot. Train MSE ≈ 0."],
+      no:  ['ws1no', "Try 'zero' or 'near zero'. 21 free coefficients can fit 20 arbitrary points exactly — degrees of freedom math."] },
+    { correct: 2,
+      ok:  ['ws2ok', "Yes. Train ≈ 0, test explodes — that gap IS overfitting. The wild oscillations needed to pass through every train point miss the test points completely."],
+      no:  ['ws2no', "Hint: zero train error + held-out test error are very different. Try 'much higher'."] },
+    { correct: 1,
+      ok:  ['ws3ok', "Correct. Ridge (L2) penalty λ‖w‖² shrinks large coefficients. The degree-20 polynomial still has 21 params, but they are now small — the curve is forced to be smooth and generalizes much better."],
+      no:  ['ws3no', "Try 'down'. λ penalizes large weights, killing the high-frequency wiggles that overfit."] },
   ];
   WORKSHEET.forEach((q, i) => {
     const n = i + 1;
     $(`ws${n}btn`).addEventListener('click', () => {
-      const ans = (($(`ws${n}ans`).value) || '').trim().toLowerCase();
-      const { ok, msg } = q.check(ans);
       const fb = $(`ws${n}fb`);
-      fb.textContent = (ok ? '✓ ' : '✗ ') + msg;
+      const picked = document.querySelector(`input[name="ws${n}"]:checked`);
+      if (!picked) {
+        fb.textContent = wsMsg('ws-pick', 'Pick an answer first.');
+        fb.style.color = 'var(--muted)';
+        return;
+      }
+      const ok = Number(picked.value) === q.correct;
+      const [key, en] = ok ? q.ok : q.no;
+      fb.textContent = (ok ? '✓ ' : '✗ ') + wsMsg(key, en);
       fb.style.color = ok ? '#16a34a' : '#dc2626';
     });
   });

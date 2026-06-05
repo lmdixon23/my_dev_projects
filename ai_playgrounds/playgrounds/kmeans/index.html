@@ -291,7 +291,7 @@
       <button class="header-png" id="exportPng"
               title="Download the current visualization as a PNG image (for slides).">📷 PNG</button>
       <button class="header-reset" id="hardReset" data-i18n="reset-all"
-              title="Reset everything to the default: Gaussian Mixture dataset, k=3, random init.">↺ Reset all</button>
+              title="Reset everything to the default: Gaussian mixture dataset, k=3, random init.">↺ Reset all</button>
     </div>
   </div>
 </header>
@@ -310,11 +310,11 @@
   <div class="control-row">
     <label data-i18n="dataset-label">Dataset:</label>
     <div class="group" id="datasetGroup">
-      <button data-d="gaussian" class="active" data-i18n="d-gaussian" data-i18n-title="d-gaussian-title" title="Three roughly round blobs. K-means works perfectly here when k=3.">Gaussian Mixture</button>
-      <button data-d="uniform" data-i18n="d-uniform" data-i18n-title="d-uniform-title" title="Uniform random points. Tests how k-means behaves with no real cluster structure.">Uniform Points</button>
-      <button data-d="packed" data-i18n="d-packed" data-i18n-title="d-packed-title" title="Six tightly packed circles. Try the Farthest Point init with k=6.">Packed Circles</button>
-      <button data-d="smiley" data-i18n="d-smiley" data-i18n-title="d-smiley-title" title="A smiley face. The mouth is a curved arc — k-means cannot find it as a single cluster.">Smiley Face</button>
-      <button data-d="pimpled" data-i18n="d-pimpled" data-i18n-title="d-pimpled-title" title="Smiley face plus noise dots. Tests robustness to outliers.">Pimpled Smiley</button>
+      <button data-d="gaussian" class="active" data-i18n="d-gaussian" data-i18n-title="d-gaussian-title" title="Three roughly round blobs. K-means works perfectly here when k=3.">Gaussian mixture</button>
+      <button data-d="uniform" data-i18n="d-uniform" data-i18n-title="d-uniform-title" title="Uniform random points. Tests how k-means behaves with no real cluster structure.">Uniform points</button>
+      <button data-d="packed" data-i18n="d-packed" data-i18n-title="d-packed-title" title="Six tightly packed circles. Try the farthest point init with k=6.">Packed circles</button>
+      <button data-d="smiley" data-i18n="d-smiley" data-i18n-title="d-smiley-title" title="A smiley face. The mouth is a curved arc — k-means cannot find it as a single cluster.">Smiley face</button>
+      <button data-d="pimpled" data-i18n="d-pimpled" data-i18n-title="d-pimpled-title" title="Smiley face plus noise dots. Tests robustness to outliers.">Pimpled smiley</button>
       <button data-d="custom" data-i18n="d-custom" data-i18n-title="d-custom-title" title="Empty canvas — click to add your own data points.">Clear (draw your own)</button>
     </div>
   </div>
@@ -322,10 +322,10 @@
   <div class="control-row">
     <label data-i18n="init-label">Initialize centroids:</label>
     <div class="group" id="initGroup">
-      <button data-i="choose" data-i18n="i-choose" data-i18n-title="i-choose-title" title="Click anywhere on the canvas to place centroids yourself. Best for spotting bad-init failures.">I'll Choose</button>
+      <button data-i="choose" data-i18n="i-choose" data-i18n-title="i-choose-title" title="Click anywhere on the canvas to place centroids yourself. Best for spotting bad-init failures.">I'll choose</button>
       <button data-i="random" class="active" data-i18n="i-random" data-i18n-title="i-random-title" title="Pick k random data points as initial centroids. Simple but often poor.">Randomly</button>
-      <button data-i="farthest" data-i18n="i-farthest" data-i18n-title="i-farthest-title" title="Pick centroids spread far apart from each other. Usually much better than random.">Farthest Point</button>
-      <button data-i="kpp" data-i18n="i-kpp" data-i18n-title="i-kpp-title" title="k-means++: probabilistic Farthest Point. Pick first uniformly, then each subsequent centroid with probability ∝ D(x)² where D(x) is distance to nearest existing centroid. This is what scikit-learn does by default.">k-means++</button>
+      <button data-i="farthest" data-i18n="i-farthest" data-i18n-title="i-farthest-title" title="Pick centroids spread far apart from each other. Usually much better than random.">Farthest point</button>
+      <button data-i="kpp" data-i18n="i-kpp" data-i18n-title="i-kpp-title" title="k-means++: probabilistic farthest point. Pick first uniformly, then each subsequent centroid with probability ∝ D(x)² where D(x) is distance to nearest existing centroid. This is what scikit-learn does by default.">k-means++</button>
     </div>
     <label data-i18n="k-label">k =</label>
     <input id="kInput" type="number" min="1" max="8" value="3" data-i18n-title="k-input-title"
@@ -408,14 +408,14 @@
     <div class="choice-overlay" id="initOverlay" style="display:none">
       <h3>How to pick the initial centroids?</h3>
       <div class="choices">
-        <button class="choice-btn" data-pick="choose">I'll Choose
+        <button class="choice-btn" data-pick="choose">I'll choose
           <span class="sub">Click the canvas yourself</span></button>
         <button class="choice-btn" data-pick="random">Randomly
           <span class="sub">Pick k random points</span></button>
-        <button class="choice-btn" data-pick="farthest">Farthest Point
+        <button class="choice-btn" data-pick="farthest">Farthest point
           <span class="sub">Spread centroids apart</span></button>
         <button class="choice-btn" data-pick="kpp">k-means++
-          <span class="sub">Probabilistic Farthest</span></button>
+          <span class="sub">Probabilistic farthest</span></button>
       </div>
     </div>
   </div>
@@ -705,10 +705,10 @@
       'step-label': 'Step',
       'tldr-strong': 'The big idea',
       'tldr-body': 'K-means clusters points by repeatedly moving each centroid to the mean of the points assigned to it. It works on round blobs and fails on weird shapes.',
-      'd-gaussian': 'Gaussian Mixture', 'd-uniform': 'Uniform Points',
-      'd-packed': 'Packed Circles', 'd-smiley': 'Smiley Face',
-      'd-pimpled': 'Pimpled Smiley', 'd-custom': 'Clear (draw your own)',
-      'i-choose': "I'll Choose", 'i-random': 'Randomly', 'i-farthest': 'Farthest Point', 'i-kpp': 'k-means++',
+      'd-gaussian': 'Gaussian mixture', 'd-uniform': 'Uniform points',
+      'd-packed': 'Packed circles', 'd-smiley': 'Smiley face',
+      'd-pimpled': 'Pimpled smiley', 'd-custom': 'Clear (draw your own)',
+      'i-choose': "I'll choose", 'i-random': 'Randomly', 'i-farthest': 'Farthest point', 'i-kpp': 'k-means++',
       'inertia-label': '📉 Inertia (within-cluster SSE):',
       'inertia-hint': "Inertia is the total squared distance from each point to its assigned centroid. K-means is guaranteed to never increase it. When it flattens, you've converged.",
       'silh-label': '📊 Silhouette score:',
@@ -755,14 +755,14 @@
       // tooltip translations for main controls.
       'd-gaussian-title': 'Three roughly round blobs. K-means works perfectly here when k=3.',
       'd-uniform-title': 'Uniform random points. Tests how k-means behaves with no real cluster structure.',
-      'd-packed-title': 'Six tightly packed circles. Try the Farthest Point init with k=6.',
+      'd-packed-title': 'Six tightly packed circles. Try the farthest point init with k=6.',
       'd-smiley-title': 'A smiley face. The mouth is a curved arc — k-means cannot find it as a single cluster.',
       'd-pimpled-title': 'Smiley face plus noise dots. Tests robustness to outliers.',
       'd-custom-title': 'Empty canvas — click to add your own data points.',
       'i-choose-title': "Click anywhere on the canvas to place centroids yourself. Best for spotting bad-init failures.",
       'i-random-title': 'Pick k random data points as initial centroids. Simple but often poor.',
       'i-farthest-title': 'Pick centroids spread far apart from each other. Usually much better than random.',
-      'i-kpp-title': 'k-means++: probabilistic Farthest Point. Pick first uniformly, then each subsequent centroid with probability ∝ D(x)² where D(x) is distance to nearest existing centroid. This is what scikit-learn does by default.',
+      'i-kpp-title': 'k-means++: probabilistic farthest point. Pick first uniformly, then each subsequent centroid with probability ∝ D(x)² where D(x) is distance to nearest existing centroid. This is what scikit-learn does by default.',
       'k-input-title': "Number of clusters to find. K-means needs this in advance — there's no rule for choosing it.",
       'place-title': 'Place k centroids using the chosen initialization strategy.',
       'reassign-title': 'Assign every point to the cluster of its nearest centroid.',

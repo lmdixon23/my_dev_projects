@@ -359,19 +359,31 @@
     <div style="margin-top:8px; padding:12px 14px; background:var(--card); border:1px solid var(--border); border-radius:6px; font-size:0.88rem; line-height:1.5;">
       <div class="ws-q" id="ws1">
         <p style="margin:0 0 4px;"><strong>Q1.</strong> <span data-i18n="ws1q">BFS on the demo maze. Is the path BFS finds always the shortest?</span></p>
-        <input id="ws1ans" type="text" placeholder="yes / no" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+        <div class="ws-opts" style="display:flex; flex-direction:column; gap:4px; margin:4px 0;">
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws1" value="0"> <span data-i18n="ws1o0">No — BFS finds a path quickly, but not necessarily the shortest one.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws1" value="1"> <span data-i18n="ws1o1">Yes — BFS expands in rings by distance, so it reaches the goal by a shortest path on an unweighted grid.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws1" value="2"> <span data-i18n="ws1o2">Only when the maze has no walls — walls break BFS's guarantee.</span></label>
+        </div>
         <button class="step-btn" id="ws1btn" data-i18n="ws-check">Check</button>
         <span id="ws1fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
       </div>
       <div class="ws-q" id="ws2" style="margin-top:10px;">
         <p style="margin:0 0 4px;"><strong>Q2.</strong> <span data-i18n="ws2q">Same maze, DFS. Compared to BFS's path length, DFS finds a path that is:</span></p>
-        <input id="ws2ans" type="text" placeholder="always shorter / often longer / same" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+        <div class="ws-opts" style="display:flex; flex-direction:column; gap:4px; margin:4px 0;">
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws2" value="0"> <span data-i18n="ws2o0">Always shorter — diving deep reaches the goal by a more direct route.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws2" value="1"> <span data-i18n="ws2o1">The same length — any path-finder returns the same path on one maze.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws2" value="2"> <span data-i18n="ws2o2">Often longer — DFS commits to one direction, so its first path is rarely shortest.</span></label>
+        </div>
         <button class="step-btn" id="ws2btn" data-i18n="ws-check">Check</button>
         <span id="ws2fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
       </div>
       <div class="ws-q" id="ws3" style="margin-top:10px;">
         <p style="margin:0 0 4px;"><strong>Q3.</strong> <span data-i18n="ws3q">A* with admissible Manhattan heuristic vs BFS on the same maze. Number of nodes visited by A* is:</span></p>
-        <input id="ws3ans" type="text" placeholder="fewer / more / same" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+        <div class="ws-opts" style="display:flex; flex-direction:column; gap:4px; margin:4px 0;">
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws3" value="0"> <span data-i18n="ws3o0">Fewer — the heuristic steers A* toward the goal, so it wastes less exploration.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws3" value="1"> <span data-i18n="ws3o1">More — computing the heuristic forces A* to examine extra nodes.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws3" value="2"> <span data-i18n="ws3o2">The same — A* and BFS both visit every reachable cell.</span></label>
+        </div>
         <button class="step-btn" id="ws3btn" data-i18n="ws-check">Check</button>
         <span id="ws3fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
       </div>
@@ -576,9 +588,20 @@
       'tour-prev': '← Prev', 'tour-next': 'Next →', 'tour-apply': '▶ Apply this scenario',
       'ws-summary': '📝 Worksheet (3 questions)',
       'ws-check': 'Check',
+      'ws-pick': 'Pick an answer first.',
       'ws1q': 'BFS on the demo maze. Is the path BFS finds always the shortest?',
       'ws2q': 'Same maze, DFS. Compared to BFS\'s path length, DFS finds a path that is:',
       'ws3q': 'A* with admissible Manhattan heuristic vs BFS on the same maze. Number of nodes visited by A* is:',
+      // --- MCQ: worksheet option labels (ws{n}o{i}) ---
+      'ws1o0': 'No — BFS finds a path quickly, but not necessarily the shortest one.',
+      'ws1o1': 'Yes — BFS expands in rings by distance, so it reaches the goal by a shortest path on an unweighted grid.',
+      'ws1o2': 'Only when the maze has no walls — walls break BFS\'s guarantee.',
+      'ws2o0': 'Always shorter — diving deep reaches the goal by a more direct route.',
+      'ws2o1': 'The same length — any path-finder returns the same path on one maze.',
+      'ws2o2': 'Often longer — DFS commits to one direction, so its first path is rarely shortest.',
+      'ws3o0': 'Fewer — the heuristic steers A* toward the goal, so it wastes less exploration.',
+      'ws3o1': 'More — computing the heuristic forces A* to examine extra nodes.',
+      'ws3o2': 'The same — A* and BFS both visit every reachable cell.',
       // --- F1: lesson-tour scenarios (0-based index: tour{i}name / tour{i}desc) ---
       'tour0name': 'BFS on small grid: shortest path, lots of work',
       'tour0desc': 'Small grid, demo maze, BFS. Press Run search. BFS explores in concentric rings around the start until it hits the goal. It guarantees shortest path but visits MANY nodes.',
@@ -662,9 +685,20 @@
       'tour-prev': '← 上一步', 'tour-next': '下一步 →', 'tour-apply': '▶ 应用此场景',
       'ws-summary': '📝 练习题(3 题)',
       'ws-check': '核对',
+      'ws-pick': '请先选择一个答案。',
       'ws1q': 'BFS 在示例迷宫上运行。BFS 找到的路径总是最短的吗?',
       'ws2q': '同一迷宫,改用 DFS。与 BFS 的路径长度相比,DFS 找到的路径:',
       'ws3q': '在同一迷宫上,使用可行(admissible)曼哈顿启发式的 A* 对比 BFS。A* 访问的节点数:',
+      // --- MCQ: 练习题选项(ws{n}o{i})---
+      'ws1o0': '不——BFS 能快速找到一条路径,但不一定是最短的。',
+      'ws1o1': '是——BFS 按距离一圈圈向外扩展,所以在无权网格上它会沿最短路径到达终点。',
+      'ws1o2': '只有迷宫没有墙时才是——墙会破坏 BFS 的保证。',
+      'ws2o0': '总是更短——一头扎到底会沿更直接的路线到达终点。',
+      'ws2o1': '长度相同——在同一个迷宫上任何寻路算法都返回相同的路径。',
+      'ws2o2': '通常更长——DFS 锁定一个方向,所以它的第一条路很少是最短的。',
+      'ws3o0': '更少——启发式把 A* 引向终点,所以浪费的探索更少。',
+      'ws3o1': '更多——计算启发式迫使 A* 检查额外的节点。',
+      'ws3o2': '相同——A* 和 BFS 都会访问每一个可达的格子。',
       // --- F1: 课程导览场景(0 起始索引:tour{i}name / tour{i}desc)---
       'tour0name': 'BFS 在小网格上:最短路径,但工作量大',
       'tour0desc': '小网格,示例迷宫,BFS。点击"运行搜索"。BFS 以起点为中心一圈圈向外探索,直到碰到终点。它保证最短路径,但会访问很多节点。',
@@ -1682,36 +1716,33 @@
     const L = (document.documentElement.lang || 'en');
     return (STRINGS[L] && STRINGS[L][key]) || en;
   }
+  // MCQ: each question is graded by the selected radio's index, not typed text.
+  // `correct` is the index of the right option (language-agnostic). ok/no are the
+  // existing bilingual feedback keys, with an English inline fallback via wsMsg.
   const WORKSHEET = [
-    { check: ans => {
-        const ok = ans.includes('yes');
-        return { ok,
-          msg: ok
-            ? wsMsg('ws1ok', "Correct. BFS explores in concentric rings (FIFO queue). The first time it reaches the goal, the path length equals the minimum number of edges from start. On uniform-cost grids, that's the shortest path — guaranteed.")
-            : wsMsg('ws1no', "Try 'yes'. BFS expands by distance from start, so the first time it touches the goal, that's the shortest path on an unweighted graph.") };
-      } },
-    { check: ans => {
-        const ok = ans.includes('often') || ans.includes('longer') || ans.includes('worse');
-        return { ok,
-          msg: ok
-            ? wsMsg('ws2ok', "Correct. DFS uses a stack (LIFO) and commits to one direction until it hits a dead end. The first path it finds is usually NOT shortest — DFS isn't designed for optimality, just for finding A path quickly.")
-            : wsMsg('ws2no', "Try 'often longer'. DFS dives deep along one direction first; the first path it finds is rarely the shortest.") };
-      } },
-    { check: ans => {
-        const ok = ans.includes('fewer') || ans.includes('less');
-        return { ok,
-          msg: ok
-            ? wsMsg('ws3ok', "Right. A* uses f = g + h to focus exploration toward the goal. With an admissible heuristic, it still finds the shortest path (like BFS) but visits far fewer 'wasted' nodes in the wrong direction.")
-            : wsMsg('ws3no', "Try 'fewer'. A*'s heuristic biases exploration toward the goal — same correctness as BFS, much less wasted work.") };
-      } },
+    { correct: 1,
+      ok:  ['ws1ok', "Correct. BFS explores in concentric rings (FIFO queue). The first time it reaches the goal, the path length equals the minimum number of edges from start. On uniform-cost grids, that's the shortest path — guaranteed."],
+      no:  ['ws1no', "Try 'yes'. BFS expands by distance from start, so the first time it touches the goal, that's the shortest path on an unweighted graph."] },
+    { correct: 2,
+      ok:  ['ws2ok', "Correct. DFS uses a stack (LIFO) and commits to one direction until it hits a dead end. The first path it finds is usually NOT shortest — DFS isn't designed for optimality, just for finding a path quickly."],
+      no:  ['ws2no', "Try 'often longer'. DFS dives deep along one direction first; the first path it finds is rarely the shortest."] },
+    { correct: 0,
+      ok:  ['ws3ok', "Right. A* uses f = g + h to focus exploration toward the goal. With an admissible heuristic, it still finds the shortest path (like BFS) but visits far fewer 'wasted' nodes in the wrong direction."],
+      no:  ['ws3no', "Try 'fewer'. A*'s heuristic biases exploration toward the goal — same correctness as BFS, much less wasted work."] },
   ];
   WORKSHEET.forEach((q, i) => {
     const n = i + 1;
     $(`ws${n}btn`).addEventListener('click', () => {
-      const ans = (($(`ws${n}ans`).value) || '').trim().toLowerCase();
-      const { ok, msg } = q.check(ans);
       const fb = $(`ws${n}fb`);
-      fb.textContent = (ok ? '✓ ' : '✗ ') + msg;
+      const picked = document.querySelector(`input[name="ws${n}"]:checked`);
+      if (!picked) {
+        fb.textContent = wsMsg('ws-pick', 'Pick an answer first.');
+        fb.style.color = 'var(--muted)';
+        return;
+      }
+      const ok = Number(picked.value) === q.correct;
+      const [key, en] = ok ? q.ok : q.no;
+      fb.textContent = (ok ? '✓ ' : '✗ ') + wsMsg(key, en);
       fb.style.color = ok ? '#16a34a' : '#dc2626';
     });
   });

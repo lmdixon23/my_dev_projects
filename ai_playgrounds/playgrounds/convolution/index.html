@@ -583,25 +583,41 @@
     <div style="margin-top:8px; padding:12px 14px; background:var(--card); border:1px solid var(--border); border-radius:6px; font-size:0.88rem; line-height:1.5;">
       <div class="ws-q" id="ws1">
         <p style="margin:0 0 4px;"><strong>Q1.</strong> <span data-i18n="ws1q">Cross image, Identity kernel. The output image is:</span></p>
-        <input id="ws1ans" type="text" placeholder="same as input / inverted / blank" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+        <div class="ws-opts" style="display:flex; flex-direction:column; gap:4px; margin:4px 0;">
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws1" value="0"> <span data-i18n="ws1o0">Exactly the same as the input — the center weight is 1 and the rest are 0.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws1" value="1"> <span data-i18n="ws1o1">Inverted — black and white are swapped.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws1" value="2"> <span data-i18n="ws1o2">Blank — multiplying by the identity zeroes everything out.</span></label>
+        </div>
         <button class="step-btn" id="ws1btn" data-i18n="ws-check">Check</button>
         <span id="ws1fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
       </div>
       <div class="ws-q" id="ws2" style="margin-top:10px;">
         <p style="margin:0 0 4px;"><strong>Q2.</strong> <span data-i18n="ws2q">Cross image, Sobel-X kernel. Which part of the cross lights up brightest?</span></p>
-        <input id="ws2ans" type="text" placeholder="vertical bar / horizontal bar / center" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+        <div class="ws-opts" style="display:flex; flex-direction:column; gap:4px; margin:4px 0;">
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws2" value="0"> <span data-i18n="ws2o0">The vertical bar — Sobel-X responds to horizontal intensity changes, which occur at vertical edges.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws2" value="1"> <span data-i18n="ws2o1">The horizontal bar — Sobel-X lines up with edges running the same direction as its name.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws2" value="2"> <span data-i18n="ws2o2">The center — the two bars overlap there, so the response is always largest.</span></label>
+        </div>
         <button class="step-btn" id="ws2btn" data-i18n="ws-check">Check</button>
         <span id="ws2fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
       </div>
       <div class="ws-q" id="ws3" style="margin-top:10px;">
         <p style="margin:0 0 4px;"><strong>Q3.</strong> <span data-i18n="ws3q">Switch to "Conv → conv" mode (two stacked 3×3 kernels). The effective receptive field becomes:</span></p>
-        <input id="ws3ans" type="text" placeholder="3×3 / 5×5 / 9×9" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+        <div class="ws-opts" style="display:flex; flex-direction:column; gap:4px; margin:4px 0;">
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws3" value="0"> <span data-i18n="ws3o0">3×3 — stacking kernels doesn't change how far each output pixel can see.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws3" value="1"> <span data-i18n="ws3o1">5×5 — each 3×3 layer adds one cell on every side, so two layers reach 5×5.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws3" value="2"> <span data-i18n="ws3o2">9×9 — two 3×3 kernels multiply to a 9×9 window.</span></label>
+        </div>
         <button class="step-btn" id="ws3btn" data-i18n="ws-check">Check</button>
         <span id="ws3fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
       </div>
       <div class="ws-q" id="ws4" style="margin-top:10px;">
         <p style="margin:0 0 4px;"><strong>Q4.</strong> <span data-i18n="ws4q">Turn on 🎯 Learn the filter, set the target to Sobel-X, and click Train. Starting from a random kernel, what happens to the 9 numbers as the loss falls?</span></p>
-        <input id="ws4ans" type="text" placeholder="they stay random / they become Sobel-X / they grow forever" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+        <div class="ws-opts" style="display:flex; flex-direction:column; gap:4px; margin:4px 0;">
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws4" value="0"> <span data-i18n="ws4o0">They stay random — gradient descent only changes the output, never the kernel weights.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws4" value="1"> <span data-i18n="ws4o1">They converge toward the Sobel-X weights — the random kernel learns to become the edge detector.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws4" value="2"> <span data-i18n="ws4o2">They grow without bound — lowering the loss pushes every weight toward infinity.</span></label>
+        </div>
         <button class="step-btn" id="ws4btn" data-i18n="ws-check">Check</button>
         <span id="ws4fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
       </div>
@@ -797,10 +813,24 @@
       'tour-prev': '← Prev', 'tour-next': 'Next →', 'tour-apply': '▶ Apply this scenario',
       'ws-summary': '📝 Worksheet (4 questions)',
       'ws-check': 'Check',
+      'ws-pick': 'Pick an answer first.',
       'ws1q': 'Cross image, Identity kernel. The output image is:',
       'ws2q': 'Cross image, Sobel-X kernel. Which part of the cross lights up brightest?',
       'ws3q': 'Switch to "Conv → conv" mode (two stacked 3×3 kernels). The effective receptive field becomes:',
       'ws4q': 'Turn on 🎯 Learn the filter, set the target to Sobel-X, and click Train. Starting from a random kernel, what happens to the 9 numbers as the loss falls?',
+      // --- MCQ: worksheet option labels (ws{n}o{i}) ---
+      'ws1o0': 'Exactly the same as the input — the center weight is 1 and the rest are 0.',
+      'ws1o1': 'Inverted — black and white are swapped.',
+      'ws1o2': 'Blank — multiplying by the identity zeroes everything out.',
+      'ws2o0': 'The vertical bar — Sobel-X responds to horizontal intensity changes, which occur at vertical edges.',
+      'ws2o1': 'The horizontal bar — Sobel-X lines up with edges running the same direction as its name.',
+      'ws2o2': 'The center — the two bars overlap there, so the response is always largest.',
+      'ws3o0': '3×3 — stacking kernels doesn\'t change how far each output pixel can see.',
+      'ws3o1': '5×5 — each 3×3 layer adds one cell on every side, so two layers reach 5×5.',
+      'ws3o2': '9×9 — two 3×3 kernels multiply to a 9×9 window.',
+      'ws4o0': 'They stay random — gradient descent only changes the output, never the kernel weights.',
+      'ws4o1': 'They converge toward the Sobel-X weights — the random kernel learns to become the edge detector.',
+      'ws4o2': 'They grow without bound — lowering the loss pushes every weight toward infinity.',
       // --- F1: lesson-tour scenarios (0-based index: tour{i}name / tour{i}desc) ---
       'tour0name': 'Identity kernel = no change',
       'tour0desc': 'Cross image, Identity kernel. Output looks identical to input. Sanity check: the [[0,0,0],[0,1,0],[0,0,0]] kernel passes the center pixel through unchanged.',
@@ -915,10 +945,24 @@
       'tour-prev': '← 上一步', 'tour-next': '下一步 →', 'tour-apply': '▶ 应用此场景',
       'ws-summary': '📝 练习题(4 题)',
       'ws-check': '核对',
+      'ws-pick': '请先选择一个答案。',
       'ws1q': '十字图像,单位(Identity)卷积核。输出图像是:',
       'ws2q': '十字图像,Sobel-X 卷积核。十字的哪一部分最亮?',
       'ws3q': '切换到 "Conv → conv" 模式(两个堆叠的 3×3 卷积核)。有效感受野变为:',
       'ws4q': '打开 🎯 Learn the filter(学习卷积核),把目标设为 Sobel-X,点击 Train。从随机卷积核开始,随着损失下降,这 9 个数字会怎样?',
+      // --- MCQ:练习题选项(ws{n}o{i})---
+      'ws1o0': '与输入完全相同——中心权重为 1,其余都为 0。',
+      'ws1o1': '颜色反转——黑白互换。',
+      'ws1o2': '全空白——乘以单位卷积核会把一切都置零。',
+      'ws2o0': '竖直条——Sobel-X 对水平方向的强度变化作出响应,而这发生在竖直边缘处。',
+      'ws2o1': '水平条——Sobel-X 与和它名字方向相同的边缘对齐。',
+      'ws2o2': '中心——两条在那里交叠,所以响应总是最大。',
+      'ws3o0': '3×3——堆叠卷积核不会改变每个输出像素能看多远。',
+      'ws3o1': '5×5——每个 3×3 层在每一边各加一格,因此两层可达 5×5。',
+      'ws3o2': '9×9——两个 3×3 卷积核相乘得到 9×9 的窗口。',
+      'ws4o0': '保持随机——梯度下降只改变输出,从不改变卷积核权重。',
+      'ws4o1': '逐渐收敛到 Sobel-X 的权重——随机卷积核学会变成边缘检测器。',
+      'ws4o2': '无限增大——降低损失会把每个权重推向无穷大。',
       // --- F1: 课程导览场景(0 起始索引:tour{i}name / tour{i}desc)---
       'tour0name': '恒等卷积核 = 不改变',
       'tour0desc': '十字图像,恒等(Identity)卷积核。输出看上去与输入完全相同。完整性检查:[[0,0,0],[0,1,0],[0,0,0]] 卷积核原样保留中心像素。',
@@ -1878,43 +1922,36 @@
     const L = (document.documentElement.lang || 'en');
     return (STRINGS[L] && STRINGS[L][key]) || en;
   }
+  // MCQ: each question is graded by the selected radio's index, not typed text.
+  // `correct` is the index of the right option (language-agnostic). ok/no are the
+  // existing bilingual feedback keys, with an English inline fallback via wsMsg.
   const WORKSHEET = [
-    { check: ans => {
-        const ok = ans.includes('same') || ans.includes('input') || ans.includes('unchanged');
-        return { ok,
-          msg: ok
-            ? wsMsg('ws1ok', "Correct. The Identity kernel [[0,0,0],[0,1,0],[0,0,0]] multiplies the center pixel by 1 and everyone else by 0. The output is exactly the input — a useful sanity check.")
-            : wsMsg('ws1no', "Try 'same as input'. Identity kernel preserves the center pixel and zeros out the rest of the neighborhood — output = input.") };
-      } },
-    { check: ans => {
-        const ok = ans.includes('vertical');
-        return { ok,
-          msg: ok
-            ? wsMsg('ws2ok', "Correct. Sobel-X detects horizontal *changes* in intensity — which happen at the edges of vertical lines. The vertical bar of the cross lights up because that's where pixel values change horizontally.")
-            : wsMsg('ws2no', "Try 'vertical bar'. Sobel-X kernel = [[-1,0,1],[-2,0,2],[-1,0,1]] computes ∂I/∂x — large where pixels change horizontally, which is at vertical edges.") };
-      } },
-    { check: ans => {
-        const ok = ans.includes('5');
-        return { ok,
-          msg: ok
-            ? wsMsg('ws3ok', "Correct. Stacked 3×3 convs grow the receptive field by 2 cells per layer: 3 → 5 → 7. Two 3×3 layers see a 5×5 input patch with FEWER parameters than one 5×5 kernel (18 vs 25). This is why CNN architectures stack small kernels.")
-            : wsMsg('ws3no', "Try 5×5. Each 3×3 conv adds 2 to the receptive field width (1 on each side). Stacking two 3×3s sees 5×5.") };
-      } },
-    { check: ans => {
-        const ok = ans.includes('sobel') || ans.includes('edge') || ans.includes('target') || ans.includes('converge') || ans.includes('learn');
-        return { ok,
-          msg: ok
-            ? wsMsg('ws4ok', "Correct. Gradient descent nudges all 9 kernel values toward the Sobel-X target. As the MSE loss falls, the random kernel converges to the edge-detector — exactly how a CNN learns its filters during training.")
-            : wsMsg('ws4no', "Try 'they converge toward Sobel-X' or 'they learn the edge detector'. Gradient descent computes how each of the 9 weights should change to reduce the loss, then updates them — step by step the random kernel becomes the target.") };
-      } },
+    { correct: 0,
+      ok:  ['ws1ok', "Correct. The Identity kernel [[0,0,0],[0,1,0],[0,0,0]] multiplies the center pixel by 1 and everyone else by 0. The output is exactly the input — a useful sanity check."],
+      no:  ['ws1no', "Try 'same as input'. Identity kernel preserves the center pixel and zeros out the rest of the neighborhood — output = input."] },
+    { correct: 0,
+      ok:  ['ws2ok', "Correct. Sobel-X detects horizontal *changes* in intensity — which happen at the edges of vertical lines. The vertical bar of the cross lights up because that's where pixel values change horizontally."],
+      no:  ['ws2no', "Try 'vertical bar'. Sobel-X kernel = [[-1,0,1],[-2,0,2],[-1,0,1]] computes ∂I/∂x — large where pixels change horizontally, which is at vertical edges."] },
+    { correct: 1,
+      ok:  ['ws3ok', "Correct. Stacked 3×3 convs grow the receptive field by 2 cells per layer: 3 → 5 → 7. Two 3×3 layers see a 5×5 input patch with FEWER parameters than one 5×5 kernel (18 vs 25). This is why CNN architectures stack small kernels."],
+      no:  ['ws3no', "Try 5×5. Each 3×3 conv adds 2 to the receptive field width (1 on each side). Stacking two 3×3s sees 5×5."] },
+    { correct: 1,
+      ok:  ['ws4ok', "Correct. Gradient descent nudges all 9 kernel values toward the Sobel-X target. As the MSE loss falls, the random kernel converges to the edge-detector — exactly how a CNN learns its filters during training."],
+      no:  ['ws4no', "Try 'they converge toward Sobel-X' or 'they learn the edge detector'. Gradient descent computes how each of the 9 weights should change to reduce the loss, then updates them — step by step the random kernel becomes the target."] },
   ];
   WORKSHEET.forEach((q, i) => {
     const n = i + 1;
     $(`ws${n}btn`).addEventListener('click', () => {
-      const ans = (($(`ws${n}ans`).value) || '').trim().toLowerCase();
-      const { ok, msg } = q.check(ans);
       const fb = $(`ws${n}fb`);
-      fb.textContent = (ok ? '✓ ' : '✗ ') + msg;
+      const picked = document.querySelector(`input[name="ws${n}"]:checked`);
+      if (!picked) {
+        fb.textContent = wsMsg('ws-pick', 'Pick an answer first.');
+        fb.style.color = 'var(--muted)';
+        return;
+      }
+      const ok = Number(picked.value) === q.correct;
+      const [key, en] = ok ? q.ok : q.no;
+      fb.textContent = (ok ? '✓ ' : '✗ ') + wsMsg(key, en);
       fb.style.color = ok ? '#16a34a' : '#dc2626';
     });
   });

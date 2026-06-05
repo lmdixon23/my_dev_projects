@@ -377,19 +377,31 @@
     <div style="margin-top:8px; padding:12px 14px; background:var(--card); border:1px solid var(--border); border-radius:6px; font-size:0.88rem; line-height:1.5;">
       <div class="ws-q" id="ws1">
         <p style="margin:0 0 4px;"><strong>Q1.</strong> <span data-i18n="ws1q">Disease test. Set prior=1%, sensitivity=99%, specificity=99%. P(disease | positive) is closest to:</span></p>
-        <input id="ws1ans" type="text" placeholder="1% / 50% / 99%" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+        <div class="ws-opts" style="display:flex; flex-direction:column; gap:4px; margin:4px 0;">
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws1" value="0"> <span data-i18n="ws1o0">~99% — the test is 99% accurate, so a positive is almost certainly real.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws1" value="1"> <span data-i18n="ws1o1">~50% — false positives from the huge healthy majority roughly equal the true positives.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws1" value="2"> <span data-i18n="ws1o2">~1% — one test barely moves the 1% prior at all.</span></label>
+        </div>
         <button class="step-btn" id="ws1btn" data-i18n="ws-check">Check</button>
         <span id="ws1fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
       </div>
       <div class="ws-q" id="ws2" style="margin-top:10px;">
         <p style="margin:0 0 4px;"><strong>Q2.</strong> <span data-i18n="ws2q">Hold sens=99%, spec=99%. Raise prior from 1% to 20%. P(disease | positive) goes:</span></p>
-        <input id="ws2ans" type="text" placeholder="up / down / same" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+        <div class="ws-opts" style="display:flex; flex-direction:column; gap:4px; margin:4px 0;">
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws2" value="0"> <span data-i18n="ws2o0">Down — a higher prior leaves less room for the posterior to rise.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws2" value="1"> <span data-i18n="ws2o1">Same — the test's accuracy is unchanged, so the result is unchanged.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws2" value="2"> <span data-i18n="ws2o2">Up — a higher prior means more true positives relative to false positives.</span></label>
+        </div>
         <button class="step-btn" id="ws2btn" data-i18n="ws-check">Check</button>
         <span id="ws2fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
       </div>
       <div class="ws-q" id="ws3" style="margin-top:10px;">
         <p style="margin:0 0 4px;"><strong>Q3.</strong> <span data-i18n="ws3q">Back to prior=1%, sens=99%, spec=99%. After ONE positive (posterior ≈ 50%), click "Test came back POSITIVE" to retest. After the SECOND positive, P(disease) is closest to:</span></p>
-        <input id="ws3ans" type="text" placeholder="50% / 90% / 99%" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+        <div class="ws-opts" style="display:flex; flex-direction:column; gap:4px; margin:4px 0;">
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws3" value="0"> <span data-i18n="ws3o0">~99% — the second positive updates from the new ~50% prior and multiplies the odds.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws3" value="1"> <span data-i18n="ws3o1">~50% — a repeat of the same test just gives the same result again.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws3" value="2"> <span data-i18n="ws3o2">~90% — two positives add up but never get near certainty.</span></label>
+        </div>
         <button class="step-btn" id="ws3btn" data-i18n="ws-check">Check</button>
         <span id="ws3fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
       </div>
@@ -529,10 +541,20 @@
       'tour-prev': '← Prev', 'tour-next': 'Next →', 'tour-apply': '▶ Apply this scenario',
       'ws-summary': '📝 Worksheet (3 questions)',
       'ws-check': 'Check',
+      'ws-pick': 'Pick an answer first.',
       // --- F1: worksheet question prompts (data-i18n spans) ---
       'ws1q': 'Disease test. Set prior=1%, sensitivity=99%, specificity=99%. P(disease | positive) is closest to:',
+      'ws1o0': '~99% — the test is 99% accurate, so a positive is almost certainly real.',
+      'ws1o1': '~50% — false positives from the huge healthy majority roughly equal the true positives.',
+      'ws1o2': '~1% — one test barely moves the 1% prior at all.',
       'ws2q': 'Hold sens=99%, spec=99%. Raise prior from 1% to 20%. P(disease | positive) goes:',
+      'ws2o0': 'Down — a higher prior leaves less room for the posterior to rise.',
+      'ws2o1': "Same — the test's accuracy is unchanged, so the result is unchanged.",
+      'ws2o2': 'Up — a higher prior means more true positives relative to false positives.',
       'ws3q': 'Back to prior=1%, sens=99%, spec=99%. After ONE positive (posterior ≈ 50%), click "Test came back POSITIVE" to retest. After the SECOND positive, P(disease) is closest to:',
+      'ws3o0': '~99% — the second positive updates from the new ~50% prior and multiplies the odds.',
+      'ws3o1': '~50% — a repeat of the same test just gives the same result again.',
+      'ws3o2': '~90% — two positives add up but never get near certainty.',
       // --- F1: lesson-tour scenarios (0-based index: tour{i}name / tour{i}desc) ---
       'tour0name': 'Base rate fallacy (1% prior, 99% accurate)',
       'tour0desc': "The classic. Disease affects 1 in 100. Test is 99% sensitive and 99% specific. Posterior given positive ≈ 50% — most people guess >95%. The prior dominates.",
@@ -591,10 +613,20 @@
       'tour-prev': '← 上一步', 'tour-next': '下一步 →', 'tour-apply': '▶ 应用此场景',
       'ws-summary': '📝 练习题(3 题)',
       'ws-check': '核对',
+      'ws-pick': '请先选择一个答案。',
       // --- F1: 练习题题干(data-i18n span)---
       'ws1q': '疾病检测。设先验=1%、灵敏度=99%、特异度=99%。P(患病 | 阳性) 最接近:',
+      'ws1o0': '约 99%——检测准确率是 99%,所以阳性几乎肯定是真的。',
+      'ws1o1': '约 50%——庞大健康人群产生的假阳性,与真阳性数量大致相当。',
+      'ws1o2': '约 1%——一次检测几乎不会改变 1% 的先验。',
       'ws2q': '保持灵敏度=99%、特异度=99%。把先验从 1% 提高到 20%。P(患病 | 阳性) 会:',
+      'ws2o0': '下降——先验更高,后验上升的空间反而更小。',
+      'ws2o1': '不变——检测的准确率没变,所以结果也不变。',
+      'ws2o2': '上升——先验更高意味着真阳性相对于假阳性更多。',
       'ws3q': '回到先验=1%、灵敏度=99%、特异度=99%。在第一次阳性(后验 ≈ 50%)之后,点击"检测结果为阳性"再测一次。第二次阳性之后,P(患病) 最接近:',
+      'ws3o0': '约 99%——第二次阳性以新的约 50% 先验为起点,再次相乘提高几率。',
+      'ws3o1': '约 50%——重复同一种检测只会得到同样的结果。',
+      'ws3o2': '约 90%——两次阳性会累加,但永远到不了接近确定。',
       // --- F1: 课程导览场景(0 起始索引:tour{i}name / tour{i}desc)---
       'tour0name': '基率谬误(先验 1%,准确率 99%)',
       'tour0desc': '最经典的例子。疾病发病率为百分之一。检测的灵敏度 99%、特异度 99%。阳性下的后验 ≈ 50%——大多数人会猜超过 95%。先验起主导作用。',
@@ -1086,36 +1118,33 @@
     return (STRINGS[L] && STRINGS[L][key]) || en;
   }
   // Worksheet/lab mode — 3 questions with instant ✓/✗ feedback.
+  // MCQ: each question is graded by the selected radio's index, not typed text.
+  // `correct` is the index of the right option (language-agnostic). ok/no are the
+  // existing bilingual feedback keys, with an English inline fallback via wsMsg.
   const WORKSHEET = [
-    { check: ans => {
-        const ok = ans.includes('50');
-        return { ok,
-          msg: ok
-            ? wsMsg('ws1ok', "Correct (~50%). Of 100 actual sick people, 99 test positive. Of 9,900 healthy people, 99 test positive. So 99/198 ≈ 50% of positives are real. The 'base rate fallacy' is intuitively expecting ~99%.")
-            : wsMsg('ws1no', "Try 50%. Most people guess 99% because the test is '99% accurate' — but the prior dominates. Of 10,000 people, only 100 are sick and ~99 false positives come from healthy.") };
-      } },
-    { check: ans => {
-        const ok = ans.includes('up') || ans.includes('higher') || ans.includes('increase');
-        return { ok,
-          msg: ok
-            ? wsMsg('ws2ok', "Correct. With prior=20%, posterior given positive jumps from ~50% to ~96%. Same test, completely different clinical meaning — context matters.")
-            : wsMsg('ws2no', "Try 'up'. Higher prior means more true positives relative to false positives, so the posterior rises.") };
-      } },
-    { check: ans => {
-        const ok = ans.includes('99') || ans.includes('99.');
-        return { ok,
-          msg: ok
-            ? wsMsg('ws3ok', "Correct. After one positive, posterior ≈ 50% (now your prior). Re-testing with 99/99 test and a 50% prior gives posterior ≈ 99%. This is why doctors retest — independent evidence multiplies.")
-            : wsMsg('ws3no', "Try 99%. The first positive raised P(sick) to ~50%, which becomes the prior for test #2. The second positive then multiplies LR ≈ 99 on those odds.") };
-      } },
+    { correct: 1,
+      ok:  ['ws1ok', "Correct (~50%). Of 100 actual sick people, 99 test positive. Of 9,900 healthy people, 99 test positive. So 99/198 ≈ 50% of positives are real. The 'base rate fallacy' is intuitively expecting ~99%."],
+      no:  ['ws1no', "Try 50%. Most people guess 99% because the test is '99% accurate' — but the prior dominates. Of 10,000 people, only 100 are sick and ~99 false positives come from healthy."] },
+    { correct: 2,
+      ok:  ['ws2ok', "Correct. With prior=20%, posterior given positive jumps from ~50% to ~96%. Same test, completely different clinical meaning — context matters."],
+      no:  ['ws2no', "Try 'up'. Higher prior means more true positives relative to false positives, so the posterior rises."] },
+    { correct: 0,
+      ok:  ['ws3ok', "Correct. After one positive, posterior ≈ 50% (now your prior). Re-testing with 99/99 test and a 50% prior gives posterior ≈ 99%. This is why doctors retest — independent evidence multiplies."],
+      no:  ['ws3no', "Try 99%. The first positive raised P(sick) to ~50%, which becomes the prior for test #2. The second positive then multiplies LR ≈ 99 on those odds."] },
   ];
   WORKSHEET.forEach((q, i) => {
     const n = i + 1;
     $(`ws${n}btn`).addEventListener('click', () => {
-      const ans = (($(`ws${n}ans`).value) || '').trim().toLowerCase();
-      const { ok, msg } = q.check(ans);
       const fb = $(`ws${n}fb`);
-      fb.textContent = (ok ? '✓ ' : '✗ ') + msg;
+      const picked = document.querySelector(`input[name="ws${n}"]:checked`);
+      if (!picked) {
+        fb.textContent = wsMsg('ws-pick', 'Pick an answer first.');
+        fb.style.color = 'var(--muted)';
+        return;
+      }
+      const ok = Number(picked.value) === q.correct;
+      const [key, en] = ok ? q.ok : q.no;
+      fb.textContent = (ok ? '✓ ' : '✗ ') + wsMsg(key, en);
       fb.style.color = ok ? '#16a34a' : '#dc2626';
     });
   });

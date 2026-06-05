@@ -404,19 +404,31 @@
     <div style="margin-top:8px; padding:12px 14px; background:var(--card); border:1px solid var(--border); border-radius:6px; font-size:0.88rem; line-height:1.5;">
       <div class="ws-q" id="ws1">
         <p style="margin:0 0 4px;"><strong>Q1.</strong> <span data-i18n="ws1q">Moons dataset, h1=0, h2=0, linear activation. Train. Final loss is closest to:</span></p>
-        <input id="ws1ans" type="text" placeholder="0 / 0.3 / NaN" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+        <div class="ws-opts" style="display:flex; flex-direction:column; gap:4px; margin:4px 0;">
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws1" value="0"> <span data-i18n="ws1o0">0 — a single linear layer is enough to separate the two moons.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws1" value="1"> <span data-i18n="ws1o1">About 0.3 — a straight line cannot split the moons, so loss plateaus above zero.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws1" value="2"> <span data-i18n="ws1o2">NaN — a linear model has no hidden layer, so training diverges.</span></label>
+        </div>
         <button class="step-btn" id="ws1btn" data-i18n="ws-check">Check</button>
         <span id="ws1fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
       </div>
       <div class="ws-q" id="ws2" style="margin-top:10px;">
         <p style="margin:0 0 4px;"><strong>Q2.</strong> <span data-i18n="ws2q">Same dataset, h1=6, activation=ReLU. After training, final loss is closest to:</span></p>
-        <input id="ws2ans" type="text" placeholder="0 / 0.3 / NaN" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+        <div class="ws-opts" style="display:flex; flex-direction:column; gap:4px; margin:4px 0;">
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws2" value="0"> <span data-i18n="ws2o0">Near 0 — a ReLU hidden layer adds enough capacity to bend the boundary around the moons.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws2" value="1"> <span data-i18n="ws2o1">About 0.3 — adding ReLU does not change what a linear model can already do.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws2" value="2"> <span data-i18n="ws2o2">NaN — ReLU units always die and stop the network from learning.</span></label>
+        </div>
         <button class="step-btn" id="ws2btn" data-i18n="ws-check">Check</button>
         <span id="ws2fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
       </div>
       <div class="ws-q" id="ws3" style="margin-top:10px;">
         <p style="margin:0 0 4px;"><strong>Q3.</strong> <span data-i18n="ws3q">Moons, h1=6 h2=4, activation=linear (no non-linearity). Compared to 1 linear layer (h1=0), the capacity is:</span></p>
-        <input id="ws3ans" type="text" placeholder="same / more / less" style="padding:3px 6px; border:1px solid var(--border); border-radius:4px; font:inherit;">
+        <div class="ws-opts" style="display:flex; flex-direction:column; gap:4px; margin:4px 0;">
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws3" value="0"> <span data-i18n="ws3o0">More — two extra layers give the network strictly more expressive power.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws3" value="1"> <span data-i18n="ws3o1">Less — stacking layers shrinks the number of usable parameters.</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer;"><input type="radio" name="ws3" value="2"> <span data-i18n="ws3o2">The same — stacked linear layers collapse into a single linear map.</span></label>
+        </div>
         <button class="step-btn" id="ws3btn" data-i18n="ws-check">Check</button>
         <span id="ws3fb" style="margin-left:6px; font-family:ui-monospace,monospace; font-size:0.85rem;"></span>
       </div>
@@ -559,10 +571,21 @@
       'tour-prev': '← Prev', 'tour-next': 'Next →', 'tour-apply': '▶ Apply this scenario',
       'ws-summary': '📝 Worksheet (3 questions)',
       'ws-check': 'Check',
+      'ws-pick': 'Pick an answer first.',
       // --- F1: worksheet question prompts (data-i18n spans) ---
       'ws1q': 'Moons dataset, h1=0, h2=0, linear activation. Train. Final loss is closest to:',
       'ws2q': 'Same dataset, h1=6, activation=ReLU. After training, final loss is closest to:',
       'ws3q': 'Moons, h1=6 h2=4, activation=linear (no non-linearity). Compared to 1 linear layer (h1=0), the capacity is:',
+      // --- MCQ: worksheet option labels (ws{n}o{i}) ---
+      'ws1o0': '0 — a single linear layer is enough to separate the two moons.',
+      'ws1o1': 'About 0.3 — a straight line cannot split the moons, so loss plateaus above zero.',
+      'ws1o2': 'NaN — a linear model has no hidden layer, so training diverges.',
+      'ws2o0': 'Near 0 — a ReLU hidden layer adds enough capacity to bend the boundary around the moons.',
+      'ws2o1': 'About 0.3 — adding ReLU does not change what a linear model can already do.',
+      'ws2o2': 'NaN — ReLU units always die and stop the network from learning.',
+      'ws3o0': 'More — two extra layers give the network strictly more expressive power.',
+      'ws3o1': 'Less — stacking layers shrinks the number of usable parameters.',
+      'ws3o2': 'The same — stacked linear layers collapse into a single linear map.',
       // --- F1: lesson-tour scenarios (0-based index: tour{i}name / tour{i}desc) ---
       'tour0name': 'Linear can split linearly-separable data',
       'tour0desc': "Blobs dataset (two clouds), no hidden layer (h1=0, h2=0), linear activation. The network is just logistic regression — and that's enough. Watch the loss drop fast.",
@@ -642,10 +665,21 @@
       'tour-prev': '← 上一步', 'tour-next': '下一步 →', 'tour-apply': '▶ 应用此场景',
       'ws-summary': '📝 练习题(3 题)',
       'ws-check': '核对',
+      'ws-pick': '请先选择一个答案。',
       // --- F1: 练习题题干(data-i18n span)---
       'ws1q': '双月数据集,h1=0、h2=0,线性激活。训练。最终损失最接近:',
       'ws2q': '同一数据集,h1=6,激活函数=ReLU。训练后,最终损失最接近:',
       'ws3q': '双月,h1=6、h2=4,激活函数=线性(无非线性)。与 1 个线性层(h1=0)相比,容量是:',
+      // --- MCQ: 练习题选项(ws{n}o{i})---
+      'ws1o0': '0——单个线性层就足以分开两个月牙。',
+      'ws1o1': '约 0.3——直线无法分开月牙,所以损失停在零以上。',
+      'ws1o2': 'NaN——线性模型没有隐藏层,所以训练发散。',
+      'ws2o0': '接近 0——一个 ReLU 隐藏层提供了足够的容量,把边界绕着月牙弯曲。',
+      'ws2o1': '约 0.3——加上 ReLU 并不会改变线性模型本就能做的事。',
+      'ws2o2': 'NaN——ReLU 单元总会"死亡",使网络无法学习。',
+      'ws3o0': '更多——两个额外的层让网络拥有严格更强的表达能力。',
+      'ws3o1': '更少——堆叠层会减少可用参数的数量。',
+      'ws3o2': '相同——堆叠的线性层会塌缩成一个线性映射。',
       // --- F1: 课程导览场景(0 起始索引:tour{i}name / tour{i}desc)---
       'tour0name': '线性模型可以分开线性可分的数据',
       'tour0desc': '两团数据集(两片点云),无隐藏层(h1=0、h2=0),线性激活。此时网络就是逻辑回归——而这已经够了。观察损失迅速下降。',
@@ -1680,36 +1714,33 @@
     const L = (document.documentElement.lang || 'en');
     return (STRINGS[L] && STRINGS[L][key]) || en;
   }
+  // MCQ: each question is graded by the selected radio's index, not typed text.
+  // `correct` is the index of the right option (language-agnostic). ok/no are the
+  // existing bilingual feedback keys, with an English inline fallback via wsMsg.
   const WORKSHEET = [
-    { check: ans => {
-        const ok = ans.includes('0.3') || ans.includes('.3') || ans.includes('plateau') || ans.includes('high');
-        return { ok,
-          msg: ok
-            ? wsMsg('ws1ok', "Correct (~0.3+). A linear model is just logistic regression — it can only draw straight lines. The moons are nonlinearly separable, so the best a linear classifier can do is misclassify some — loss plateaus around 0.3.")
-            : wsMsg('ws1no', "Try 0.3. With h1=0 + linear activation, the model is logistic regression, which can't curve. Loss plateaus well above zero.") };
-      } },
-    { check: ans => {
-        const ok = ans.trim() === '0' || ans.includes('near') || ans.includes('~0') || ans.includes('zero');
-        return { ok,
-          msg: ok
-            ? wsMsg('ws2ok', "Right. h1=6 ReLU is just enough capacity to bend the boundary into the moon shape. Loss drops to near zero (or actual zero if data is fully separable). Non-linearity is the unlock — depth alone with linear activation wouldn't help.")
-            : wsMsg('ws2no', "Try 0 (near zero). ReLU + a hidden layer gives the network enough capacity to learn the curved boundary.") };
-      } },
-    { check: ans => {
-        const ok = ans.includes('same');
-        return { ok,
-          msg: ok
-            ? wsMsg('ws3ok', "Correct. Two linear layers compose to ONE linear layer — math: A·(B·x) = (A·B)·x. Stacking depth without non-linearity is mathematically equivalent to a single layer, just with more parameters wastefully reparameterizing it.")
-            : wsMsg('ws3no', "Try 'same'. f(x) = W₂(W₁x) = (W₂W₁)x — composition of linear maps is linear. Depth alone gains nothing.") };
-      } },
+    { correct: 1,
+      ok:  ['ws1ok', "Correct (~0.3+). A linear model is just logistic regression — it can only draw straight lines. The moons are nonlinearly separable, so the best a linear classifier can do is misclassify some — loss plateaus around 0.3."],
+      no:  ['ws1no', "Try 0.3. With h1=0 + linear activation, the model is logistic regression, which can't curve. Loss plateaus well above zero."] },
+    { correct: 0,
+      ok:  ['ws2ok', "Right. h1=6 ReLU is just enough capacity to bend the boundary into the moon shape. Loss drops to near zero (or actual zero if data is fully separable). Non-linearity is the unlock — depth alone with linear activation would not help."],
+      no:  ['ws2no', "Try 0 (near zero). ReLU + a hidden layer gives the network enough capacity to learn the curved boundary."] },
+    { correct: 2,
+      ok:  ['ws3ok', "Correct. Two linear layers compose to ONE linear layer — math: A·(B·x) = (A·B)·x. Stacking depth without non-linearity is mathematically equivalent to a single layer, just with more parameters wastefully reparameterizing it."],
+      no:  ['ws3no', "Try 'same'. f(x) = W₂(W₁x) = (W₂W₁)x — composition of linear maps is linear. Depth alone gains nothing."] },
   ];
   WORKSHEET.forEach((q, i) => {
     const n = i + 1;
     $(`ws${n}btn`).addEventListener('click', () => {
-      const ans = (($(`ws${n}ans`).value) || '').trim().toLowerCase();
-      const { ok, msg } = q.check(ans);
       const fb = $(`ws${n}fb`);
-      fb.textContent = (ok ? '✓ ' : '✗ ') + msg;
+      const picked = document.querySelector(`input[name="ws${n}"]:checked`);
+      if (!picked) {
+        fb.textContent = wsMsg('ws-pick', 'Pick an answer first.');
+        fb.style.color = 'var(--muted)';
+        return;
+      }
+      const ok = Number(picked.value) === q.correct;
+      const [key, en] = ok ? q.ok : q.no;
+      fb.textContent = (ok ? '✓ ' : '✗ ') + wsMsg(key, en);
       fb.style.color = ok ? '#16a34a' : '#dc2626';
     });
   });
