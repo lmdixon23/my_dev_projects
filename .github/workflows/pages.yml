@@ -38,7 +38,7 @@ jobs:
           # permitted to enable Pages; otherwise enable it once by hand.)
           enablement: true
       - name: Upload ai_playgrounds as the Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: ai_playgrounds
       - name: Deploy to GitHub Pages
