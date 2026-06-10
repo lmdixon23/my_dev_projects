@@ -31,16 +31,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
       - name: Configure Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
         with:
           # Turn Pages on via the API on the first run, so no manual
           # Settings -> Pages click is needed. (Requires repo Actions to be
           # permitted to enable Pages; otherwise enable it once by hand.)
           enablement: true
       - name: Upload ai_playgrounds as the Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: ai_playgrounds
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
