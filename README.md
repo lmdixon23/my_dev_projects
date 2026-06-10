@@ -4,10 +4,10 @@
 [![Python: 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 [![Rust: stable](https://img.shields.io/badge/rust-stable-orange.svg)](https://www.rust-lang.org/)
 [![CI](https://github.com/lmdixon23/my_dev_projects/actions/workflows/ci.yml/badge.svg)](https://github.com/lmdixon23/my_dev_projects/actions/workflows/ci.yml)
-[![Live demo](https://img.shields.io/badge/live_demo-playgrounds-brightgreen.svg)](https://lmdixon23.github.io/my_dev_projects/)
+[![Live demo](https://img.shields.io/badge/live_demo-AI_Playgrounds-brightgreen.svg)](https://lmdixon23.github.io/ai-playgrounds/)
 [![good first issues](https://img.shields.io/github/issues/lmdixon23/my_dev_projects/good%20first%20issue?label=good%20first%20issues&color=7057ff)](https://github.com/lmdixon23/my_dev_projects/issues?q=is%3Aopen+label%3A%22good+first+issue%22)
 
-> **▶ Live demo:** [12 interactive AI playgrounds, in your browser](https://lmdixon23.github.io/my_dev_projects/) — no install, bilingual EN / 中文.
+> **▶ Live demo:** [12 interactive AI playgrounds, in your browser](https://lmdixon23.github.io/ai-playgrounds/) — no install, bilingual EN / 中文. *(Now its own repository: [lmdixon23/ai-playgrounds](https://github.com/lmdixon23/ai-playgrounds).)*
 
 A working portfolio spanning AI engineering, machine learning, blockchain protocols, data engineering, and network security. Each project builds and runs, carries a real test suite or smoke pipeline, and ships a README that's clear about what's implemented versus what's still aspirational.
 
@@ -33,8 +33,9 @@ These aren't tutorial forks or throwaway notebooks. Each one shows a concrete en
 | [`blockchain_protocols/`](./blockchain_protocols/) | Rust protocol implementations                                                             | 6             |
 | [`data_engineering/`](./data_engineering/)         | ETL, warehousing, analytics                                                               | 1             |
 | [`network_security/`](./network_security/)         | Cloud security infrastructure                                                             | 1             |
-| [`ai_playgrounds/`](./ai_playgrounds/)             | Twelve single-file HTML+JS interactive applets for teaching core AI ideas                 | 12            |
 | [`prototypes/`](./prototypes/)                     | Sketches and experiments, intentionally below portfolio bar                               | varies        |
+
+> **Note:** the twelve **AI Playgrounds** applets now live in their own repository — [lmdixon23/ai-playgrounds](https://github.com/lmdixon23/ai-playgrounds) ([live demo](https://lmdixon23.github.io/ai-playgrounds/)) — and are no longer a folder here.
 
 Each project README follows a familiar arc: a short overview, key features, architecture and example usage, a Getting Started section (prerequisites, installation, running, testing), then technical specifications, what the project demonstrates, an honest Scope, and Future Enhancements.
 
@@ -77,13 +78,9 @@ All Rust, all `lib + bin` with integration tests under `tests/`, all honest abou
 
 - **[SSE Coexistence Testing](./network_security/sse_coexistence_testing/)** — Terraform-managed AWS infrastructure for checking that Security Service Edge / Global Secure Access controls coexist with a host firewall (UFW).
 
-### AI Playgrounds ([`ai_playgrounds/`](./ai_playgrounds/))
+### AI Playgrounds — now its own repository
 
-Twelve single-file HTML+JavaScript interactive applets — no build step, no install, GitHub-Pages deployable — that map to the most visually-rich units of an introductory AI course. Built as a teaching companion for the 2025–2026 *Introduction to AI* curriculum at Haidian Kaiwen Academy, but free for any classroom to use.
-
-Each applet targets a single "aha" moment — examples include A* vs BFS (search), Bayes-rule for rare diseases (probability), k in KNN (supervised), polynomial overfitting (evaluation), a TF-Playground-style tiny network (neural nets), k-means iteration (unsupervised), 3×3 convolution kernels (CV), and Q-learning gridworld (RL), plus logic/SAT, Bayesian networks, local search, and the Wumpus World. Drag a slider, the visualization re-renders live. See [`ai_playgrounds/README.md`](./ai_playgrounds/) for the full list and deployment guide.
-
-
+The twelve interactive intro-AI applets that used to live here have moved to a standalone repo: **[lmdixon23/ai-playgrounds](https://github.com/lmdixon23/ai-playgrounds)** · **[live demo](https://lmdixon23.github.io/ai-playgrounds/)**. Single-file HTML+JavaScript, no build step, bilingual EN / 中文, mapped to the most visually-rich units of an introductory AI course — A\* vs BFS, Bayes' rule for rare diseases, Bayesian networks, *k* in KNN, polynomial overfitting, a TF-Playground-style tiny network, k-means iteration, 3×3 convolution kernels, Q-learning gridworld, logic/SAT, local search, and the Wumpus World. Drag a slider, the visualization re-renders live.
 
 ## Continuous integration
 
