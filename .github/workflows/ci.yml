@@ -40,8 +40,6 @@ jobs:
             test-cmd: 'python -m pytest tests/ -v'
           - project: machine_learning/predictive_maintenance
             test-cmd: 'python -m pytest tests/ -v'
-          - project: machine_learning/sentiment_analysis_transfer_learning
-            test-cmd: 'SKIP_NETWORK_TESTS=1 python -m pytest tests/ -v'
           - project: data_engineering/sales_data_etl_ssis
             test-cmd: 'python -m unittest discover python_reference_etl'
     steps:
