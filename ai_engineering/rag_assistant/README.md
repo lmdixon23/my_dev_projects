@@ -182,6 +182,21 @@ recall@k and MRR, their deltas, and per-case reciprocal-rank changes. The
 current five-case suite is saturated, so the observed delta is provisional
 until the expanded benchmark in issue #18 is available.
 
+### Measured Smoke Result
+
+A CPU run using `sentence-transformers/all-MiniLM-L6-v2` and
+`cross-encoder/ms-marco-MiniLM-L-6-v2` produced:
+
+| Configuration | recall@3 | MRR |
+|---|---:|---:|
+| Embedding only | 1.000 | 0.900 |
+| Cross-encoder re-ranked | 1.000 | 1.000 |
+| Observed delta | +0.000 | +0.100 |
+
+The re-ranker moved the approximate-nearest-neighbor question from rank 2 to
+rank 1. This records the observed result on the checked-in five-case smoke
+suite; it does not establish a general quality lift. Issue #18 remains the
+required follow-up for a discriminative benchmark.
 ## Scope
 
 - The chunker is character-based and language-agnostic, which is good portability but slightly worse than tokenization-aware chunking for very long contexts.
