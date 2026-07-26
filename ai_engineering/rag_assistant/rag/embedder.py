@@ -66,7 +66,14 @@ class SentenceTransformerEmbedder:
         from sentence_transformers import SentenceTransformer  # type: ignore
 
         self._model = SentenceTransformer(model_name)
-        self.dim = self._model.get_sentence_embedding_dimension()
+        dimension_getter = getattr(
+            self._model,
+            "get_embedding_dimension",
+            None,
+        )
+        if dimension_getter is None:
+            dimension_getter = self._model.get_sentence_embedding_dimension
+        self.dim = dimension_getter()
 
     def embed(self, texts: Sequence[str]) -> np.ndarray:
         if not texts:
