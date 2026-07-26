@@ -227,7 +227,9 @@ proptest! {
                 prop_assert_eq!(
                     bridge.total_value().await,
                     expected_total,
-                    "total value changed after settled operation {step}: {operation:?}",
+                    "total value changed after settled operation {}: {:?}",
+                    step,
+                    operation,
                 );
             }
 
