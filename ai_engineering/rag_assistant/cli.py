@@ -9,8 +9,10 @@ Subcommands:
 Usage:
     python cli.py ingest --docs-dir ./sample_docs --store ./index
     python cli.py ask --store ./index --question "What is RAG?"
+    python cli.py ask --store ./index --question "What is RAG?" --rerank
     python cli.py serve --store ./index --port 8080
     python cli.py eval --store ./index --cases ./sample_docs/eval_cases.json --k 3
+    python cli.py eval --store ./index --cases ./sample_docs/eval_cases.json --k 3 --rerank
 """
 
 from __future__ import annotations
@@ -20,9 +22,18 @@ import json
 import os
 import sys
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
-from rag import Chunker, Document, RAGPipeline, eval_retrieval, EvalCase
+from rag import (
+    Chunker,
+    CrossEncoderReranker,
+    DEFAULT_RERANKER_MODEL,
+    Document,
+    EvalCase,
+    RAGPipeline,
+    Reranker,
+    eval_retrieval,
+)
 from rag.embedder import make_default_embedder
 from rag.vector_store import VectorStore
 
@@ -48,6 +59,31 @@ def load_docs_from_dir(dir_path: str) -> List[Document]:
     return docs
 
 
+def _build_reranker(args: argparse.Namespace) -> Optional[Reranker]:
+    if not getattr(args, "rerank", False):
+        return None
+    return CrossEncoderReranker(model_name=args.reranker_model)
+
+
+def _add_reranker_args(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--rerank",
+        action="store_true",
+        help="re-rank a larger candidate pool with a cross-encoder",
+    )
+    parser.add_argument(
+        "--reranker-model",
+        default=DEFAULT_RERANKER_MODEL,
+        help="sentence-transformers CrossEncoder model name",
+    )
+    parser.add_argument(
+        "--candidate-k",
+        type=int,
+        default=20,
+        help="embedding candidates passed to the re-ranker",
+    )
+
+
 def cmd_ingest(args: argparse.Namespace) -> None:
     docs = load_docs_from_dir(args.docs_dir)
     if not docs:
@@ -60,7 +96,11 @@ def cmd_ingest(args: argparse.Namespace) -> None:
 
 
 def cmd_ask(args: argparse.Namespace) -> None:
-    pipeline = RAGPipeline.load(args.store)
+    pipeline = RAGPipeline.load(
+        args.store,
+        reranker=_build_reranker(args),
+        candidate_k=args.candidate_k,
+    )
     result = pipeline.ask(args.question, k=args.k)
     print(f"\nAnswer:\n{result.answer}\n")
     if result.sources:
@@ -82,7 +122,16 @@ def cmd_eval(args: argparse.Namespace) -> None:
     if embedder.dim != store.dim:
         sys.exit(f"embedder dim {embedder.dim} != store dim {store.dim}; reindex.")
     from rag.retriever import Retriever
-    result = eval_retrieval(Retriever(embedder, store), cases, k=args.k)
+    result = eval_retrieval(
+        Retriever(
+            embedder,
+            store,
+            reranker=_build_reranker(args),
+            candidate_k=args.candidate_k,
+        ),
+        cases,
+        k=args.k,
+    )
     print(result)
     for row in result.per_case:
         print(f"  - {row['question'][:60]:60s}  recall={row['recall']:.0f}  rr={row['reciprocal_rank']:.3f}")
@@ -103,6 +152,7 @@ def main() -> None:
     p_ask.add_argument("--store", required=True)
     p_ask.add_argument("--question", required=True)
     p_ask.add_argument("-k", type=int, default=5)
+    _add_reranker_args(p_ask)
     p_ask.set_defaults(func=cmd_ask)
 
     p_serve = sub.add_parser("serve")
@@ -114,6 +164,7 @@ def main() -> None:
     p_eval.add_argument("--store", required=True)
     p_eval.add_argument("--cases", required=True)
     p_eval.add_argument("-k", type=int, default=5)
+    _add_reranker_args(p_eval)
     p_eval.set_defaults(func=cmd_eval)
 
     args = parser.parse_args()

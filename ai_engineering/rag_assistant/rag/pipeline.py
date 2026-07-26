@@ -1,7 +1,8 @@
 """End-to-end ingest + retrieve + generate pipeline.
 
 `RAGPipeline.ingest(docs)` runs the chunker + embedder + store.
-`RAGPipeline.ask(question, k=5)` runs the retriever + generator.
+`RAGPipeline.ask(question, k=5)` runs the retriever + optional re-ranker
++ generator.
 
 `from_env()` reads `OPENAI_API_KEY`, `OPENAI_MODEL`, `EMBEDDING_MODEL`,
 so the CLI and serving layers share configuration.
@@ -18,6 +19,7 @@ from dotenv import load_dotenv
 from .chunker import Chunk, Chunker, Document
 from .embedder import Embedder, make_default_embedder
 from .generator import GenerationResult, Generator
+from .reranker import Reranker
 from .retriever import RetrievedChunk, Retriever
 from .vector_store import VectorStore
 
@@ -37,10 +39,17 @@ class RAGPipeline:
         store: VectorStore,
         generator: Optional[Generator] = None,
         chunker: Optional[Chunker] = None,
+        reranker: Optional[Reranker] = None,
+        candidate_k: int = 20,
     ):
         self.embedder = embedder
         self.store = store
-        self.retriever = Retriever(embedder, store)
+        self.retriever = Retriever(
+            embedder,
+            store,
+            reranker=reranker,
+            candidate_k=candidate_k,
+        )
         self.generator = generator
         self.chunker = chunker or Chunker()
 
@@ -95,6 +104,8 @@ class RAGPipeline:
         dir_path: str,
         embedder: Optional[Embedder] = None,
         generator: Optional[Generator] = None,
+        reranker: Optional[Reranker] = None,
+        candidate_k: int = 20,
     ) -> "RAGPipeline":
         store = VectorStore.load(dir_path)
         emb = embedder or make_default_embedder()
@@ -103,4 +114,10 @@ class RAGPipeline:
                 f"embedder dim {emb.dim} does not match stored index dim {store.dim}; "
                 "did you change EMBEDDING_MODEL since indexing?"
             )
-        return cls(embedder=emb, store=store, generator=generator or Generator())
+        return cls(
+            embedder=emb,
+            store=store,
+            generator=generator or Generator(),
+            reranker=reranker,
+            candidate_k=candidate_k,
+        )

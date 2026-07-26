@@ -145,6 +145,43 @@ This is a 5-case smoke eval (`sample_docs/eval_cases.json`), not a large benchma
 - **Honest evaluation**: ships an actual `recall@k` + MRR eval harness with checked-in cases, instead of just claiming "high quality".
 - **Reproducible smoke pipeline**: `python -m smoke.run_smoke` exercises ingest + retrieve + eval end-to-end, no key required, and writes a markdown report a reviewer can read in 30 seconds.
 
+## Optional Cross-Encoder Re-ranking
+
+Embedding retrieval remains the default. Add `--rerank` to `ask` or `eval` to
+retrieve a larger candidate pool and re-score it with
+`cross-encoder/ms-marco-MiniLM-L-6-v2`:
+
+```bash
+python cli.py ask \
+  --store ./index \
+  --question "What is RAG?" \
+  --rerank \
+  --candidate-k 20 \
+  -k 5
+
+python cli.py eval \
+  --store ./index \
+  --cases ./sample_docs/eval_cases.json \
+  --rerank \
+  --candidate-k 20 \
+  -k 3
+```
+
+For the Flask service, set `RERANKER_MODEL` and optionally
+`RERANKER_CANDIDATES`. The JSON response exposes both the final cross-encoder
+`score` and the original `retrieval_score`.
+
+Run the baseline comparison with:
+
+```bash
+python -m smoke.run_reranker_eval
+```
+
+The generated `reports/reranker_eval.md` records baseline and re-ranked
+recall@k and MRR, their deltas, and per-case reciprocal-rank changes. The
+current five-case suite is saturated, so the observed delta is provisional
+until the expanded benchmark in issue #18 is available.
+
 ## Scope
 
 - The chunker is character-based and language-agnostic, which is good portability but slightly worse than tokenization-aware chunking for very long contexts.

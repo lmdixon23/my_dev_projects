@@ -5,6 +5,7 @@ GET  /health                  -> {"status": "ok", "chunks": N}
 
 Build with `build_app("./index")` so a saved store is loaded once at
 startup and reused across requests (no per-request rebuild).
+Set RERANKER_MODEL to opt into cross-encoder re-ranking.
 """
 
 from __future__ import annotations
@@ -13,12 +14,23 @@ import os
 
 from flask import Flask, jsonify, request
 
-from rag import RAGPipeline
+from rag import CrossEncoderReranker, RAGPipeline
 
 
 def build_app(store_path: str) -> Flask:
     app = Flask(__name__)
-    pipeline = RAGPipeline.load(store_path)
+    reranker_model = os.environ.get("RERANKER_MODEL", "").strip()
+    reranker = (
+        CrossEncoderReranker(model_name=reranker_model)
+        if reranker_model
+        else None
+    )
+    candidate_k = int(os.environ.get("RERANKER_CANDIDATES", "20"))
+    pipeline = RAGPipeline.load(
+        store_path,
+        reranker=reranker,
+        candidate_k=candidate_k,
+    )
 
     @app.route("/health", methods=["GET"])
     def health():
@@ -39,6 +51,7 @@ def build_app(store_path: str) -> Flask:
             "retrieved": [
                 {
                     "score": r.score,
+                    "retrieval_score": r.retrieval_score,
                     "source": r.chunk.source,
                     "chunk_index": r.chunk.chunk_index,
                 }
