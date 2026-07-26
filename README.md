@@ -1,113 +1,150 @@
-# My Dev Projects
+# Engineering Portfolio
 
+[![CI](https://github.com/lmdixon23/my_dev_projects/actions/workflows/ci.yml/badge.svg)](https://github.com/lmdixon23/my_dev_projects/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![Python: 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 [![Rust: stable](https://img.shields.io/badge/rust-stable-orange.svg)](https://www.rust-lang.org/)
-[![CI](https://github.com/lmdixon23/my_dev_projects/actions/workflows/ci.yml/badge.svg)](https://github.com/lmdixon23/my_dev_projects/actions/workflows/ci.yml)
-[![Live demo](https://img.shields.io/badge/live_demo-AI_Playgrounds-brightgreen.svg)](https://lmdixon23.github.io/ai-playgrounds/)
-[![good first issues](https://img.shields.io/github/issues/lmdixon23/my_dev_projects/good%20first%20issue?label=good%20first%20issues&color=7057ff)](https://github.com/lmdixon23/my_dev_projects/issues?q=is%3Aopen+label%3A%22good+first+issue%22)
+[![Live demos](https://img.shields.io/badge/live_demos-AI_Playgrounds-brightgreen.svg)](https://lmdixon23.github.io/ai-playgrounds/)
 
-> **▶ Live demo:** [12 interactive AI playgrounds, in your browser](https://lmdixon23.github.io/ai-playgrounds/) — no install, bilingual EN / 中文. *(Now its own repository: [lmdixon23/ai-playgrounds](https://github.com/lmdixon23/ai-playgrounds).)*
+A curated monorepo of tested software projects across applied AI, reinforcement-learning post-training, machine learning, Rust protocol design, data engineering, and cloud security.
 
-A working portfolio spanning AI engineering, machine learning, blockchain protocols, data engineering, and network security. Each project builds and runs, carries a real test suite or smoke pipeline, and ships a README that's clear about what's implemented versus what's still aspirational.
+Every featured project includes its own setup instructions, validation path, and explicit scope boundaries. The root CI currently covers **17 projects: 10 Python projects, 6 Rust crates, and 1 Terraform configuration**.
 
-**A representative result:** the GRPO reproduction recovers the qualitative ranking from Figure 5 of Shao et al. 2024 — final accuracy **0.18 / 0.95 / 0.99** for RFT / Online RFT / GRPO+OS on a synthetic verifiable-reward task (mean of 3 seeds), in under a minute of CPU. Details in [`grpo_minimal`](./ai_engineering/rlvr/grpo_minimal/) and [`RESULTS.md`](./RESULTS.md).
+## Start Here
 
-## Start here (30-second tour)
+| Area | Recommended entry point | Why it is useful |
+|---|---|---|
+| LLM systems | [RAG Assistant](./ai_engineering/rag_assistant/) | Modular retrieval and generation, FAISS with a NumPy fallback, retrieval evaluation, and optional cross-encoder re-ranking |
+| RL post-training | [GRPO Minimal](./ai_engineering/rlvr/grpo_minimal/) and [Regularized Operator Zoo](./ai_engineering/rlvr/regularized_operator_zoo/) | A shared training loop for RFT, Online RFT, and GRPO+OS, backed by tested regularized operators |
+| Rust systems | [Cross-Chain Atomic Bridge](./blockchain_protocols/rust_cross_chain_atomic_bridge/) | HTLC commit and reveal, rollback, conservation checks, native and wrapped asset accounting, and integration tests |
+| Data engineering | [Sales Data ETL](./data_engineering/sales_data_etl_ssis/) | SSIS delivery artifacts plus a portable Python and SQLite reference path for CI verification |
+| Browser demos | [AI Playgrounds](https://lmdixon23.github.io/ai-playgrounds/) | Twelve bilingual interactive AI applets in a separate repository with no installation required |
 
-- **For AI / ML engineering roles**, open [`ai_engineering/rag_assistant/README.md`](./ai_engineering/rag_assistant/) and [`ai_engineering/rlvr/grpo_minimal/README.md`](./ai_engineering/rlvr/grpo_minimal/) — the RAG system and the GRPO Figure-5 reproduction are the two highest-density pieces.
-- **For systems / Rust / crypto roles**, open [`blockchain_protocols/rust_cross_chain_atomic_bridge/README.md`](./blockchain_protocols/rust_cross_chain_atomic_bridge/) — HTLC commit/reveal with constant-time comparison, full test suite.
-- **For data engineering roles**, open [`data_engineering/sales_data_etl_ssis/README.md`](./data_engineering/sales_data_etl_ssis/) for the SSIS package + cross-platform Python-reference ETL.
-- **For everything else**, the [Featured Projects](#featured-projects) section below has every project grouped by domain.
+## Verified Results
 
-## Why this repository matters
+### RAG retrieval and re-ranking
 
-These aren't tutorial forks or throwaway notebooks. Each one shows a concrete engineering skill — a working algorithm, a tested protocol, a deployable service, a verifiable data pipeline — backed by the tests, Docker, and CI that separate a portfolio piece from a script. When a full real-world version would need infrastructure I don't have (a TPU farm, a live blockchain, a SQL Server cluster, a paid OpenAI quota), the project ships a **smoke pipeline** instead: an end-to-end run on synthetic or in-repo data that lets a reviewer check the code path in about a minute.
+The checked-in five-case smoke benchmark produced the following CPU result:
 
-## How this repository is organized
+| Configuration | recall@3 | MRR |
+|---|---:|---:|
+| Embedding retrieval | 1.000 | 0.900 |
+| Cross-encoder re-ranked | 1.000 | 1.000 |
+| Observed delta | +0.000 | +0.100 |
 
-| Folder                                             | Theme                                                                                     | Project count |
-| -------------------------------------------------- | ----------------------------------------------------------------------------------------- | ------------- |
-| [`ai_engineering/`](./ai_engineering/)             | Modern LLM systems: RAG, agents, evals, an LLM-API CLI; plus RLVR-operator companion code | 4 + 2         |
-| [`machine_learning/`](./machine_learning/)         | Classical and deep ML, CV, NLP                                                            | 4             |
-| [`blockchain_protocols/`](./blockchain_protocols/) | Rust protocol implementations                                                             | 6             |
-| [`data_engineering/`](./data_engineering/)         | ETL, warehousing, analytics                                                               | 1             |
-| [`network_security/`](./network_security/)         | Cloud security infrastructure                                                             | 1             |
-| [`prototypes/`](./prototypes/)                     | Sketches and experiments, intentionally below portfolio bar                               | varies        |
+The re-ranker moved one relevant result from rank 2 to rank 1. This is a reproducible smoke measurement, not evidence of a general quality lift; [issue 18](https://github.com/lmdixon23/my_dev_projects/issues/18) tracks the larger discriminative benchmark.
 
-> **Note:** the twelve **AI Playgrounds** applets now live in their own repository — [lmdixon23/ai-playgrounds](https://github.com/lmdixon23/ai-playgrounds) ([live demo](https://lmdixon23.github.io/ai-playgrounds/)) — and are no longer a folder here.
+### GRPO qualitative reproduction
 
-Each project README follows a familiar arc: a short overview, key features, architecture and example usage, a Getting Started section (prerequisites, installation, running, testing), then technical specifications, what the project demonstrates, an honest Scope, and Future Enhancements.
+On a synthetic verifiable-reward task, averaged across three seeds and 1,200 steps:
 
-<a id="featured-projects"></a>
+| Method | Final accuracy |
+|---|---:|
+| RFT | 0.181 |
+| Online RFT | 0.945 |
+| GRPO+OS | 0.990 |
 
-## Featured projects
+The project reproduces the qualitative ordering **RFT < Online RFT < GRPO+OS** associated with Figure 5 of Shao et al. 2024. It does not claim the paper's absolute benchmark values.
 
-### AI Engineering ([`ai_engineering/`](./ai_engineering/))
+### Regularized operator identities
 
-- **[RAG Assistant](./ai_engineering/rag_assistant/)** — Document chunking, embedding, FAISS-backed vector store, retrieval + generation, and a retrieval-quality eval harness. The 2026-default pattern for grounding LLMs in your own documents.
-- **[Agent Toolkit](./ai_engineering/agent_toolkit/)** — ReAct-style LLM agent with a typed tool registry (`@tool` decorator), trace logging, structured tool calls, and an AST-allowlisted expression evaluator for the built-in calculator (no `eval()`).
-- **[LLM Eval Harness](./ai_engineering/llm_eval_harness/)** — Test-case format, four evaluator strategies (exact match, regex, embedding similarity, LLM-as-judge), aggregation, and an HTML report. The complement to RAG and agents that lets you actually measure them.
-- **[NLP Text Summarization CLI](./ai_engineering/nlp_text_summarization_api/)** — Async OpenAI client with proper concurrency control, API-key rotation on 429, SQLite persistence, real trend analysis, tokenizer-free test suite via `httpx.MockTransport`.
-- **[Regularized Operator Zoo](./ai_engineering/rlvr/regularized_operator_zoo/)** — Pedagogical implementations of the regularized greedy operators at the heart of modern RL post-training (negative entropy, KL-to-uniform, KL-to-anchor / Vieillard, Tsallis / sparsemax, Rényi). Companion code for my RLVR Operator Series articles.
-- **[GRPO Minimal](./ai_engineering/rlvr/grpo_minimal/)** — RFT, Online RFT, and GRPO+OS on a synthetic verifiable-reward task, sharing a single training loop. Reproduces the qualitative ranking from Figure 5 of Shao et al. 2024 (arXiv:2402.03300v3). Imports `kl_anchor_term` from the operator zoo — a real dependency between the two projects, not decoration, and a test proves it.
+A verified run of the operator library produced:
 
-### Machine Learning ([`machine_learning/`](./machine_learning/))
+- maximum policy-to-gradient residual of `1.8e-07`;
+- maximum conjugate-identity difference of `2.2e-16`.
 
-- **[Image Captioning (CNN + RNN, TPU)](./machine_learning/image_captioning_cnn_rnn_tpu/)** — VGG16 encoder + LSTM decoder on COCO Val2017, real TPU strategy with CPU/GPU fallback, BLEU-4 evaluation.
-- **[Image Classification](./machine_learning/image_classification/)** — Transfer learning with frozen VGG16, real test/train split, Dockerized Flask serving, three test files, smoke pipeline.
-- **[Predictive Maintenance for Li-Ion Batteries](./machine_learning/predictive_maintenance/)** — Random Forest with persisted scaler + feature-column manifest, Flask serving that respects the training contract.
-- **[Sentiment Analysis with BERT](./machine_learning/sentiment_analysis_transfer_learning/)** — Hugging Face `TFAutoModelForSequenceClassification` fine-tuning, three data loaders, network-free fast tests, smoke pipeline using `prajjwal1/bert-tiny`.
+See [RESULTS.md](./RESULTS.md) for the recorded run context and regeneration commands.
 
-### Blockchain Protocols ([`blockchain_protocols/`](./blockchain_protocols/))
+## Project Index
 
-All Rust, all `lib + bin` with integration tests under `tests/`, all honest about being simulations rather than real on-chain code.
+### AI and LLM Systems
 
-- **[Cross-Chain Atomic Bridge](./blockchain_protocols/rust_cross_chain_atomic_bridge/)** — HTLC commit/reveal with constant-time comparison, two-phase atomicity with rollback, native-vs-wrapped accounting.
-- **[Decentralized Voting](./blockchain_protocols/rust_decentralized_voting/)** — SHA-256 commit-reveal ballots, Merkle root over the committed-ballot set for cross-observer verifiability.
-- **[Quadratic Voting + Liquid Democracy](./blockchain_protocols/rust_quadratic_voting/)** — QV `n²` cost, credit-moving delegation, cycle detection at delegate-time.
-- **[PoS + ZKP Voting](./blockchain_protocols/rust_pos_zkp_voting/)** — Stake-weighted PoS leader selection, real Ed25519-signed votes, eligibility commitments, tamper-evident chain.
-- **[PoA + ZKP Voting](./blockchain_protocols/rust_poa_zkp_voting/)** — Round-robin authority block production (Clique/Aura-style), authority-signed blocks; PoA sibling of the PoS project.
-- **[DeFi Lending Protocol](./blockchain_protocols/rust_defi_lending_protocol/)** — `u128` micro-unit money math, time-based interest accrual, utilization-driven dynamic rate, liquidation primitive, append-only event ledger.
+| Project | Focus |
+|---|---|
+| [RAG Assistant](./ai_engineering/rag_assistant/) | Chunking, embeddings, vector search, cited generation, retrieval metrics, Flask serving, Docker, and optional cross-encoder re-ranking |
+| [Agent Toolkit](./ai_engineering/agent_toolkit/) | ReAct-style agent loop, typed tool registry, deterministic test LLM, append-only traces, and guarded built-in tools |
+| [LLM Eval Harness](./ai_engineering/llm_eval_harness/) | JSON and YAML evaluation suites, exact and regex grading, embedding similarity, LLM-as-judge, and standalone HTML reports |
+| [NLP Text Summarization CLI](./ai_engineering/nlp_text_summarization_api/) | Async batching, concurrency limits, API-key rotation, SQLite persistence, and network-free HTTP-path tests |
 
-### Data Engineering ([`data_engineering/`](./data_engineering/))
+### RL Post-Training and Mathematical Software
 
-- **[Sales Data ETL (SSIS)](./data_engineering/sales_data_etl_ssis/)** — SSIS package with error redirect and row-count logging, idempotent SQL DDL + SQL Server Agent setup, plus a Python reference ETL targeting SQLite so the logic is verifiable on any machine.
+| Project | Focus |
+|---|---|
+| [Regularized Operator Zoo](./ai_engineering/rlvr/regularized_operator_zoo/) | Entropy, KL, Tsallis, and chi-squared regularized greedy operators with numerical identity checks |
+| [GRPO Minimal](./ai_engineering/rlvr/grpo_minimal/) | RFT, Online RFT, and GRPO+OS on one training skeleton with a tested dependency on the operator library |
 
-### Network Security ([`network_security/`](./network_security/))
+### Machine Learning
 
-- **[SSE Coexistence Testing](./network_security/sse_coexistence_testing/)** — Terraform-managed AWS infrastructure for checking that Security Service Edge / Global Secure Access controls coexist with a host firewall (UFW).
+| Project | Focus |
+|---|---|
+| [Image Captioning](./machine_learning/image_captioning_cnn_rnn_tpu/) | VGG16 encoder, LSTM decoder, COCO loading, TPU strategy with fallback, BLEU-4 evaluation, and a CPU smoke run |
+| [Image Classification](./machine_learning/image_classification/) | Frozen VGG16 transfer learning, held-out testing, Flask inference, Docker, and synthetic end-to-end validation |
+| [Predictive Maintenance](./machine_learning/predictive_maintenance/) | Battery telemetry preprocessing, persisted feature contract, Random Forest training, evaluation, and Flask serving |
 
-### AI Playgrounds — now its own repository
+### Rust Protocol Simulations
 
-The twelve interactive intro-AI applets that used to live here have moved to a standalone repo: **[lmdixon23/ai-playgrounds](https://github.com/lmdixon23/ai-playgrounds)** · **[live demo](https://lmdixon23.github.io/ai-playgrounds/)**. Single-file HTML+JavaScript, no build step, bilingual EN / 中文, mapped to the most visually-rich units of an introductory AI course — A\* vs BFS, Bayes' rule for rare diseases, Bayesian networks, *k* in KNN, polynomial overfitting, a TF-Playground-style tiny network, k-means iteration, 3×3 convolution kernels, Q-learning gridworld, logic/SAT, local search, and the Wumpus World. Drag a slider, the visualization re-renders live.
+These crates demonstrate protocol mechanics in tested, in-process simulations. They are not production blockchains or deployed smart contracts.
 
-## Continuous integration
+| Project | Focus |
+|---|---|
+| [Cross-Chain Atomic Bridge](./blockchain_protocols/rust_cross_chain_atomic_bridge/) | HTLC commit and reveal, explicit message boundaries, rollback, conservation, and asset representation |
+| [Decentralized Voting](./blockchain_protocols/rust_decentralized_voting/) | Commit and reveal ballots plus Merkle-root verification |
+| [Quadratic Voting and Liquid Democracy](./blockchain_protocols/rust_quadratic_voting/) | Quadratic credit costs, delegation, and cycle detection |
+| [PoS and ZKP Voting](./blockchain_protocols/rust_pos_zkp_voting/) | Stake-weighted leadership, signed votes, eligibility commitments, and a tamper-evident chain |
+| [PoA and ZKP Voting](./blockchain_protocols/rust_poa_zkp_voting/) | Authority rotation, signed blocks, and voting protocol mechanics |
+| [DeFi Lending Protocol](./blockchain_protocols/rust_defi_lending_protocol/) | Fixed-precision accounting, interest accrual, utilization-based rates, liquidation, and append-only events |
 
-Each pushed commit triggers a workflow in [`.github/workflows/`](./.github/workflows/) that builds and tests every project. The matrix runs Python tests for the ML / AI / data-engineering projects, Cargo tests for the Rust crates, and Terraform validation for the network-security infrastructure.
+### Data Engineering and Cloud Security
 
-## Results
+| Project | Focus |
+|---|---|
+| [Sales Data ETL](./data_engineering/sales_data_etl_ssis/) | SSIS package, validation and error routing, idempotent SQL setup, SQL Agent scheduling, and a portable Python reference ETL |
+| [SSE Coexistence Testing](./network_security/sse_coexistence_testing/) | Terraform-managed AWS test environment, hardened host bootstrap, and post-deployment reachability checks |
 
-Smoke-pipeline outputs (qualitative rankings, identity checks, expected metric ranges) for each runnable project are indexed in [`RESULTS.md`](./RESULTS.md). Each report has a one-line regenerate command so a reviewer can refresh the numbers with the real values from their own machine.
+Experimental work remains under [`prototypes/`](./prototypes/) and is intentionally excluded from the featured project count.
 
-## Repository conventions
+## Validation and Reproducibility
 
-- **One README per project**, each linked from the relevant section above.
-- **Tests live next to the code**: `tests/` directory in Python projects, `tests/integration.rs` for Rust crates, `python_reference_etl/` for the SSIS project.
-- **Secrets via `.env`**, never committed. Each project that needs them ships a `.env.example`.
-- **Smoke pipelines** (`smoke/run_smoke.py` or equivalent) wherever a full real-world run requires resources I don't have. These exercise the entire code path on synthetic or in-repo data.
-- **No `venv/` checked in** — see the root `.gitignore`.
+The root [GitHub Actions workflow](./.github/workflows/ci.yml) runs:
+
+- test suites for 10 Python projects;
+- `cargo build`, `cargo test`, and advisory Clippy checks for 6 Rust crates;
+- `terraform init -backend=false` and `terraform validate` for the cloud-security configuration.
+
+Projects that depend on external APIs, large datasets, TPU access, SQL Server, or AWS provide a network-free test path, a synthetic smoke pipeline, or a portable reference implementation where appropriate. Generated reports are excluded when values can drift between runs; commands and selected verified outputs are documented in project READMEs and [RESULTS.md](./RESULTS.md).
+
+## Repository Boundaries
+
+- Each project README distinguishes implemented behavior from future enhancements.
+- Live OpenAI calls require user-supplied credentials; tests use deterministic or mocked paths.
+- Rust blockchain projects model protocol behavior without claiming live-network security or consensus.
+- Terraform is validated in CI, while deployment remains opt-in and may create billable cloud resources.
+- Prototype directories are exploratory and are not represented as portfolio-complete projects.
+- Secrets, local virtual environments, generated models, datasets, and runtime reports are excluded through repository ignore rules.
+
+## Getting Started
+
+There is no repository-wide dependency installation because the projects use different Python, Rust, Terraform, SSIS, and cloud toolchains.
+
+```bash
+git clone https://github.com/lmdixon23/my_dev_projects.git
+cd my_dev_projects
+```
+
+Choose a project from the index above and follow its README for installation, execution, testing, and scope.
+
+## Related Repository
+
+The interactive teaching applets formerly stored here now live in [lmdixon23/ai-playgrounds](https://github.com/lmdixon23/ai-playgrounds), with a [public browser demo](https://lmdixon23.github.io/ai-playgrounds/).
 
 ## Contributing
 
-Contributions are welcome. Open an issue first if you're planning a substantial change so we can align on scope.
+See [CONTRIBUTING.md](./CONTRIBUTING.md) before proposing a substantial change.
+
+## Security
+
+Report security concerns according to [SECURITY.md](./SECURITY.md).
 
 ## License
 
-This repository is licensed under the MIT License — see the [LICENSE](./LICENSE) file for details.
-
-## Contact
-
-For inquiries or collaboration: [lmdixon23@gmail.com](mailto:lmdixon23@gmail.com).
-
-**Logan M. Dixon**
+Licensed under the [MIT License](./LICENSE).
