@@ -1,8 +1,8 @@
 """End-to-end ingest + retrieve + generate pipeline.
 
 `RAGPipeline.ingest(docs)` runs the chunker + embedder + store.
-`RAGPipeline.ask(question, k=5)` runs the retriever + optional re-ranker
-+ generator.
+`RAGPipeline.ask(question, k=5)` runs the retriever, optional re-ranker,
+and generator.
 
 `from_env()` reads `OPENAI_API_KEY`, `OPENAI_MODEL`, `EMBEDDING_MODEL`,
 so the CLI and serving layers share configuration.

@@ -11,8 +11,8 @@ Usage:
     python cli.py ask --store ./index --question "What is RAG?"
     python cli.py ask --store ./index --question "What is RAG?" --rerank
     python cli.py serve --store ./index --port 8080
-    python cli.py eval --store ./index --cases ./sample_docs/eval_cases.json --k 3
-    python cli.py eval --store ./index --cases ./sample_docs/eval_cases.json --k 3 --rerank
+    python cli.py eval --store ./index --cases ./sample_docs/eval_cases.json -k 3
+    python cli.py eval --store ./index --cases ./sample_docs/eval_cases.json -k 3 --rerank
 """
 
 from __future__ import annotations

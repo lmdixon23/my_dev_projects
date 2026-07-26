@@ -197,6 +197,7 @@ The re-ranker moved the approximate-nearest-neighbor question from rank 2 to
 rank 1. This records the observed result on the checked-in five-case smoke
 suite; it does not establish a general quality lift. Issue #18 remains the
 required follow-up for a discriminative benchmark.
+
 ## Scope
 
 - The chunker is character-based and language-agnostic, which is good portability but slightly worse than tokenization-aware chunking for very long contexts.
