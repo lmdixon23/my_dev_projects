@@ -16,12 +16,46 @@ The counts above describe the tracked repository and CI matrix. They do not incl
 
 ## 1. Verified Measured Runs
 
-### RAG Assistant: embedding retrieval versus cross-encoder re-ranking
+### RAG Assistant: versioned deterministic retrieval benchmark
+
+- **Run date:** 2026-07-27
+- **Environment:** local CPU; deterministic network-free `HashEmbedder`, 512 dimensions
+- **Corpus:** 10 checked-in documents, 31 chunks
+- **Cases:** 40 checked-in labeled retrieval cases
+- **Chunking:** 400 characters with 80-character overlap
+- **Metric cutoff:** fixed recall@1 and recall@3; MRR over the first relevant source
+
+| Metric | Baseline |
+|---|---:|
+| recall@1 | 0.500 |
+| recall@3 | 0.775 |
+| MRR | 0.629 |
+
+| Required category | Cases | recall@1 | recall@3 | MRR |
+|---|---:|---:|---:|---:|
+| Direct lookup | 8 | 0.250 | 0.750 | 0.479 |
+| Paraphrase | 8 | 0.625 | 0.750 | 0.688 |
+| Terminology | 8 | 0.500 | 0.875 | 0.688 |
+| Cross-chunk | 8 | 0.750 | 0.750 | 0.750 |
+| Hard negative | 8 | 0.375 | 0.750 | 0.542 |
+
+This result is a project regression baseline, not a leaderboard or production-quality retrieval claim. HashEmbedder is intentionally weak and deterministic. It makes CI sensitive to changes in corpus loading, chunking, labels, metric aggregation, and ranking behavior without downloading model weights.
+
+The checked-in comparison rule rejects a change when recall@1 falls below 0.450, recall@3 falls below 0.725, MRR falls below 0.579, or any required category loses more than one of its eight top-three hits. Comparisons must keep the corpus, labels, chunk settings, and embedder fixed.
+
+Regenerate the deterministic report:
+
+```bash
+cd ai_engineering/rag_assistant
+python -m smoke.run_smoke
+```
+
+### RAG Assistant: historical five-case MiniLM re-ranking smoke run
 
 - **Run date:** 2026-07-26
 - **Environment:** CPU; `sentence-transformers` 5.6.1; `transformers` 5.14.1; `torch` 2.13.0
-- **Corpus:** three checked-in sample documents
-- **Cases:** five checked-in retrieval cases
+- **Corpus:** three checked-in sample documents at the time of the run
+- **Cases:** five retrieval cases at the time of the run
 - **Metric cutoff:** k = 3
 
 | Configuration | recall@3 | MRR |
@@ -30,9 +64,9 @@ The counts above describe the tracked repository and CI matrix. They do not incl
 | Cross-encoder re-ranked | 1.000 | 1.000 |
 | Observed delta | +0.000 | +0.100 |
 
-The re-ranker moved one relevant result from rank 2 to rank 1. This is a scoped smoke result, not evidence of a general quality lift. [Issue 18](https://github.com/lmdixon23/my_dev_projects/issues/18) tracks the required discriminative benchmark.
+The re-ranker moved one relevant result from rank 2 to rank 1. This result predates the expanded benchmark and is retained as historical smoke evidence. It is not directly comparable with the 40-case baseline and does not establish a general quality lift.
 
-Regenerate the comparison:
+Run the current MiniLM comparison on the expanded benchmark:
 
 ```bash
 cd ai_engineering/rag_assistant
@@ -91,7 +125,7 @@ These tracked projects provide a `smoke/run_smoke.py` entry point. A smoke run e
 
 | Project | Command | Evidence produced |
 |---|---|---|
-| [RAG Assistant](./ai_engineering/rag_assistant/) | `cd ai_engineering/rag_assistant && python -m smoke.run_smoke` | Ingest, retrieve, and retrieval metrics on checked-in documents |
+| [RAG Assistant](./ai_engineering/rag_assistant/) | `cd ai_engineering/rag_assistant && python -m smoke.run_smoke` | Versioned 40-case deterministic retrieval benchmark with aggregate, category, and per-case metrics |
 | [Agent Toolkit](./ai_engineering/agent_toolkit/) | `cd ai_engineering/agent_toolkit && python -m smoke.run_smoke` | Deterministic agent/tool execution and trace output |
 | [LLM Eval Harness](./ai_engineering/llm_eval_harness/) | `cd ai_engineering/llm_eval_harness && python -m smoke.run_smoke` | Evaluation-suite execution and report generation |
 | [Regularized Operator Zoo](./ai_engineering/rlvr/regularized_operator_zoo/) | `cd ai_engineering/rlvr/regularized_operator_zoo && python -m smoke.run_smoke` | Operator identity checks and beta-sweep artifacts |
@@ -112,7 +146,9 @@ These projects are validated primarily through deterministic tests, compilation,
 |---|---|---|
 | [NLP Text Summarization CLI](./ai_engineering/nlp_text_summarization_api/) | `cd ai_engineering/nlp_text_summarization_api && python -m unittest discover tests` | Network-free HTTP-path, persistence, concurrency, and retry tests; no retained summary-quality benchmark |
 
-The RAG-to-evaluation bridge is also enforced separately:
+The RAG Assistant suite contains **34 tests across 6 files**, including metric aggregation, multi-source labels, missing hits, category slicing, benchmark validation, and deterministic regression thresholds.
+
+The RAG-to-evaluation bridge is enforced separately:
 
 ```bash
 cd ai_engineering/llm_eval_harness
@@ -200,4 +236,4 @@ for path in smoke_scripts:
 PY_AUDIT
 ```
 
-The release gate also checks relative links, stale claims, whitespace, RAG tests, the RAG-to-eval bridge, and the exact three-file change boundary.
+The v1.1.0 release gate checked links, stale claims, whitespace, RAG tests, the RAG-to-evaluation bridge, and exact release-documentation boundaries. Issue 18 adds the versioned retrieval benchmark and its separate regression gate.

@@ -1,19 +1,7 @@
 # Embeddings, Briefly
 
-An embedding is a vector representation of a piece of text such that
-semantically similar texts produce vectors that are close together
-under a chosen distance metric, usually cosine similarity. Modern
-sentence embedding models like `sentence-transformers/all-MiniLM-L6-v2`
-produce 384-dimensional vectors that work well for retrieval out of the
-box.
+An embedding is a vector representation of text. Semantically related passages should produce nearby vectors even when their wording differs. Sentence-transformers/all-MiniLM-L6-v2 is a common English retrieval baseline and produces 384-dimensional vectors.
 
-When using cosine similarity it is convenient to L2-normalize the
-vectors at encoding time so that the inner product equals the cosine.
-This lets you use a FAISS `IndexFlatIP` (inner product) index directly
-without computing norms at query time.
+Cosine similarity compares vector direction. L2-normalizing vectors at encoding time makes inner product equal cosine similarity, which allows a normalized corpus to use FAISS IndexFlatIP without recomputing vector norms for every query.
 
-Embedding model choice matters most for retrieval quality. A 384-d
-MiniLM model is a strong default. For multilingual corpora, the
-`paraphrase-multilingual-MiniLM-L12-v2` model is the natural choice.
-For code search, `text-embedding-3-small` from OpenAI handles syntax
-better than general-purpose sentence models.
+Model choice affects retrieval behavior. paraphrase-multilingual-MiniLM-L12-v2 is intended for multilingual corpora. Code-oriented search may benefit from an embedding model trained on source code and technical syntax. Embedding dimensions, preprocessing, and model version should be recorded with the index because changing any of them can make a saved store incompatible or invalidate a baseline.

@@ -1,16 +1,7 @@
 # Vector Stores
 
-A vector store indexes embeddings and answers nearest-neighbor queries.
-FAISS is the most widely used in-process library; it offers exact search
-(`IndexFlatIP`, `IndexFlatL2`) and several approximate indexes (HNSW,
-IVF, PQ) with tunable speed-vs-recall tradeoffs.
+A vector store indexes embeddings and answers nearest-neighbor queries. With L2-normalized vectors, an inner-product index ranks by cosine similarity. Exact indexes such as IndexFlatIP compare the query with every stored vector and avoid approximation error.
 
-For most projects under ten million chunks, an exact `IndexFlatIP`
-index is fast enough and removes a whole class of tuning concerns. The
-approximate indexes become attractive when memory or latency becomes
-the constraint.
+For many corpora below roughly ten million chunks, exact search can be fast enough and easier to reason about. Approximate nearest-neighbor (ANN) structures such as HNSW, IVF, and product quantization (PQ) trade some recall for lower latency or memory use. Their parameters should be tuned against a retrieval benchmark rather than selected only from throughput measurements.
 
-Hosted alternatives include Pinecone, Weaviate, Qdrant, and Chroma.
-The right choice depends on whether you need multi-tenant isolation
-(Pinecone), hybrid filtering (Weaviate), or a single-node experience
-that just works (Chroma).
+Hosted systems such as Pinecone, Weaviate, Qdrant, and Chroma add operational features. Metadata filters, tenant isolation, replication, and hybrid-search support are separate concerns from the vector similarity algorithm itself. A filter that excludes the relevant document will reduce recall no matter how strong the embedding model is.

@@ -1,22 +1,445 @@
 [
   {
+    "id": "rag-001",
     "question": "What is retrieval-augmented generation?",
-    "relevant_sources": ["rag_overview.md"]
+    "relevant_sources": [
+      "rag_overview.md"
+    ],
+    "tags": [
+      "direct_lookup",
+      "rag"
+    ]
   },
   {
-    "question": "Why L2-normalize embedding vectors?",
-    "relevant_sources": ["embeddings_explained.md"]
+    "id": "rag-002",
+    "question": "What are the four components of a typical RAG pipeline?",
+    "relevant_sources": [
+      "rag_overview.md"
+    ],
+    "tags": [
+      "direct_lookup",
+      "rag"
+    ]
   },
   {
-    "question": "When should I use approximate nearest neighbor search?",
-    "relevant_sources": ["vector_stores.md"]
+    "id": "emb-001",
+    "question": "Why does L2 normalization make inner product equal cosine similarity?",
+    "relevant_sources": [
+      "embeddings_explained.md",
+      "vector_stores.md"
+    ],
+    "tags": [
+      "direct_lookup",
+      "embeddings"
+    ]
   },
   {
-    "question": "What are the four components of a RAG pipeline?",
-    "relevant_sources": ["rag_overview.md"]
+    "id": "vec-001",
+    "question": "When is exact IndexFlatIP search often sufficient?",
+    "relevant_sources": [
+      "vector_stores.md"
+    ],
+    "tags": [
+      "direct_lookup",
+      "vector_store"
+    ]
   },
   {
-    "question": "Which embedding model works for multilingual corpora?",
-    "relevant_sources": ["embeddings_explained.md"]
+    "id": "chk-001",
+    "question": "Why is overlap added between adjacent chunks?",
+    "relevant_sources": [
+      "chunking_strategies.md"
+    ],
+    "tags": [
+      "direct_lookup",
+      "chunking"
+    ]
+  },
+  {
+    "id": "eval-001",
+    "question": "How is mean reciprocal rank calculated?",
+    "relevant_sources": [
+      "retrieval_evaluation.md"
+    ],
+    "tags": [
+      "direct_lookup",
+      "evaluation"
+    ]
+  },
+  {
+    "id": "rank-001",
+    "question": "What does candidate-k control in a re-ranking pipeline?",
+    "relevant_sources": [
+      "reranking_methods.md"
+    ],
+    "tags": [
+      "direct_lookup",
+      "reranking"
+    ]
+  },
+  {
+    "id": "hyb-001",
+    "question": "What does reciprocal rank fusion combine?",
+    "relevant_sources": [
+      "hybrid_search.md"
+    ],
+    "tags": [
+      "direct_lookup",
+      "hybrid_search"
+    ]
+  },
+  {
+    "id": "rag-003",
+    "question": "How can a language model answer from external knowledge instead of only its parameters?",
+    "relevant_sources": [
+      "rag_overview.md",
+      "grounding_and_citations.md"
+    ],
+    "tags": [
+      "paraphrase",
+      "rag"
+    ]
+  },
+  {
+    "id": "eval-002",
+    "question": "Which metric averages the inverse position of the first correct source?",
+    "relevant_sources": [
+      "retrieval_evaluation.md"
+    ],
+    "tags": [
+      "paraphrase",
+      "evaluation"
+    ]
+  },
+  {
+    "id": "chk-002",
+    "question": "How can long documents be divided while retaining context near boundaries?",
+    "relevant_sources": [
+      "chunking_strategies.md"
+    ],
+    "tags": [
+      "paraphrase",
+      "chunking"
+    ]
+  },
+  {
+    "id": "rank-002",
+    "question": "Which second-stage model jointly reads a query and passage before changing their order?",
+    "relevant_sources": [
+      "reranking_methods.md"
+    ],
+    "tags": [
+      "paraphrase",
+      "reranking"
+    ]
+  },
+  {
+    "id": "hyb-002",
+    "question": "Why combine keyword matching with semantic vector retrieval?",
+    "relevant_sources": [
+      "hybrid_search.md"
+    ],
+    "tags": [
+      "paraphrase",
+      "hybrid_search"
+    ]
+  },
+  {
+    "id": "grd-001",
+    "question": "What should the system do when retrieval supplies no usable evidence?",
+    "relevant_sources": [
+      "grounding_and_citations.md"
+    ],
+    "tags": [
+      "paraphrase",
+      "grounding"
+    ]
+  },
+  {
+    "id": "ops-001",
+    "question": "Why can recently edited documents remain absent from answers?",
+    "relevant_sources": [
+      "operations_and_monitoring.md"
+    ],
+    "tags": [
+      "paraphrase",
+      "operations"
+    ]
+  },
+  {
+    "id": "meta-001",
+    "question": "How can search be restricted by customer, language, or access attributes?",
+    "relevant_sources": [
+      "metadata_and_filters.md"
+    ],
+    "tags": [
+      "paraphrase",
+      "metadata"
+    ]
+  },
+  {
+    "id": "vec-002",
+    "question": "What is ANN search and which index families implement it?",
+    "relevant_sources": [
+      "vector_stores.md"
+    ],
+    "tags": [
+      "terminology",
+      "vector_store"
+    ]
+  },
+  {
+    "id": "rank-003",
+    "question": "How does a cross-encoder differ from a bi-encoder during retrieval?",
+    "relevant_sources": [
+      "reranking_methods.md"
+    ],
+    "tags": [
+      "terminology",
+      "reranking"
+    ]
+  },
+  {
+    "id": "hyb-003",
+    "question": "What does the acronym RRF mean in search?",
+    "relevant_sources": [
+      "hybrid_search.md"
+    ],
+    "tags": [
+      "terminology",
+      "hybrid_search"
+    ]
+  },
+  {
+    "id": "eval-003",
+    "question": "Is recall@k the same kind of hit-rate metric as recall@3?",
+    "relevant_sources": [
+      "retrieval_evaluation.md"
+    ],
+    "tags": [
+      "terminology",
+      "evaluation"
+    ]
+  },
+  {
+    "id": "emb-002",
+    "question": "What is the relationship between L2 normalization, cosine similarity, and inner product?",
+    "relevant_sources": [
+      "embeddings_explained.md",
+      "vector_stores.md"
+    ],
+    "tags": [
+      "terminology",
+      "embeddings"
+    ]
+  },
+  {
+    "id": "vec-003",
+    "question": "What are HNSW, IVF, and PQ used for?",
+    "relevant_sources": [
+      "vector_stores.md"
+    ],
+    "tags": [
+      "terminology",
+      "vector_store"
+    ]
+  },
+  {
+    "id": "meta-002",
+    "question": "How do ACLs and namespaces support tenant isolation?",
+    "relevant_sources": [
+      "metadata_and_filters.md"
+    ],
+    "tags": [
+      "terminology",
+      "metadata"
+    ]
+  },
+  {
+    "id": "grd-002",
+    "question": "What does source provenance mean for a generated answer?",
+    "relevant_sources": [
+      "grounding_and_citations.md"
+    ],
+    "tags": [
+      "terminology",
+      "grounding"
+    ]
+  },
+  {
+    "id": "rag-004",
+    "question": "How can RAG update knowledge without retraining, and which four stages process a question?",
+    "relevant_sources": [
+      "rag_overview.md"
+    ],
+    "tags": [
+      "cross_chunk",
+      "rag"
+    ]
+  },
+  {
+    "id": "emb-003",
+    "question": "Which embedding model is suggested for multilingual text, and why must model versions be stored with an index?",
+    "relevant_sources": [
+      "embeddings_explained.md"
+    ],
+    "tags": [
+      "cross_chunk",
+      "embeddings"
+    ]
+  },
+  {
+    "id": "vec-004",
+    "question": "Why might exact search work below ten million chunks, while HNSW or IVF becomes attractive later?",
+    "relevant_sources": [
+      "vector_stores.md"
+    ],
+    "tags": [
+      "cross_chunk",
+      "vector_store"
+    ]
+  },
+  {
+    "id": "chk-003",
+    "question": "How do chunk-size tradeoffs interact with overlap and near-duplicate candidates?",
+    "relevant_sources": [
+      "chunking_strategies.md"
+    ],
+    "tags": [
+      "cross_chunk",
+      "chunking"
+    ]
+  },
+  {
+    "id": "eval-004",
+    "question": "How do recall@1 and MRR differ, and why should results also be sliced by category?",
+    "relevant_sources": [
+      "retrieval_evaluation.md"
+    ],
+    "tags": [
+      "cross_chunk",
+      "evaluation"
+    ]
+  },
+  {
+    "id": "rank-004",
+    "question": "Why can a larger candidate pool help a re-ranker, and what relevant passage can it never recover?",
+    "relevant_sources": [
+      "reranking_methods.md"
+    ],
+    "tags": [
+      "cross_chunk",
+      "reranking"
+    ]
+  },
+  {
+    "id": "hyb-004",
+    "question": "Why is BM25 useful for rare acronyms, and how does RRF merge its results with dense retrieval?",
+    "relevant_sources": [
+      "hybrid_search.md"
+    ],
+    "tags": [
+      "cross_chunk",
+      "hybrid_search"
+    ]
+  },
+  {
+    "id": "grd-003",
+    "question": "Why can a cited claim still be unsupported, and what should happen when context is empty?",
+    "relevant_sources": [
+      "grounding_and_citations.md"
+    ],
+    "tags": [
+      "cross_chunk",
+      "grounding"
+    ]
+  },
+  {
+    "id": "rank-005",
+    "question": "Which stage changes the order of already retrieved candidates without adding lexical matches?",
+    "relevant_sources": [
+      "reranking_methods.md"
+    ],
+    "tags": [
+      "hard_negative",
+      "reranking"
+    ]
+  },
+  {
+    "id": "hyb-005",
+    "question": "Which method combines BM25 and dense result lists before an optional final re-ranker?",
+    "relevant_sources": [
+      "hybrid_search.md"
+    ],
+    "tags": [
+      "hard_negative",
+      "hybrid_search"
+    ]
+  },
+  {
+    "id": "vec-005",
+    "question": "Which component chooses between exact IndexFlatIP and approximate HNSW based on scale and latency?",
+    "relevant_sources": [
+      "vector_stores.md"
+    ],
+    "tags": [
+      "hard_negative",
+      "vector_store"
+    ]
+  },
+  {
+    "id": "eval-005",
+    "question": "Recall@3 is unchanged, but relevant sources moved from rank one to rank three. Which metric reveals the regression?",
+    "relevant_sources": [
+      "retrieval_evaluation.md"
+    ],
+    "tags": [
+      "hard_negative",
+      "evaluation"
+    ]
+  },
+  {
+    "id": "meta-003",
+    "question": "Which document explains the difference between pre-filtering and removing disallowed results after retrieval?",
+    "relevant_sources": [
+      "metadata_and_filters.md"
+    ],
+    "tags": [
+      "hard_negative",
+      "metadata"
+    ]
+  },
+  {
+    "id": "grd-004",
+    "question": "Which evaluation concern asks whether a cited passage actually supports the attached claim?",
+    "relevant_sources": [
+      "grounding_and_citations.md"
+    ],
+    "tags": [
+      "hard_negative",
+      "grounding"
+    ]
+  },
+  {
+    "id": "vec-006",
+    "question": "A query contains the rare acronym ANN and asks about HNSW rather than embedding-model selection. Which source is relevant?",
+    "relevant_sources": [
+      "vector_stores.md"
+    ],
+    "tags": [
+      "hard_negative",
+      "vector_store"
+    ]
+  },
+  {
+    "id": "ops-002",
+    "question": "Which operational record helps diagnose stale indexes and embedding-version mismatches?",
+    "relevant_sources": [
+      "operations_and_monitoring.md"
+    ],
+    "tags": [
+      "hard_negative",
+      "operations"
+    ]
   }
 ]

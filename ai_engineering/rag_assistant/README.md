@@ -4,32 +4,68 @@
 
 RAG Assistant is a modular Retrieval-Augmented Generation system written in Python. It chunks documents, embeds them, stores normalized vectors in FAISS or a NumPy fallback, retrieves relevant context, optionally re-ranks a larger candidate pool with a cross-encoder, and generates cited answers through the OpenAI Chat Completions API.
 
-The repository includes a CLI, a Flask service, retrieval metrics, deterministic network-free tests, a basic smoke pipeline, and a baseline-versus-re-ranked comparison command.
+The repository includes a CLI, Flask service, versioned retrieval benchmark, deterministic regression baseline, network-free tests, smoke report, and baseline-versus-re-ranked comparison command.
 
-## Verified Snapshot
+## Verified Retrieval Benchmark
 
-A CPU run completed on 2026-07-26 with `sentence-transformers` 5.6.1, `transformers` 5.14.1, and `torch` 2.13.0:
+The checked-in `rag-retrieval-v1` benchmark contains **40 labeled cases over 10 documents and 31 chunks**. It includes eight cases in each required category:
 
-| Configuration | recall@3 | MRR |
-|---|---:|---:|
-| Embedding retrieval | 1.000 | 0.900 |
-| Cross-encoder re-ranked | 1.000 | 1.000 |
-| Observed delta | +0.000 | +0.100 |
+- direct lookup;
+- paraphrase;
+- terminology and acronym variation;
+- cross-chunk wording;
+- hard negatives with plausible distractors.
 
-The re-ranker moved one relevant result from rank 2 to rank 1. This is a five-case smoke measurement over three small documents. It demonstrates that the comparison path works; it does not establish a general retrieval-quality lift. [Issue 18](https://github.com/lmdixon23/my_dev_projects/issues/18) tracks the required 30-50 case discriminative benchmark.
+The deterministic HashEmbedder baseline uses 512 dimensions with 400-character chunks and 80-character overlap:
+
+| Metric | Baseline |
+|---|---:|
+| recall@1 | 0.500 |
+| recall@3 | 0.775 |
+| MRR | 0.629 |
+
+| Category | Cases | recall@1 | recall@3 | MRR |
+|---|---:|---:|---:|---:|
+| Direct lookup | 8 | 0.250 | 0.750 | 0.479 |
+| Paraphrase | 8 | 0.625 | 0.750 | 0.688 |
+| Terminology | 8 | 0.500 | 0.875 | 0.688 |
+| Cross-chunk | 8 | 0.750 | 0.750 | 0.750 |
+| Hard negative | 8 | 0.375 | 0.750 | 0.542 |
+
+This is a project regression baseline, not a leaderboard or production-quality retrieval claim. HashEmbedder is intentionally weak and deterministic. Its purpose is to make CI sensitive to changes in corpus loading, chunking, labels, metric aggregation, and ranking behavior without downloading model weights.
+
+The earlier five-case MiniLM comparison from 2026-07-26 produced recall@3 `1.000` for both configurations and MRR `0.900` versus `1.000` after re-ranking. That result is historical and not directly comparable with the expanded benchmark. Run the current MiniLM comparison before making a new re-ranking claim.
+
+## Metric Definitions and Regression Rule
+
+- **recall@1**: fraction of cases with an accepted source at rank 1.
+- **recall@3**: fraction with an accepted source in the top three.
+- **MRR**: mean reciprocal rank of the first accepted source; a miss contributes zero.
+- **Multi-source label**: any listed relevant source can satisfy the case.
+- **Category slice**: the same metrics aggregated only over cases carrying a given tag.
+
+The checked-in regression thresholds allow a small bounded change while rejecting material losses:
+
+- recall@1 must remain at least `0.450`;
+- recall@3 must remain at least `0.725`;
+- MRR must remain at least `0.579`;
+- no required category may lose more than one of its eight top-three hits.
+
+Comparisons are valid only when the corpus, labels, chunk settings, and embedder remain fixed. A changed benchmark version requires a new recorded baseline.
 
 ## Key Features
 
 - **Paragraph-first chunking**: Long paragraphs fall back to sentence-level splitting, with configurable character overlap.
-- **Pluggable embeddings**: `SentenceTransformerEmbedder` is the default; `HashEmbedder` provides deterministic, network-free tests.
+- **Pluggable embeddings**: `SentenceTransformerEmbedder` is the production-like default; `HashEmbedder` provides deterministic network-free evaluation.
 - **FAISS with NumPy fallback**: Normalized vectors use inner-product search, equivalent to cosine similarity after normalization.
-- **Optional cross-encoder re-ranking**: Embedding retrieval remains the default. An opt-in cross-encoder re-scores a configurable candidate pool before the final top-k is returned.
-- **Score provenance**: Re-ranked responses expose both the final cross-encoder `score` and the original embedding `retrieval_score`.
-- **Cited generation with an empty-context guard**: The generator requests source tags and refuses to produce a grounded answer when retrieval returns no context.
-- **Retrieval evaluation**: `eval_retrieval` reports recall@k, MRR, and per-case results.
-- **CLI, Flask, and Docker surfaces**: Ingestion, asking, evaluation, serving, and container execution use the same pipeline components.
-- **Reproducible comparison**: `python -m smoke.run_reranker_eval` records aggregate and per-case changes between embedding-only and re-ranked retrieval.
-- **Network-free validation**: The RAG suite contains 19 tests across 4 files. A separate two-test bridge verifies compatibility with the sibling LLM Eval Harness.
+- **Optional cross-encoder re-ranking**: Embedding retrieval remains the default. An opt-in cross-encoder re-scores a configurable candidate pool.
+- **Score provenance**: Re-ranked responses expose the final cross-encoder score and original embedding retrieval score.
+- **Cited generation with an empty-context guard**: The generator requests source tags and refuses a grounded answer when retrieval returns no context.
+- **Versioned evaluation schema**: Stable case IDs and tags extend the legacy `question` and `relevant_sources` fields.
+- **Dataset validation**: Tests enforce unique IDs, non-empty labels, existing sources, and required category coverage.
+- **Retrieval metrics**: `eval_retrieval` reports recall@1, recall@3, configurable recall@k, MRR, per-case ranks, and tag slices.
+- **Reproducible comparison**: `python -m smoke.run_reranker_eval` compares embedding-only and re-ranked retrieval on the same benchmark.
+- **Network-free validation**: The RAG suite contains 34 tests across 6 files. A separate two-test bridge verifies compatibility with the sibling LLM Eval Harness.
 
 ## Architecture
 
@@ -52,9 +88,10 @@ flowchart TD
     end
 
     subgraph evaluation["Evaluation"]
-        T["Labeled cases"] --> R
-        R --> M["recall@k and MRR"]
-        B["Baseline versus re-ranked runner"] --> M
+        T["40 labeled cases"] --> R
+        R --> M["recall@1, recall@3, MRR"]
+        M --> S["Per-case and category slices"]
+        B["Versioned Hash baseline"] --> S
     end
 ```
 
@@ -62,25 +99,29 @@ flowchart TD
 
 ```text
 rag/
-  chunker.py             Document and chunk types; paragraph-first splitting
-  embedder.py            Embedder protocol, HashEmbedder, SentenceTransformerEmbedder
-  vector_store.py        FAISS IndexFlatIP with NumPy fallback and persistence
-  retriever.py           Embedding retrieval and optional candidate-pool expansion
-  reranker.py            Reranker protocol and CrossEncoderReranker
-  generator.py           OpenAI generation, source formatting, empty-context guard
-  eval.py                EvalCase, recall@k, MRR, and per-case results
-  pipeline.py            End-to-end ingest, retrieve, optional re-rank, and generate
-cli.py                    ingest, ask, serve, and eval commands
-app.py                    Flask /ask and /health endpoints
-sample_docs/              Three sample documents and five labeled cases
-smoke/run_smoke.py        Embedding-only end-to-end smoke evaluation
-smoke/run_reranker_eval.py Baseline-versus-re-ranked CPU comparison
-reports/                  Generated local reports; values may vary by environment
+  chunker.py               Document and chunk types; paragraph-first splitting
+  embedder.py              HashEmbedder and SentenceTransformerEmbedder
+  vector_store.py          FAISS IndexFlatIP with NumPy fallback and persistence
+  retriever.py             Embedding retrieval and optional candidate expansion
+  reranker.py              Reranker protocol and CrossEncoderReranker
+  generator.py             OpenAI generation, source formatting, empty-context guard
+  eval.py                  Case loading, validation, ranking metrics, and slices
+  pipeline.py              End-to-end ingest, retrieve, optional re-rank, generate
+cli.py                      ingest, ask, serve, and eval commands
+sample_docs/
+  *.md                      Ten overlapping and confusable benchmark documents
+  eval_cases.json           Forty stable-ID cases with source labels and tags
+  hash_baseline_v1.json     Deterministic baseline and regression thresholds
+smoke/run_smoke.py          Hash baseline by default; optional local MiniLM run
+smoke/run_reranker_eval.py  MiniLM baseline-versus-re-ranked comparison
+reports/                    Generated local reports
 tests/
   test_chunker.py
   test_generator.py
   test_pipeline.py
   test_reranker.py
+  test_eval.py
+  test_benchmark.py
 Dockerfile
 requirements.txt
 .env.example
@@ -92,7 +133,7 @@ requirements.txt
 
 - Python 3.10+
 - An OpenAI API key only for answer generation
-- Downloadable sentence-transformers model weights for the default embedder and real cross-encoder comparison
+- Downloadable sentence-transformers weights only for MiniLM or real cross-encoder runs
 
 ### Installation
 
@@ -125,28 +166,46 @@ python cli.py ask \
   -k 5
 ```
 
-### Evaluate Retrieval
+### Run the Deterministic Benchmark
 
 ```bash
-# Embedding-only evaluation
+python -m smoke.run_smoke
+```
+
+The default command uses `HashEmbedder`, writes `reports/smoke_eval.md`, and reproduces the checked-in regression baseline without network access.
+
+Run a local MiniLM benchmark against the same corpus and labels:
+
+```bash
+RAG_EVAL_EMBEDDER=minilm python -m smoke.run_smoke
+```
+
+Windows PowerShell:
+
+```powershell
+$env:RAG_EVAL_EMBEDDER = "minilm"
+python -m smoke.run_smoke
+Remove-Item Env:RAG_EVAL_EMBEDDER
+```
+
+### Evaluate a Saved Store
+
+```bash
 python cli.py eval \
   --store ./index \
   --cases ./sample_docs/eval_cases.json \
   -k 3
+```
 
-# Re-ranked evaluation
-python cli.py eval \
-  --store ./index \
-  --cases ./sample_docs/eval_cases.json \
-  --rerank \
-  --candidate-k 20 \
-  -k 3
+The CLI prints aggregate metrics, per-case first relevant ranks, and all tag slices. Legacy case files containing only `question` and `relevant_sources` still load, although the versioned benchmark requires IDs and tags.
 
-# Reproducible baseline comparison
+### Compare the Re-ranker
+
+```bash
 python -m smoke.run_reranker_eval
 ```
 
-The comparison writes `reports/reranker_eval.md` with aggregate metrics, deltas, and per-case reciprocal-rank changes.
+This local-model command writes `reports/reranker_eval.md` with recall@1, recall@3, MRR, required category slices, and per-case rank changes. It requires sentence-transformers model weights and does not require an OpenAI API key.
 
 ### Serve over HTTP
 
@@ -177,7 +236,7 @@ curl -X POST http://localhost:8080/ask \
 python -m pytest tests/ -v
 ```
 
-The current RAG suite contains **19 tests across 4 files**. The tests use deterministic embeddings, an injected fake cross-encoder, and `httpx.MockTransport`, so they require no model download, network call, or API key.
+The RAG suite contains **34 tests across 6 files**. It covers chunking, generation, pipeline persistence, re-ranking, metric aggregation, multi-source labels, missing hits, category slices, benchmark validation, and deterministic regression thresholds. Tests use deterministic embeddings, an injected fake cross-encoder, and `httpx.MockTransport`, so they require no model download, network call, or API key.
 
 The cross-project bridge is run from the sibling harness:
 
@@ -191,31 +250,28 @@ The bridge contains **2 tests** and checks both a successful grading contract an
 
 ## Result Interpretation
 
-The five-case result is useful for release verification because it confirms that:
+The expanded benchmark is designed to compare retrieval changes on a fixed project corpus. It is materially more discriminative than the previous five-case smoke suite because it includes confusable documents, hard negatives, multiple acceptable sources, stable case IDs, and category slices.
 
-1. the baseline and re-ranked paths execute against the same corpus and labels;
-2. the candidate-pool and score-provenance logic are wired correctly;
-3. aggregate and per-case deltas are reported reproducibly.
-
-It is not large or difficult enough to support a broad comparative claim. The next evidence gate is [issue 18](https://github.com/lmdixon23/my_dev_projects/issues/18), which requires confusable sources, hard negatives, category slices, recall@1, recall@3, MRR, deterministic and real-model baselines, and regression checks.
+The deterministic HashEmbedder score should not be read as model quality. It establishes that the benchmark and metric path are reproducible in CI. MiniLM, re-ranking, token-aware chunking, or hybrid retrieval should be evaluated on the same benchmark and reported as a before-and-after comparison.
 
 ## Scope and Limitations
 
-- The checked-in benchmark has five cases over three small documents and is intentionally described as a smoke evaluation.
+- The benchmark is a small synthetic technical corpus, not a public retrieval leaderboard.
+- HashEmbedder is a deterministic test instrument rather than a semantic model.
 - The chunker is character-based rather than token-aware.
-- Cross-encoder re-ranking is optional and requires external model weights for a real-model run; CI tests the control flow with an injected deterministic model.
-- Retrieval is dense-only. BM25, hybrid retrieval, and reciprocal-rank fusion are not implemented.
+- Cross-encoder re-ranking is optional and requires external model weights for a real-model run.
+- Retrieval is dense-only. BM25, hybrid retrieval, and reciprocal-rank fusion are documented benchmark topics, not implemented production features.
 - Generation is single-shot; the Flask service does not expose streaming responses.
-- The default embedding model is English-oriented. Multilingual retrieval has not been benchmarked in this repository.
+- The default embedding model is English-oriented. Multilingual retrieval is represented conceptually but not evaluated with a multilingual corpus.
 - The project is a compact reference system, not a multi-tenant production service.
 
 ## Future Enhancements
 
-1. **Complete issue 18**: Build the 30-50 case discriminative benchmark before changing retrieval algorithms.
-2. **Token-aware chunking ablation**: Compare the current splitter against a tokenizer-aware alternative on the expanded benchmark.
-3. **Hybrid retrieval**: Add BM25 and reciprocal-rank fusion only after the benchmark can measure gains and regressions.
-4. **Streaming responses**: Add a Server-Sent Events path for generation.
-5. **Namespace isolation**: Add explicit index namespaces after retrieval quality and evaluation coverage are stable.
+1. **Token-aware chunking ablation**: Compare the current splitter with a tokenizer-aware alternative on `rag-retrieval-v1`.
+2. **Expanded MiniLM and re-ranker run**: Record real-model aggregate and category results on the new benchmark.
+3. **Hybrid retrieval**: Add BM25 and reciprocal-rank fusion only as a separate measured change.
+4. **Streaming responses**: Add a Server-Sent Events generation path.
+5. **Namespace isolation**: Add explicit index namespaces and authorization tests.
 
 ## References
 

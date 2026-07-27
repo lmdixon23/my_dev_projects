@@ -1,18 +1,7 @@
 # Retrieval-Augmented Generation
 
-Retrieval-Augmented Generation (RAG) is a technique that improves the
-quality of large language model output by grounding it in retrieved
-documents from a knowledge base. Instead of relying only on the model's
-parametric memory, the system first searches an index of documents,
-selects the most relevant passages, and inserts them into the prompt
-before generating an answer.
+Retrieval-Augmented Generation (RAG) grounds a language model in external knowledge. The system searches an indexed corpus, selects relevant passages, inserts those passages into the prompt, and then asks the generator to answer from that context. Retrieval changes the evidence available to the model; generation turns that evidence into a response.
 
-The core advantages of RAG are that it can cite sources, that it can be
-updated by re-indexing rather than re-training, and that it dramatically
-reduces hallucination on factual questions.
+A typical RAG pipeline has four components. A chunker divides documents into retrieval units, an embedder maps each chunk and query to vectors, a vector store performs nearest-neighbor search, and a generator writes the final answer. Optional re-ranking can reorder retrieved candidates, but it does not replace the core four-stage path.
 
-A typical RAG pipeline has four components: a document chunker that
-splits long documents into overlapping windows, an embedder that turns
-each chunk into a dense vector, a vector store that supports fast
-nearest-neighbor search, and a generator that writes the final answer
-conditioned on the retrieved context.
+RAG can cite sources, reduce unsupported factual claims, and incorporate updated information by re-indexing documents rather than retraining the model. Those advantages depend on retrieval quality and index freshness. A citation shows where context came from, while separate evaluation is still needed to determine whether the answer is actually supported by that context.
