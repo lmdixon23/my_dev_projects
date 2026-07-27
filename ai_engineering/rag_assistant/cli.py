@@ -4,21 +4,12 @@ Subcommands:
     ingest   Index a directory of .md / .txt / .pdf files into a store on disk.
     ask      Query a saved store and print the model's answer.
     serve    Run the Flask API.
-    eval     Run a retrieval-quality eval from a YAML/JSON cases file.
-
-Usage:
-    python cli.py ingest --docs-dir ./sample_docs --store ./index
-    python cli.py ask --store ./index --question "What is RAG?"
-    python cli.py ask --store ./index --question "What is RAG?" --rerank
-    python cli.py serve --store ./index --port 8080
-    python cli.py eval --store ./index --cases ./sample_docs/eval_cases.json -k 3
-    python cli.py eval --store ./index --cases ./sample_docs/eval_cases.json -k 3 --rerank
+    eval     Run retrieval evaluation from a JSON cases file.
 """
 
 from __future__ import annotations
 
 import argparse
-import json
 import os
 import sys
 from pathlib import Path
@@ -29,10 +20,10 @@ from rag import (
     CrossEncoderReranker,
     DEFAULT_RERANKER_MODEL,
     Document,
-    EvalCase,
     RAGPipeline,
     Reranker,
     eval_retrieval,
+    load_eval_cases,
 )
 from rag.embedder import make_default_embedder
 from rag.vector_store import VectorStore
@@ -52,7 +43,9 @@ def load_docs_from_dir(dir_path: str) -> List[Document]:
             except ImportError:
                 print(f"skipping {path}: pypdf not installed", file=sys.stderr)
                 continue
-            text = "\n\n".join(p.extract_text() or "" for p in PdfReader(str(path)).pages)
+            text = "\n\n".join(
+                page.extract_text() or "" for page in PdfReader(str(path)).pages
+            )
         else:
             text = path.read_text(encoding="utf-8", errors="ignore")
         docs.append(Document(source=str(path), text=text))
@@ -89,10 +82,13 @@ def cmd_ingest(args: argparse.Namespace) -> None:
     if not docs:
         sys.exit(f"no .md/.txt/.pdf files found under {args.docs_dir}")
     pipeline = RAGPipeline.from_env()
-    pipeline.chunker = Chunker(chunk_size=args.chunk_size, chunk_overlap=args.chunk_overlap)
-    n = pipeline.ingest(docs)
+    pipeline.chunker = Chunker(
+        chunk_size=args.chunk_size,
+        chunk_overlap=args.chunk_overlap,
+    )
+    n_chunks = pipeline.ingest(docs)
     pipeline.save(args.store)
-    print(f"Indexed {len(docs)} docs -> {n} chunks; saved to {args.store}")
+    print(f"Indexed {len(docs)} docs -> {n_chunks} chunks; saved to {args.store}")
 
 
 def cmd_ask(args: argparse.Namespace) -> None:
@@ -109,19 +105,20 @@ def cmd_ask(args: argparse.Namespace) -> None:
 
 
 def cmd_serve(args: argparse.Namespace) -> None:
-    from app import build_app  # local import to avoid forcing Flask for non-serve users
+    from app import build_app
+
     build_app(args.store).run(host="0.0.0.0", port=args.port)
 
 
 def cmd_eval(args: argparse.Namespace) -> None:
-    with open(args.cases, "r", encoding="utf-8") as fh:
-        raw = json.load(fh)
-    cases = [EvalCase(question=c["question"], relevant_sources=c["relevant_sources"]) for c in raw]
+    cases = load_eval_cases(args.cases)
     embedder = make_default_embedder()
     store = VectorStore.load(args.store)
     if embedder.dim != store.dim:
         sys.exit(f"embedder dim {embedder.dim} != store dim {store.dim}; reindex.")
+
     from rag.retriever import Retriever
+
     result = eval_retrieval(
         Retriever(
             embedder,
@@ -134,7 +131,22 @@ def cmd_eval(args: argparse.Namespace) -> None:
     )
     print(result)
     for row in result.per_case:
-        print(f"  - {row['question'][:60]:60s}  recall={row['recall']:.0f}  rr={row['reciprocal_rank']:.3f}")
+        case_id = row["id"] or "legacy"
+        rank = row["first_relevant_rank"] or "miss"
+        print(
+            f"  - {case_id:12s} rank={str(rank):4s} "
+            f"rr={row['reciprocal_rank']:.3f}  {row['question'][:72]}"
+        )
+
+    if result.by_tag:
+        print("\nTag slices:")
+        for tag, metrics in result.by_tag.items():
+            print(
+                f"  - {tag:18s} n={metrics['n_cases']:2d} "
+                f"recall@1={metrics['recall_at_1']:.3f} "
+                f"recall@3={metrics['recall_at_3']:.3f} "
+                f"MRR={metrics['mrr']:.3f}"
+            )
 
 
 def main() -> None:
@@ -163,7 +175,7 @@ def main() -> None:
     p_eval = sub.add_parser("eval")
     p_eval.add_argument("--store", required=True)
     p_eval.add_argument("--cases", required=True)
-    p_eval.add_argument("-k", type=int, default=5)
+    p_eval.add_argument("-k", type=int, default=3)
     _add_reranker_args(p_eval)
     p_eval.set_defaults(func=cmd_eval)
 

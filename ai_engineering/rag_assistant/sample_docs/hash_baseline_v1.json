@@ -1,0 +1,79 @@
+{
+  "benchmark_version": "rag-retrieval-v1",
+  "embedder": {
+    "class": "HashEmbedder",
+    "dim": 512
+  },
+  "chunker": {
+    "chunk_size": 400,
+    "chunk_overlap": 80
+  },
+  "corpus": {
+    "documents": 10,
+    "chunks": 31,
+    "sources": [
+      "chunking_strategies.md",
+      "embeddings_explained.md",
+      "grounding_and_citations.md",
+      "hybrid_search.md",
+      "metadata_and_filters.md",
+      "operations_and_monitoring.md",
+      "rag_overview.md",
+      "reranking_methods.md",
+      "retrieval_evaluation.md",
+      "vector_stores.md"
+    ]
+  },
+  "cases": 40,
+  "observed": {
+    "recall_at_1": 0.5,
+    "recall_at_3": 0.775,
+    "mrr": 0.629167,
+    "required_tag_slices": {
+      "direct_lookup": {
+        "n_cases": 8,
+        "recall_at_1": 0.25,
+        "recall_at_3": 0.75,
+        "mrr": 0.479167
+      },
+      "paraphrase": {
+        "n_cases": 8,
+        "recall_at_1": 0.625,
+        "recall_at_3": 0.75,
+        "mrr": 0.6875
+      },
+      "terminology": {
+        "n_cases": 8,
+        "recall_at_1": 0.5,
+        "recall_at_3": 0.875,
+        "mrr": 0.6875
+      },
+      "cross_chunk": {
+        "n_cases": 8,
+        "recall_at_1": 0.75,
+        "recall_at_3": 0.75,
+        "mrr": 0.75
+      },
+      "hard_negative": {
+        "n_cases": 8,
+        "recall_at_1": 0.375,
+        "recall_at_3": 0.75,
+        "mrr": 0.541667
+      }
+    }
+  },
+  "regression_thresholds": {
+    "min_recall_at_1": 0.45,
+    "min_recall_at_3": 0.725,
+    "min_mrr": 0.579167,
+    "min_required_tag_recall_at_3": {
+      "direct_lookup": 0.625,
+      "paraphrase": 0.625,
+      "terminology": 0.75,
+      "cross_chunk": 0.625,
+      "hard_negative": 0.625
+    }
+  },
+  "comparison_rule": "Reject a retrieval change when aggregate recall@1, recall@3, or MRR falls below its minimum, or when any required category loses more than one of its eight top-3 hits. Improvements must be reported on the same corpus, labels, chunk settings, and embedder.",
+  "claim_boundary": "This deterministic HashEmbedder result is a project regression baseline, not a leaderboard or production-quality retrieval claim."
+}
